@@ -27,10 +27,11 @@ import java.util.stream.Collectors
  * created by chunfeng666 on 2022-10-05
  * update by dyzjct on 2022-12-9
  */
-@Module.Info(name = "HoleKicker", category = Category.COMBAT)
+@Module.Info(name = "HoleKicker", category = Category.COMBAT, description = "best holekick in cn2b2t")
 class HoleKicker : Module() {
     private val delay = isetting("PlaceDelay", 50, 0, 250)
     private val range = dsetting("Range", 5.0, 1.0, 16.0)
+    private val breakrange = dsetting("HitRange",5.0,1.0,16.0)
     private val blockPerPlace = isetting("BlocksTick", 8, 1, 30)
     private val breakcrystal = bsetting("BreakCrystal", false)
     private val placeMod = msetting("PlaceMod", PlaceMods.Piston)
@@ -216,7 +217,7 @@ class HoleKicker : Module() {
         if (fullNullCheck()) {
             return
         }
-        targets = getTarget(range.value)
+        targets = getTarget(breakrange.value)
         if (targets == null) {
             return
         }
@@ -265,7 +266,7 @@ class HoleKicker : Module() {
         filler = false
         placements = 0
         isSneaking = EntityUtil.stopSneaking(isSneaking)
-        target = getTarget(range.value)
+        val target = getTarget(range.value)
         return target == null || !timer.passedMs((delay.value as Int).toLong())
     }
 
