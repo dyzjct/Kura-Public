@@ -93,9 +93,9 @@ class BreakESP : Module() {
                     abs(it.value.calcMineTime - (abs(it.value.currentTime - System.currentTimeMillis()).toFloat()))
                 //ChatUtil.sendMessage(it.value.finalProgress.toString())
             }
-            if (mc.world.getBlockState(packetPos!!).block == Blocks.AIR && !renderAir.value) {
-                return@forEach
-            }
+//            if (mc.world.getBlockState(packetPos!!).block == Blocks.AIR && !renderAir.value) {
+//                return@forEach
+//            }
             if (packetPos != null && !mc.world.isAirBlock(packetPos!!) && packetPos !== minePos) {
                 if (packetPos!!.getDistance(
                         mc.player.posX.toInt(),
