@@ -4,19 +4,17 @@
     <facet type="minecraft" name="Minecraft">
       <configuration>
         <autoDetectTypes>
-          <platformType>MIXIN</platformType>
           <platformType>FORGE</platformType>
+          <platformType>MIXIN</platformType>
           <platformType>MCP</platformType>
         </autoDetectTypes>
       </configuration>
     </facet>
   </component>
   <component name="McpModuleSettings">
-    <option name="srgType" value="SRG" />
-  </component>
-  <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$/../../build/generated/sources/annotationProcessor/java/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../build/generated/sources/annotationProcessor/java/main" isTestSource="false" generated="true" />
-    </content>
+    <option name="mappingFile" value="E:\code\ArkHack4.0\build\createMcpToSrg\output.tsrg" />
+    <option name="mcpVersion" value="stable_39-1.12" />
+    <option name="minecraftVersion" value="1.12.2" />
+    <option name="srgType" value="TSRG" />
   </component>
 </module>
