@@ -293,7 +293,6 @@ public class ModuleManager {
         registerModule(new NoEntityTrace());
         registerModule(new LowOffHand());
         registerModule(new NoFall());
-        registerModule(new Replenish());
         registerModule(new PacketCancel());
         registerModule(new PingSpoof());
         registerModule(new Scaffold());
