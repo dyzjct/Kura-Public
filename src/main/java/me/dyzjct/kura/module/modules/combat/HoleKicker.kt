@@ -2,13 +2,11 @@ package me.dyzjct.kura.module.modules.combat
 
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
-import me.dyzjct.kura.setting.Setting
 import me.dyzjct.kura.utils.MathUtil
 import me.dyzjct.kura.utils.NTMiku.BlockUtil
 import me.dyzjct.kura.utils.Timer
 import me.dyzjct.kura.utils.entity.EntityUtil
 import me.dyzjct.kura.utils.inventory.InventoryUtil
-import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
 import net.minecraft.block.BlockFire
 import net.minecraft.block.state.IBlockState
@@ -27,18 +25,19 @@ import java.util.stream.Collectors
 
 /**
  * created by chunfeng666 on 2022-10-05
- * update by dyzjct on 2022-12-8
+ * update by dyzjct on 2022-12-9
  */
-@Module.Info(name = "HoleKicker", category = Category.COMBAT)
+@Module.Info(name = "HoleKicker", category = Category.COMBAT, description = "best holekick in cn2b2t")
 class HoleKicker : Module() {
     private val delay = isetting("PlaceDelay", 50, 0, 250)
-    private val range = isetting("Range", 5, 1, 16)
+    private val range = dsetting("Range", 5.0, 1.0, 16.0)
+    private val breakrange = dsetting("HitRange",5.0,1.0,16.0)
     private val blockPerPlace = isetting("BlocksTick", 8, 1, 30)
-    private val BreakCrystal = bsetting("BreakCrystal", false)
-    private val PlaceMod = msetting("PlaceMod",PlaceMods.Piston)
+    private val breakcrystal = bsetting("BreakCrystal", false)
+    private val placeMod = msetting("PlaceMod", PlaceMods.Piston)
     private val timer = Timer()
 
-    var targets: EntityPlayer? = null
+    private var targets: EntityPlayer? = null
 
 
     var target: EntityPlayer? = null
@@ -61,7 +60,7 @@ class HoleKicker : Module() {
     private var isSneaking = false
     private var placements = 0
     override fun onEnable() {
-        if (PlaceMod.value.equals(PlaceMods.Piston)) {
+        if (placeMod.value.equals(PlaceMods.Piston)) {
             if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1) {
                 disable()
                 return
@@ -71,12 +70,12 @@ class HoleKicker : Module() {
                 return
             }
         }
-        if (PlaceMod.value.equals(PlaceMods.SPiston)) {
+        if (placeMod.value.equals(PlaceMods.SPiston)) {
             if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1) {
                 disable()
                 return
             }
-            if (InventoryUtil.findHotbarBlock(Blocks.SLIME_BLOCK) == -1) {
+            if (InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) == -1) {
                 disable()
                 return
             }
@@ -86,7 +85,7 @@ class HoleKicker : Module() {
     }
 
     override fun onUpdate() {
-        if (BreakCrystal.value) {
+        if (breakcrystal.value) {
             breakcrystal()
         }
         doPiston()
@@ -107,10 +106,9 @@ class HoleKicker : Module() {
     }
 
     private fun doPistonTrap() {
-        val a = mc.player.rotationPitch
         val b = mc.player.inventory.currentItem
         val c = target!!.positionVector
-        if (PlaceMod.value.equals(PlaceMods.Piston)) {
+        if (placeMod.value.equals(PlaceMods.Piston)) {
             if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(
                     c, EntityUtil.getVarOffsets(0, 2, 0)
                 )
@@ -122,7 +120,11 @@ class HoleKicker : Module() {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
                 mc.playerController.updateController() //Summer
                 placeList(c, EntityUtil.getVarOffsets(1, 2, 0))
-            } else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -1)) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))) {
+            } else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -1)) && checkList(
+                    c,
+                    EntityUtil.getVarOffsets(0, 2, 0)
+                )
+            ) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
                 mc.playerController.updateController()
                 mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
@@ -130,28 +132,80 @@ class HoleKicker : Module() {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
                 mc.playerController.updateController() //snowy day
                 placeList(c, EntityUtil.getVarOffsets(0, 2, -1))
+            } else if (checkList(c, EntityUtil.getVarOffsets(0, 1, 1)) && checkList(
+                    c,
+                    EntityUtil.getVarOffsets(0, 2, 0)
+                )
+            ) {
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+                mc.playerController.updateController()
+                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
+                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+                mc.playerController.updateController() //snowy day
+                placeList(c, EntityUtil.getVarOffsets(0, 2, 1))
+            } else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 0)) && checkList(
+                    c,
+                    EntityUtil.getVarOffsets(0, 2, 0)
+                )
+            ) {
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+                mc.playerController.updateController()
+                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
+                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+                mc.playerController.updateController() //Summer
+                placeList(c, EntityUtil.getVarOffsets(-1, 2, 0))
             }
         }
-        if (PlaceMod.value.equals(PlaceMods.SPiston)) {
+        if (placeMod.value.equals(PlaceMods.SPiston)) {
             if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(
                     c, EntityUtil.getVarOffsets(0, 2, 0)
                 )
             ) if (checkList(c, EntityUtil.getVarOffsets(1, 1, 0)) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.SLIME_BLOCK)
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
                 mc.playerController.updateController()
                 mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
                 placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
                 mc.playerController.updateController() //Summer
                 placeList(c, EntityUtil.getVarOffsets(1, 2, 0))
-            } else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -1)) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.SLIME_BLOCK)
+            } else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -1)) && checkList(
+                    c,
+                    EntityUtil.getVarOffsets(0, 2, 0)
+                )
+            ) {
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
                 mc.playerController.updateController()
                 mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
                 placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
                 mc.playerController.updateController() //snowy day
                 placeList(c, EntityUtil.getVarOffsets(0, 2, -1))
+            } else if (checkList(c, EntityUtil.getVarOffsets(0, 1, 1)) && checkList(
+                    c,
+                    EntityUtil.getVarOffsets(0, 2, 0)
+                )
+            ) {
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
+                mc.playerController.updateController()
+                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
+                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+                mc.playerController.updateController() //snowy day
+                placeList(c, EntityUtil.getVarOffsets(0, 2, 1))
+            } else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 0)) && checkList(
+                    c,
+                    EntityUtil.getVarOffsets(0, 2, 0)
+                )
+            ) {
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
+                mc.playerController.updateController()
+                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
+                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+                mc.playerController.updateController() //Summer
+                placeList(c, EntityUtil.getVarOffsets(-1, 2, 0))
             }
         }
         mc.player.inventory.currentItem = b
@@ -163,33 +217,29 @@ class HoleKicker : Module() {
         if (fullNullCheck()) {
             return
         }
-        targets = getTarget(range.value.toDouble())
+        targets = getTarget(breakrange.value)
         if (targets == null) {
             return
         }
         val breakpos = BlockPos(targets!!.posX, targets!!.posY, targets!!.posZ)
         if (getBlock(breakpos.add(1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
             mc.playerController.onPlayerDamageBlock(
-                breakpos.add(1, 2, 0),
-                BlockUtil.getRayTraceFacing(breakpos.add(1, 2, 0))
+                breakpos.add(1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(1, 2, 0))
             )
         }
         if (getBlock(breakpos.add(-1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
             mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-1, 2, 0),
-                BlockUtil.getRayTraceFacing(breakpos.add(-1, 2, 0))
+                breakpos.add(-1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(-1, 2, 0))
             )
         }
         if (getBlock(breakpos.add(0, 2, 1))!!.block == Blocks.REDSTONE_BLOCK) {
             mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 2, 1),
-                BlockUtil.getRayTraceFacing(breakpos.add(0, 2, 1))
+                breakpos.add(0, 2, 1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, 1))
             )
         }
         if (getBlock(breakpos.add(0, 2, -1))!!.block == Blocks.REDSTONE_BLOCK) {
             mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 2, -1),
-                BlockUtil.getRayTraceFacing(breakpos.add(0, 2, -1))
+                breakpos.add(0, 2, -1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, -1))
             )
         }
     }
@@ -216,12 +266,12 @@ class HoleKicker : Module() {
         filler = false
         placements = 0
         isSneaking = EntityUtil.stopSneaking(isSneaking)
-        target = getTarget((range.value as Int).toDouble())
+        val target = getTarget(range.value)
         return target == null || !timer.passedMs((delay.value as Int).toLong())
     }
 
     private fun placeBlock(pos: BlockPos) {
-        if (placements < (blockPerPlace.value as Int) && mc.player.getDistanceSq(pos) <= MathUtil.square(6.0)) {
+        if (placements < blockPerPlace.value && mc.player.getDistanceSq(pos) <= MathUtil.square(6.0)) {
             isPlacing = true
             isSneaking = me.dyzjct.kura.utils.block.BlockUtil.placeBlock(
                 pos, EnumHand.MAIN_HAND, false, false, true
@@ -245,7 +295,7 @@ class HoleKicker : Module() {
         fun breakcrystal() {
             for (crystal in mc.world.loadedEntityList.stream()
                 .filter { e: Entity -> e is EntityEnderCrystal && !e.isDead }
-                .sorted(Comparator.comparing { e: Entity? -> java.lang.Float.valueOf(mc.player.getDistance(e)) })
+                .sorted(Comparator.comparing { e: Entity -> java.lang.Float.valueOf(mc.player.getDistance(e)) })
                 .collect(
                     Collectors.toList()
                 )) {
