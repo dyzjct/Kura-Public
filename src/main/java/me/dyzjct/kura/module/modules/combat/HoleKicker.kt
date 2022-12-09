@@ -6,6 +6,7 @@ import me.dyzjct.kura.utils.MathUtil
 import me.dyzjct.kura.utils.NTMiku.BlockUtil
 import me.dyzjct.kura.utils.Timer
 import me.dyzjct.kura.utils.entity.EntityUtil
+import me.dyzjct.kura.utils.getTarget
 import me.dyzjct.kura.utils.inventory.InventoryUtil
 import me.dyzjct.kura.utils.player.getTarget
 import net.minecraft.block.BlockAir
