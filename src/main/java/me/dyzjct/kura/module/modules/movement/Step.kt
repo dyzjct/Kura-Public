@@ -10,16 +10,9 @@ class Step : Module() {
     private val mode = msetting("Mode", Mode.NCP)
     private val reverse: Setting<Boolean> = bsetting("ReverseStep", true)
 
-    //    private final Setting<Boolean> disableanti = bsetting("DisableAntiMine", false);
     val heights: Setting<Double> = dsetting("Height", 2.0, 0.0, 5.0)
     var stepped = false
 
-    //    @SubscribeEvent
-    //    public void onTick(MotionUpdateEvent event){
-    //        if (disableanti.getValue()&&ModuleManager.getModuleByClass(AntiMine.class).isEnabled()){
-    //            ModuleManager.getModuleByClass(AntiMine.class).disable();
-    //        }
-    //    }
     override fun onUpdate() {
         if (mc.world == null || mc.player == null || mc.player.isInWater || mc.player.isInLava || mc.player.isOnLadder || mc.gameSettings.keyBindJump.isKeyDown) {
             return
