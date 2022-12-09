@@ -48,9 +48,9 @@ public class InstantMine
     private Setting<Integer> falpha = isetting("FillAlpha",30,0,255).b(render);
     private BooleanSetting render2 = bsetting("Box",true);
     private Setting<Integer> balpha = isetting("BoxAlpha",100,0,255).b(render2);
-//    private final BooleanSetting crystal = bsetting("Crystal", true);
-//    private final Setting<Boolean> crystalp = bsetting("Crystal on Break",true).b(crystal);
-//    public final Setting<Boolean> attackcrystal = bsetting("Attack Crystal", true).b(crystal);
+    private final BooleanSetting crystal = bsetting("Crystal", true);
+    private final Setting<Boolean> crystalp = bsetting("Crystal on Break",true).b(crystal);
+    public final Setting<Boolean> attackcrystal = bsetting("Attack Crystal", true).b(crystal);
     //    public final Setting<BindSetting> bind = (new Setting<Object>("ObsidianBind", new Bind(-1), v -> this.crystal.getValue()));
     public BooleanSetting db = bsetting("Silent Double", true);
     public final Setting<Float> health = fsetting("Health", 18.0f, 0.0f, 35.9f).b(db);
@@ -163,9 +163,9 @@ public class InstantMine
         if (!this.cancelStart) {
             return;
         }
-//        if (this.crystal.getValue().booleanValue() && this.attackcrystal.getValue().booleanValue() && InstantMine.mc.world.getBlockState(breakPos).getBlock() == Blocks.AIR) {
-//            InstantMine.attackcrystal();
-//        }
+        if (this.crystal.getValue().booleanValue() && this.attackcrystal.getValue().booleanValue() && InstantMine.mc.world.getBlockState(breakPos).getBlock() == Blocks.AIR) {
+            InstantMine.attackcrystal();
+        }
 //        if (this.bind.getValue().isDown() && this.crystal.getValue().booleanValue() && InventoryUtil.findHotbarBlock(BlockObsidian.class) != -1 && InstantMine.mc.world.getBlockState(breakPos).getBlock() == Blocks.AIR) {
         if (false) {
             int obbySlot = InventoryUtil.findHotbarBlock(BlockObsidian.class);
@@ -174,13 +174,13 @@ public class InstantMine
             BlockUtil.placeBlock(breakPos, EnumHand.MAIN_HAND, false, true, false);
             this.switchToSlot(old);
         }
-//        if (InventoryUtil.getItemHotbar(Items.END_CRYSTAL) != -1 && this.crystal.getValue().booleanValue() && InstantMine.mc.world.getBlockState(breakPos).getBlock() == Blocks.OBSIDIAN && !breakPos.equals((Object)AntiBurrow2.pos)) {
-//            if (this.empty) {
-//                BlockUtil.placeCrystalOnBlock(breakPos, EnumHand.MAIN_HAND, true, false, true);
-//            } else if (!this.crystalp.getValue().booleanValue()) {
-//                BlockUtil.placeCrystalOnBlock(breakPos, EnumHand.MAIN_HAND, true, false, true);
-//            }
-//        }
+        if (InventoryUtil.getItemHotbar(Items.END_CRYSTAL) != -1 && this.crystal.getValue().booleanValue() && InstantMine.mc.world.getBlockState(breakPos).getBlock() == Blocks.OBSIDIAN && !breakPos.equals((Object)AntiBurrow2.pos)) {
+            if (this.empty) {
+                BlockUtil.placeCrystalOnBlock(breakPos, EnumHand.MAIN_HAND, true, false, true);
+            } else if (!this.crystalp.getValue().booleanValue()) {
+                BlockUtil.placeCrystalOnBlock(breakPos, EnumHand.MAIN_HAND, true, false, true);
+            }
+        }
         if (this.godBlocks.contains(InstantMine.mc.world.getBlockState(breakPos).getBlock())) {
             return;
         }

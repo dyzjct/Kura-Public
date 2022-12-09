@@ -8,7 +8,7 @@ public enum Category {
     RENDER("Render", false),
     CHAT("Chat", false),
     CLIENT("Client", false),
-    XDDD("XDDD", false),
+    XDDD("Other", false),
     HUD("HUD", true),
     HIDDEN("Hidden", false, true);
 

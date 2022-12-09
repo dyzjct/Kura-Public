@@ -3,6 +3,7 @@ package me.dyzjct.kura.module.modules.xddd;
 import me.dyzjct.kura.event.events.player.UpdateWalkingPlayerEvent;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;
+import me.dyzjct.kura.module.modules.misc.AntiFeetBreak;
 import me.dyzjct.kura.setting.BooleanSetting;
 import me.dyzjct.kura.utils.NTMiku.TimerUtils;
 import me.dyzjct.kura.utils.block.BlockUtil;
@@ -21,10 +22,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
-@Module.Info(name = "Surround", category = Category.XDDD, description = "Continually places obsidian around your feet")
+@Module.Info(name="Surround", category=Category.XDDD, description="Continually places obsidian around your feet")
 public class Surround
         extends Module {
     public static TimerUtils delay = new TimerUtils();
@@ -38,12 +40,14 @@ public class Surround
     public BooleanSetting rot = this.bsetting("Rotate", false);
     public BooleanSetting breakcry = this.bsetting("BreakCrystal", true);
     public BlockPos newPos2;
-    public TimerUtils explodeTimerUtils = new TimerUtils();
 
     @Override
     public void onEnable() {
         if (Surround.fullNullCheck()) {
             return;
+        }
+        if (breakcry.getValue()){
+            this.breakcrystal();
         }
         delay.reset();
         this.startPos = EntityUtil.getPlayerPos();
@@ -55,25 +59,25 @@ public class Surround
         Vec3d plusMinus = new Vec3d(x + 0.5, y, z - 0.5);
         Vec3d minusMinus = new Vec3d(x - 0.5, y, z - 0.5);
         Vec3d minusPlus = new Vec3d(x - 0.5, y, z + 0.5);
-        if (this.center.getValue().booleanValue()) {
+        if (((Boolean)this.center.getValue()).booleanValue()) {
             if (this.getDst(plusPlus) < this.getDst(plusMinus) && this.getDst(plusPlus) < this.getDst(minusMinus) && this.getDst(plusPlus) < this.getDst(minusPlus)) {
-                x = (double) centerPos.getX() + 0.5;
-                z = (double) centerPos.getZ() + 0.5;
+                x = (double)centerPos.getX() + 0.5;
+                z = (double)centerPos.getZ() + 0.5;
                 this.centerPlayer(x, y, z);
             }
             if (this.getDst(plusMinus) < this.getDst(plusPlus) && this.getDst(plusMinus) < this.getDst(minusMinus) && this.getDst(plusMinus) < this.getDst(minusPlus)) {
-                x = (double) centerPos.getX() + 0.5;
-                z = (double) centerPos.getZ() - 0.5;
+                x = (double)centerPos.getX() + 0.5;
+                z = (double)centerPos.getZ() - 0.5;
                 this.centerPlayer(x, y, z);
             }
             if (this.getDst(minusMinus) < this.getDst(plusPlus) && this.getDst(minusMinus) < this.getDst(plusMinus) && this.getDst(minusMinus) < this.getDst(minusPlus)) {
-                x = (double) centerPos.getX() - 0.5;
-                z = (double) centerPos.getZ() - 0.5;
+                x = (double)centerPos.getX() - 0.5;
+                z = (double)centerPos.getZ() - 0.5;
                 this.centerPlayer(x, y, z);
             }
             if (this.getDst(minusPlus) < this.getDst(plusPlus) && this.getDst(minusPlus) < this.getDst(plusMinus) && this.getDst(minusPlus) < this.getDst(minusMinus)) {
-                x = (double) centerPos.getX() - 0.5;
-                z = (double) centerPos.getZ() + 0.5;
+                x = (double)centerPos.getX() - 0.5;
+                z = (double)centerPos.getZ() + 0.5;
                 this.centerPlayer(x, y, z);
             }
         }
@@ -91,12 +95,9 @@ public class Surround
             this.toggle();
             return;
         }
-        if (breakcry.getValue()) {
-            this.breakcrystal();
-        }
-        this.slot = InventoryUtil.findHotbarBlock(BlockObsidian.class);
+        this.slot = false ? InventoryUtil.findHotbarBlock(BlockShulkerBox.class) : InventoryUtil.findHotbarBlock(BlockObsidian.class);
         this.oldslot = Surround.mc.player.inventory.currentItem;
-        if (this.startPos != null && this.smart.getValue().booleanValue() && !this.startPos.equals(EntityUtil.getPlayerPos())) {
+        if (this.startPos != null && ((Boolean)this.smart.getValue()).booleanValue() && !this.startPos.equals((Object)EntityUtil.getPlayerPos())) {
             this.toggle();
             return;
         }
@@ -111,7 +112,7 @@ public class Surround
                 this.toggle();
             }
             InventoryUtil.switchToHotbarSlot(this.slot, false);
-            BlockUtil.placeBlock(this.newPos2, EnumHand.MAIN_HAND, this.rot.getValue(), this.packet.getValue());
+            BlockUtil.placeBlock(this.newPos2, EnumHand.MAIN_HAND, (boolean)((Boolean)this.rot.getValue()), (boolean)((Boolean)this.packet.getValue()));
             InventoryUtil.switchToHotbarSlot(this.oldslot, false);
         }
     }
@@ -126,19 +127,15 @@ public class Surround
     }
 
     public void centerPlayer(double x, double y, double z) {
-        Surround.mc.player.connection.sendPacket(new CPacketPlayer.Position(x, y, z, true));
+        Surround.mc.player.connection.sendPacket((Packet)new CPacketPlayer.Position(x, y, z, true));
         Surround.mc.player.setPosition(x, y, z);
     }
-
-    public void breakcrystal() {
+    public  void breakcrystal() {
         for (Entity crystal : mc.world.loadedEntityList.stream().filter(e -> e instanceof EntityEnderCrystal && !e.isDead).sorted(Comparator.comparing(e -> Float.valueOf(mc.player.getDistance(e)))).collect(Collectors.toList())) {
             if (!(crystal instanceof EntityEnderCrystal) || !(mc.player.getDistance(crystal) <= 4.0f))
                 continue;
-            if (explodeTimerUtils.passed(50) && mc.getConnection() != null) {
-                mc.player.connection.sendPacket(new CPacketUseEntity(crystal));
-                mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.OFF_HAND));
-                explodeTimerUtils.reset();
-            }
+            mc.player.connection.sendPacket(new CPacketUseEntity(crystal));
+            mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.OFF_HAND));
         }
     }
 }
