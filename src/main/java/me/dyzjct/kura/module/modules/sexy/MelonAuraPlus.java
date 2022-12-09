@@ -76,7 +76,7 @@ import java.util.stream.Collectors;
  * Created by zenhao on 16/02/2022.
  * Updated by dyzjct on 07/12/2022.
  */
-@Module.Info(name = "AutoCrystal++", category = Category.XDDD)
+@Module.Info(name = "MelonCrystal+", category = Category.XDDD)
 public class MelonAuraPlus extends Module {
     public static ConcurrentHashMap<BlockPos, Double> renderBlockDmg = new ConcurrentHashMap<>();
     public static MelonAuraPlus INSTANCE = new MelonAuraPlus();
