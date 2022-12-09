@@ -296,6 +296,7 @@ public class ModuleManager {
         registerModule(new PacketCancel());
         registerModule(new PingSpoof());
         registerModule(new Scaffold());
+        registerModule(new AntiContainer());
         registerModule(new Timer());
         registerModule(new TpsSync());
         registerModule(new Disabler());
@@ -305,6 +306,7 @@ public class ModuleManager {
         //Misc
         registerModule(new AntiAim());
         registerModule(new AntiHoleMine());
+        registerModule(new AntiBurrowHelper());
         registerModule(new AntiAnvil());
         registerModule(new AntiPiston());
         registerModule(new AntiCity());

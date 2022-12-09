@@ -6,6 +6,7 @@ import me.dyzjct.kura.utils.MathUtil
 import me.dyzjct.kura.utils.NTMiku.BlockUtil
 import me.dyzjct.kura.utils.Timer
 import me.dyzjct.kura.utils.entity.EntityUtil
+import me.dyzjct.kura.utils.getTarget
 import me.dyzjct.kura.utils.inventory.InventoryUtil
 import net.minecraft.block.BlockAir
 import net.minecraft.block.BlockFire
@@ -27,11 +28,10 @@ import java.util.stream.Collectors
  * created by chunfeng666 on 2022-10-05
  * update by dyzjct on 2022-12-9
  */
-@Module.Info(name = "HoleKicker", category = Category.COMBAT, description = "best holekick in cn2b2t")
+@Module.Info(name = "HoleKicker", category = Category.COMBAT)
 class HoleKicker : Module() {
     private val delay = isetting("PlaceDelay", 50, 0, 250)
-    private val range = dsetting("Range", 5.0, 1.0, 16.0)
-    private val breakrange = dsetting("HitRange",5.0,1.0,16.0)
+    private val range = isetting("Range", 5, 1, 16)
     private val blockPerPlace = isetting("BlocksTick", 8, 1, 30)
     private val breakcrystal = bsetting("BreakCrystal", false)
     private val placeMod = msetting("PlaceMod", PlaceMods.Piston)
@@ -41,19 +41,8 @@ class HoleKicker : Module() {
 
 
     var target: EntityPlayer? = null
-    private fun getTarget(range: Double): EntityPlayer? {
-        var target: EntityPlayer? = null
-        for (player in ArrayList(mc.world.playerEntities)) {
-            if (EntityUtil.isntValid(player, range)) continue
-            if (mc.player.getDistance(player) > range) continue
-            target = player
-            if (player != null) {
-                break
-            }
-            return player
-        }
-        return target
-    }
+
+
 
     private var filler = false
     private var didPlace = false
@@ -217,7 +206,7 @@ class HoleKicker : Module() {
         if (fullNullCheck()) {
             return
         }
-        targets = getTarget(breakrange.value)
+        targets = getTarget(range.value)
         if (targets == null) {
             return
         }
@@ -266,7 +255,7 @@ class HoleKicker : Module() {
         filler = false
         placements = 0
         isSneaking = EntityUtil.stopSneaking(isSneaking)
-        val target = getTarget(range.value)
+        target = getTarget(range.value)
         return target == null || !timer.passedMs((delay.value as Int).toLong())
     }
 
