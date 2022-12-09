@@ -1,0 +1,161 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            url = "https://repo.spongepowered.org/repository/maven-public/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:4.+'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+
+version project.modVersion
+group project.modGroup
+
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+repositories {
+    maven {
+        url = 'https://repo.spongepowered.org/repository/maven-public/'
+    }
+    maven {
+        url = "https://jitpack.io"
+    }
+    maven {
+        url = "https://impactdevelopment.github.io/maven/"
+    }
+    mavenCentral()
+    jcenter()
+}
+
+minecraft {
+    mappings channel: 'stable', version: '39-1.12'
+
+    accessTransformer = file('src/main/resources/melon_at.cfg')
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            property 'fml.coreMods.load', 'me.dyzjct.kura.mixin.MixinLoaderForge'
+            property 'mixin.env.disableRefMap', 'true'
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+configurations {
+    library
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:$mcVersion"
+
+    library('org.spongepowered:mixin:0.8-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'log4j-core'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+    }
+    library("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version") {
+        exclude module: 'kotlin-stdlib-common'
+        exclude module: 'annotations'
+    }
+
+    library("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version") {
+        exclude module: 'kotlin-stdlib-common'
+        exclude module: 'annotations'
+    }
+
+    library("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+    library group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    annotationProcessor('org.spongepowered:mixin:0.8.2:processor') {
+        exclude module: 'gson'
+    }
+
+    implementation configurations.library
+}
+
+mixin {
+    defaultObfuscationEnv 'searge'
+    add sourceSets.main, 'mixins.melon.refmap.json'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'mcversion', project.mcVersion
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version,
+                'mcversion': project.mcVersion,
+                'modVersion': project.modVersion
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+
+    //Move *at.cfg to META-INF/
+    rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+jar {
+    manifest {
+        attributes(
+                "FMLCorePluginContainsFMLMod": "true",
+                "FMLCorePlugin": "me.dyzjct.kura.mixin.MixinLoaderForge",
+                'MixinConfigs': 'mixins.melon.json',
+                'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+                'TweakOrder': 0,
+                'ForceLoadAsMod': 'true',
+                'FMLAT': 'melon_at.cfg',
+                'Manifest-Version': '1.0',
+                'Agent-Class': 'me.dyzjct.kura.inject.AgentMain'
+        )
+    }
+
+    from { configurations.library.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+task copy(type: Copy) {
+    group = "Kura"
+    doLast {
+
+    }
+    if (file("E:/Kura/.minecraft/mods/Kura*.jar").exists()) {
+        delete fileTree("E:/Kura/.minecraft/mods").matching {
+            include "Kura*.jar"
+        }
+    }
+    from file("build/libs/")
+    include 'Kura*.jar'
+    into file("E:/Kura/.minecraft/mods")
+}
+
+task AutoBuild (dependsOn: [build, copy]){
+    group = "Kura"
+}

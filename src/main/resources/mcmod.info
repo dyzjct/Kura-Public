@@ -1,0 +1,14 @@
+[
+  {
+    "modid": "kura",
+    "name": "Kura",
+    "description": "Kura is Comeback!!",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "authorList": [
+      "dyzjct",
+      "chunfeng666",
+      "zenhao"
+    ]
+  }
+]
