@@ -280,6 +280,7 @@ public class ModuleManager {
         registerModule(new HoleFiller());
         registerModule(new HolePushPlus());
         registerModule(new Burrow2());
+        registerModule(new SmartBurrow());
         //Player
         registerModule(new AutoPush());
         registerModule(new StrictPacketMine());

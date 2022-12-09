@@ -30,6 +30,11 @@ public class PlayerUtil {
         return mc.player != null && (mc.player.getHeldItemMainhand().getItem() instanceof ItemFood || mc.player.getHeldItemOffhand().getItem() instanceof ItemFood) && mc.player.isHandActive();
     }
 
+    public static boolean isInHole(Entity e) {
+        BlockPos pos = new BlockPos(Math.floor(e.getPositionVector().x), Math.floor(e.getPositionVector().y + 0.2D), Math.floor(e.getPositionVector().z));
+        return mc.world.getBlockState(pos.down()).getBlock().blockResistance >= 1200.0F && mc.world.getBlockState(pos.east()).getBlock().blockResistance >= 1200.0F && mc.world.getBlockState(pos.west()).getBlock().blockResistance >= 1200.0F && mc.world.getBlockState(pos.north()).getBlock().blockResistance >= 1200.0F && mc.world.getBlockState(pos.south()).getBlock().blockResistance >= 1200.0F;
+    }
+
     public static boolean isAirUnder(Entity ent) {
         return mc.world.getBlockState(new BlockPos(ent.posX, ent.posY - 1, ent.posZ)).getBlock() == Blocks.AIR;
     }
