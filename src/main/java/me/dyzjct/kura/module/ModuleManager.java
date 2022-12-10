@@ -368,6 +368,7 @@ public class ModuleManager {
         registerHUD(new CrystalTargetHUD());
         registerHUD(new Player());
         registerHUD(new Ping());
+        registerHUD(new Welcomer());
         registerHUD(new FPS());
         registerHUD(new TPS());
         registerHUD(new CoordsHUD());
