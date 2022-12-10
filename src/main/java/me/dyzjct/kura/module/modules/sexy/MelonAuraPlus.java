@@ -127,6 +127,7 @@ public class MelonAuraPlus extends Module {
     public FloatSetting lethalMaxDamage = fsetting("LethalMaxDamage", 16f, 0, 20f).b(lethalOverride).m(p, Page.LETHAL);
     //Page Render
     public BooleanSetting targetHUD = bsetting("TargetHUD", false).m(p, Page.RENDER);
+    public ModeSetting hudinfomod = msetting("HudInfo",Mode.Target).m(p,Page.RENDER);
     public BooleanSetting outline = bsetting("Outline", true).m(p, Page.RENDER);
     public BooleanSetting renderDamage = bsetting("RenderDamage", true).m(p, Page.RENDER);
     public ColorSetting textcolor = csetting("TextColor", new Color(255, 225, 255)).m(p, Page.RENDER).b(renderDamage);
@@ -742,8 +743,11 @@ public class MelonAuraPlus extends Module {
 
     @Override
     public String getHudInfo() {
-        if (renderEnt != null) {
+        if (renderEnt != null && hudinfomod.getValue().equals(Mode.Target)) {
             return TextFormatting.AQUA + "" + renderEnt.getName() + "";
+        }
+        if (hudinfomod.getValue().equals(Mode.BreakPlace) && breaked != null){
+            return TextFormatting.AQUA + "" + breaked + "";
         }
         return null;
     }
@@ -779,5 +783,9 @@ public class MelonAuraPlus extends Module {
 
     public enum RenderModes {
         Glide , Normal
+    }
+
+    public enum Mode{
+        Target , BreakPlace
     }
 }

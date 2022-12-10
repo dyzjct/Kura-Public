@@ -2,7 +2,6 @@ package me.dyzjct.kura.module.modules.misc;
 
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;
-import me.dyzjct.kura.module.modules.render.breakesp.BreakESP;
 import me.dyzjct.kura.module.modules.xddd.Surround;
 import me.dyzjct.kura.setting.Setting;
 import me.dyzjct.kura.utils.NTMiku.BlockUtil;
@@ -112,9 +111,9 @@ public class AntiCity
             return;
         }
 //        AntiCity(debug)
-        if (getBlock(pos.add(1,0,0))== BreakESP.Companion.getINSTANCE().getPacketPos()){
-            ChatUtil.sendMessage("1");
-        }
+//        if (getBlock(pos.add(1,0,0))== BreakESP.Companion.getINSTANCE().getPacketPos()){
+//            ChatUtil.sendMessage("1");
+//        }
     }
 
     private void switchToSlot(int slot) {

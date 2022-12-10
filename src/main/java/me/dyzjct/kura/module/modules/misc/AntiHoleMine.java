@@ -6,7 +6,6 @@ import me.dyzjct.kura.module.Module;
 import me.dyzjct.kura.module.modules.xddd.Surround;
 import me.dyzjct.kura.setting.Setting;
 import me.dyzjct.kura.utils.NTMiku.BlockUtil;
-import me.dyzjct.kura.utils.Timer;
 import me.dyzjct.kura.utils.entity.EntityUtil;
 import me.dyzjct.kura.utils.inventory.InventoryUtil;
 import net.minecraft.block.state.IBlockState;
@@ -30,11 +29,8 @@ public class AntiHoleMine
     private final Setting<Integer> range = isetting("Range", 8, 1, 12);
     private final Setting<Float> AntiSameHole = fsetting("AntiSameHole", Float.valueOf(2.0f), Float.valueOf(1.0f), Float.valueOf(5.0f));
     private final Setting<Boolean> rotate = bsetting("Rotate", false);
-//    private final Setting<Integer> delay = isetting("Delay", 0, 0, 300);
-//    private final Setting<Boolean> center = bsetting("Center", false);
     private final Setting<Boolean> toggle = bsetting("AutoToggle", false);
-    private final Timer timer = new Timer();
-    private final Timer retryTimer = new Timer();
+
     public EntityPlayer target;
     public EntityPlayer targets;
     public Setting<Boolean> packet = bsetting("Packet", true);
@@ -44,10 +40,7 @@ public class AntiHoleMine
     int THREE;
     int FOUR;
     private int obsidian = -1;
-    private boolean isSneaking;
     private BlockPos startPos;
-    private boolean offHand;
-    private int lastHotbarSlot;
     private int isEn;
 
 
@@ -82,7 +75,7 @@ public class AntiHoleMine
             this.toggle();
         }
 
-        if (this.startPos != null && ((Boolean)this.toggle.getValue()).booleanValue() && !this.startPos.equals((Object)EntityUtil.getPlayerPos())) {
+        if (this.startPos != null && this.toggle.getValue().booleanValue() && !this.startPos.equals(EntityUtil.getPlayerPos())) {
             this.toggle();
             return;
         }
@@ -343,7 +336,7 @@ public class AntiHoleMine
 //                if (this.checkCrystal(a, EntityUtil.getVarOffsets(1, 0, 1)) != null) {
 //                    EntityUtil.attackEntity(this.checkCrystal(a, EntityUtil.getVarOffsets(1, 0, 1)), true);
 //                }
-                this.perform(pos.add(1,0,1));
+                this.perform(pos.add(1, 0, 1));
                 this.perform(pos.add(1, 0, 0));
                 this.perform(pos.add(1, 0, 1));
             }
@@ -353,7 +346,7 @@ public class AntiHoleMine
 //                if (this.checkCrystal(a, EntityUtil.getVarOffsets(1, 0, 1)) != null) {
 //                    EntityUtil.attackEntity(this.checkCrystal(a, EntityUtil.getVarOffsets(1, 0, 1)), true);
 //                }
-                this.perform(pos.add(1,0,1));
+                this.perform(pos.add(1, 0, 1));
                 this.perform(pos.add(0, 0, 1));
                 this.perform(pos.add(1, 0, 1));
             }
@@ -363,7 +356,7 @@ public class AntiHoleMine
 //                if (this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, -1)) != null) {
 //                    EntityUtil.attackEntity(this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, -1)), true);
 //                }
-                this.perform(pos.add(-1,0,1));
+                this.perform(pos.add(-1, 0, 1));
                 this.perform(pos.add(-1, 0, 0));
                 this.perform(pos.add(-1, 0, -1));
             }
@@ -373,7 +366,7 @@ public class AntiHoleMine
 //                if (this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, -1)) != null) {
 //                    EntityUtil.attackEntity(this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, -1)), true);
 //                }
-                this.perform(pos.add(-1,0,-1));
+                this.perform(pos.add(-1, 0, -1));
                 this.perform(pos.add(0, 0, -1));
                 this.perform(pos.add(-1, 0, -1));
             }
@@ -383,7 +376,7 @@ public class AntiHoleMine
 //                if (this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, 1)) != null) {
 //                    EntityUtil.attackEntity(this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, 1)), true);
 //                }
-                this.perform(pos.add(-1,0,1));
+                this.perform(pos.add(-1, 0, 1));
                 this.perform(pos.add(-1, 0, 0));
                 this.perform(pos.add(-1, 0, 1));
             }
@@ -393,7 +386,7 @@ public class AntiHoleMine
 //                if (this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, 1)) != null) {
 //                    EntityUtil.attackEntity(this.checkCrystal(a, EntityUtil.getVarOffsets(-1, 0, 1)), true);
 //                }
-                this.perform(pos.add(-1,0,1));
+                this.perform(pos.add(-1, 0, 1));
                 this.perform(pos.add(0, 0, 1));
                 this.perform(pos.add(-1, 0, 1));
             }

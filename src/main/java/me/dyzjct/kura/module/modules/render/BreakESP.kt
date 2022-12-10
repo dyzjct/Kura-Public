@@ -1,8 +1,9 @@
-package me.dyzjct.kura.module.modules.render.breakesp
+package me.dyzjct.kura.module.modules.render
 
 import com.google.common.collect.Maps
 import me.dyzjct.kura.event.events.block.BlockBreakEvent
 import me.dyzjct.kura.event.events.render.RenderEvent
+import me.dyzjct.kura.manager.FriendManager
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
 import me.dyzjct.kura.setting.BooleanSetting
@@ -20,22 +21,22 @@ import java.awt.Color
 import java.text.DecimalFormat
 import kotlin.math.abs
 
-
 @Module.Info(name = "BreakESP", category = Category.RENDER, description = "BreakEsp")
 class BreakESP : Module() {
     private val mineMap: MutableMap<Int, BreakESPExtend>? = Maps.newHashMap()
     private var renderAir: BooleanSetting = bsetting("RenderAir", false)
+    private var renderSelf = bsetting("RenderSelf", false)
     private var drawID = bsetting("DrawID", false)
     private var drawProgress = bsetting("DrawProgress", false)
     private var colors = csetting("Color", Color(11, 232, 145))
+    private var friendColor = csetting("FriendColor", Color(157, 14, 192))
     private var alpha: Setting<Int> = isetting("Alpha", 100, 1, 255)
     private var range: Setting<Int> = isetting("Range", 6, 1, 20)
     private var lineWidth: Setting<Int> = isetting("LineWidth", 2, 1, 3)
     private var renderMode = isetting("RenderMode", 0, 0, 10)
-    var minePos: BlockPos? = null
-    var packetPos: BlockPos? = null
+    private var minePos: BlockPos? = null
+    private var packetPos: BlockPos? = null
     private var df = DecimalFormat("0.00")
-    companion object { @JvmStatic var INSTANCE:BreakESP? = BreakESP() }
 
 
     @SubscribeEvent
@@ -43,7 +44,16 @@ class BreakESP : Module() {
         if (fullNullCheck()) {
             return
         }
+        if (0 >= mc.player.health){
+            mineMap!!.clear()
+            packetPos=null
+        }
         if (event.position != null) {
+            if (!renderSelf.value) {
+                if (event.breakerId == mc.player.entityId) {
+                    return
+                }
+            }
             if (event.position.getDistance(
                     mc.player.posX.toInt(),
                     mc.player.posY.toInt(),
@@ -53,9 +63,9 @@ class BreakESP : Module() {
                 if (BlockUtil.canBreak(event.position, renderAir.value) && mineMap != null) {
                     var destroyblockprogress = mineMap[event.breakerId]
                     if (destroyblockprogress == null
-                        || destroyblockprogress.getPosition().getX() != event.position.getX()
-                        || destroyblockprogress.getPosition().getY() != event.position.getY()
-                        || destroyblockprogress.getPosition()
+                        || destroyblockprogress.position.getX() != event.position.getX()
+                        || destroyblockprogress.position.getY() != event.position.getY()
+                        || destroyblockprogress.position
                             .getZ() != event.position.getZ()
                     ) {
                         if (mc.world.getEntityByID(event.breakerId) is EntityPlayer) {
@@ -81,22 +91,33 @@ class BreakESP : Module() {
         }
     }
 
-
-
     override fun onWorldRender(event: RenderEvent) {
+        if (fullNullCheck()){
+            return
+        }
         val color = Color(colors.value.red, colors.value.green, colors.value.blue)
+        val fcolor = Color(friendColor.value.red, friendColor.value.green, friendColor.value.blue)
         //TODO: PacketMine Mode
         mineMap!!.forEach {
-            packetPos = it.value.getPosition()
-            if (abs(it.value.currentTime - System.currentTimeMillis()) < it.value.calcMineTime) {
-                it.value.finalProgress =
-                    abs(it.value.calcMineTime - (abs(it.value.currentTime - System.currentTimeMillis()).toFloat()))
-                //ChatUtil.sendMessage(it.value.finalProgress.toString())
+            packetPos = it.value.position
+            it.value.finalProgress =
+                MathHelper.clamp(
+                    it.value.calcMineTime - (
+                            MathHelper.clamp(
+                                (System.currentTimeMillis() - it.value.currentTime).toDouble(),
+                                0.0,
+                                it.value.currentTime.toDouble()
+                            ).toFloat()), 0.0f, it.value.calcMineTime
+                )
+            if (mc.world.getBlockState(packetPos!!).block === Blocks.AIR && !renderAir.value) {
+                return@forEach
             }
-//            if (mc.world.getBlockState(packetPos!!).block == Blocks.AIR && !renderAir.value) {
-//                return@forEach
-//            }
-            if (packetPos != null && !mc.world.isAirBlock(packetPos!!) && packetPos !== minePos) {
+            if (0 >= mc.player.health){
+                mineMap!!.clear()
+                packetPos=null
+                return@forEach
+            }
+            if (packetPos != null && packetPos !== minePos&&mc.world.getEntityByID(it.value.minerID) != null) {
                 if (packetPos!!.getDistance(
                         mc.player.posX.toInt(),
                         mc.player.posY.toInt(),
@@ -104,13 +125,17 @@ class BreakESP : Module() {
                     ) <= range.value
                 ) {
                     MelonTessellator.boxESP(
-                        packetPos,
-                        color,
+                        packetPos!!,
+                        if (FriendManager.isFriend(mc.world.getEntityByID(it.value.minerID)!!)) {
+                            fcolor
+                        } else {
+                            color
+                        },
                         alpha.value,
                         lineWidth.value.toFloat(),
                         abs(it.value.finalProgress / it.value.calcMineTime),
                         renderMode.value
-                    ) //MathHelper.clamp((progress + 2f) / 100f, 0, 1f));
+                    )
                     if (drawProgress.value) {
                         GlStateManager.pushMatrix()
                         MelonTessellator.glBillboardDistanceScaled(
@@ -118,45 +143,50 @@ class BreakESP : Module() {
                             packetPos!!.getY().toFloat() + 0.8f,
                             packetPos!!.getZ().toFloat() + 0.5f,
                             mc.player,
-                            0.5f
+                            1f
                         )
-                        if (it.value.finalProgress != 0f) {
+                        if (it.value.finalProgress >= 0f) {
                             GlStateManager.disableDepth()
-                            GlStateManager.translate(
-                                -mc.fontRenderer.getStringWidth(
+                            try {
+                                GlStateManager.translate(
+                                    -mc.fontRenderer.getStringWidth(
+                                        df.format(
+                                            MathHelper.clamp(
+                                                abs(100.0 - ((it.value.finalProgress / it.value.calcMineTime) * 100.0)),
+                                                0.0,
+                                                100.0
+                                            )
+                                        ).toDouble().toString()
+                                    ).toFloat() / 2.0f, 0f, 0f
+                                )
+                                mc.fontRenderer.drawStringWithShadow(
                                     df.format(
                                         MathHelper.clamp(
                                             abs(100.0 - ((it.value.finalProgress / it.value.calcMineTime) * 100.0)),
                                             0.0,
                                             100.0
-                                        ) / 2.0
-                                    ).toDouble().toString()
-                                ).toFloat(), 0f, 0f
-                            )
-                            mc.fontRenderer.drawStringWithShadow(
-                                df.format(
-                                    //getPercentage(
-                                    //destroyBlockProgress.partialBlockDamage.toDouble()
-                                    //)
-                                    MathHelper.clamp(
-                                        abs(100.0 - ((it.value.finalProgress / it.value.calcMineTime) * 100.0)),
-                                        0.0,
-                                        100.0
-                                    )
-                                ).toString() + "%",
-                                0f,
-                                0f,
-                                if (MathHelper.clamp(
-                                        abs(100.0 - ((it.value.finalProgress / it.value.calcMineTime) * 100.0)),
-                                        0.0,
-                                        100.0
-                                    ) >= 50.0
-                                ) Color(0, 255, 0).rgb else Color(255, 0, 0).rgb
-                            )
+                                        )
+                                    ).toString() + "%",
+                                    0f,
+                                    0f,
+                                    if (MathHelper.clamp(
+                                            abs(100.0 - ((it.value.finalProgress / it.value.calcMineTime) * 100.0)),
+                                            0.0,
+                                            100.0
+                                        ) >= 50.0
+                                    ) Color(0, 255, 0).rgb else Color(255, 0, 0).rgb
+                                )
+                            } catch (_: NumberFormatException) {
+                            }
+                            GlStateManager.popMatrix()
                         }
-                        GlStateManager.popMatrix()
                     }
                     if (drawID.value) {
+                        if (0 >= mc.player.health){
+                            mineMap!!.clear()
+                            packetPos=null
+                            return
+                        }
                         if (mc.world.getEntityByID(it.key) is EntityPlayer) {
                             GlStateManager.pushMatrix()
                             MelonTessellator.glBillboardDistanceScaled(
@@ -186,20 +216,11 @@ class BreakESP : Module() {
         }
     }
 
-    private fun getPercentage(input: Double): Float {
-        val df = DecimalFormat("0.00")
-        val result = df.format((if (input == 0.0) input + 1f else input + 2.00f) / 10.0f)
-        val resultSort = result.toFloat()
-        val arrayResult = resultSort.toString().split("\\.".toRegex()).dropLastWhile { it.isEmpty() }
-            .toTypedArray()
-        val animatedNum = "99." + arrayResult[1]
-        return if (resultSort > 0.9) MathHelper.clamp(
-            resultSort * 100.0f,
-            0f,
-            100f
-        ) else MathHelper.clamp(resultSort * animatedNum.toFloat(), 0f, 100f)
-    }
-
-
-
+    class BreakESPExtend(
+        var minerID: Int,
+        val position: BlockPos,
+        var calcMineTime: Float,
+        var currentTime: Long,
+        var finalProgress: Float
+    )
 }
