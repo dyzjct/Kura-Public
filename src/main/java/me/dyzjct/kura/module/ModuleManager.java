@@ -363,6 +363,7 @@ public class ModuleManager {
 
     public void loadHUDs() {
         registerHUD(new ShowArrayList());
+        registerHUD(new Welcomer());
         registerHUD(new WaterMark());
         registerHUD(new CrystalTargetHUD());
         registerHUD(new Player());
