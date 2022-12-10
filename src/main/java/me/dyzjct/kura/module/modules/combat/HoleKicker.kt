@@ -706,12 +706,6 @@ class HoleKicker : Module() {
         Piston, SPiston
     }
 
-    private fun switchToSlot(slot: Int) {
-        mc.player.connection.sendPacket(CPacketHeldItemChange(slot))
-        mc.player.inventory.currentItem = slot
-        mc.playerController.updateController()
-    }
-
     private fun getBlock(block: BlockPos): IBlockState? {
         return mc.world.getBlockState(block)
     }

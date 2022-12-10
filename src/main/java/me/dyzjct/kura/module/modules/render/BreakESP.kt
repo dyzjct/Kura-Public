@@ -44,9 +44,9 @@ class BreakESP : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (0 >= mc.player.health){
+        if (0 >= mc.player.health) {
             mineMap!!.clear()
-            packetPos=null
+            packetPos = null
         }
         if (event.position != null) {
             if (!renderSelf.value) {
@@ -55,29 +55,17 @@ class BreakESP : Module() {
                 }
             }
             if (event.position.getDistance(
-                    mc.player.posX.toInt(),
-                    mc.player.posY.toInt(),
-                    mc.player.posZ.toInt()
+                    mc.player.posX.toInt(), mc.player.posY.toInt(), mc.player.posZ.toInt()
                 ) <= range.value
             ) {
                 if (BlockUtil.canBreak(event.position, renderAir.value) && mineMap != null) {
                     var destroyblockprogress = mineMap[event.breakerId]
-                    if (destroyblockprogress == null
-                        || destroyblockprogress.position.getX() != event.position.getX()
-                        || destroyblockprogress.position.getY() != event.position.getY()
-                        || destroyblockprogress.position
-                            .getZ() != event.position.getZ()
-                    ) {
+                    if (destroyblockprogress == null || destroyblockprogress.position.getX() != event.position.getX() || destroyblockprogress.position.getY() != event.position.getY() || destroyblockprogress.position.getZ() != event.position.getZ()) {
                         if (mc.world.getEntityByID(event.breakerId) is EntityPlayer) {
                             destroyblockprogress = BreakESPExtend(
-                                event.breakerId,
-                                event.position,
-                                BreakingUtil.calcBreakTime(
-                                    event.breakerId,
-                                    event.position
-                                ),
-                                System.currentTimeMillis(),
-                                0f
+                                event.breakerId, event.position, BreakingUtil.calcBreakTime(
+                                    event.breakerId, event.position
+                                ), System.currentTimeMillis(), 0f
                             )
                             if (!mineMap.containsKey(event.breakerId)) {
                                 mineMap[event.breakerId] = destroyblockprogress
@@ -92,7 +80,7 @@ class BreakESP : Module() {
     }
 
     override fun onWorldRender(event: RenderEvent) {
-        if (fullNullCheck()){
+        if (fullNullCheck()) {
             return
         }
         val color = Color(colors.value.red, colors.value.green, colors.value.blue)
@@ -100,28 +88,22 @@ class BreakESP : Module() {
         //TODO: PacketMine Mode
         mineMap!!.forEach {
             packetPos = it.value.position
-            it.value.finalProgress =
-                MathHelper.clamp(
-                    it.value.calcMineTime - (
-                            MathHelper.clamp(
-                                (System.currentTimeMillis() - it.value.currentTime).toDouble(),
-                                0.0,
-                                it.value.currentTime.toDouble()
-                            ).toFloat()), 0.0f, it.value.calcMineTime
-                )
+            it.value.finalProgress = MathHelper.clamp(
+                it.value.calcMineTime - (MathHelper.clamp(
+                    (System.currentTimeMillis() - it.value.currentTime).toDouble(), 0.0, it.value.currentTime.toDouble()
+                ).toFloat()), 0.0f, it.value.calcMineTime
+            )
             if (mc.world.getBlockState(packetPos!!).block === Blocks.AIR && !renderAir.value) {
                 return@forEach
             }
-            if (0 >= mc.player.health){
-                mineMap!!.clear()
-                packetPos=null
+            if (0 >= mc.player.health) {
+                mineMap.clear()
+                packetPos = null
                 return@forEach
             }
-            if (packetPos != null && packetPos !== minePos&&mc.world.getEntityByID(it.value.minerID) != null) {
+            if (packetPos != null && packetPos !== minePos && mc.world.getEntityByID(it.value.minerID) != null) {
                 if (packetPos!!.getDistance(
-                        mc.player.posX.toInt(),
-                        mc.player.posY.toInt(),
-                        mc.player.posZ.toInt()
+                        mc.player.posX.toInt(), mc.player.posY.toInt(), mc.player.posZ.toInt()
                     ) <= range.value
                 ) {
                     MelonTessellator.boxESP(
@@ -166,10 +148,7 @@ class BreakESP : Module() {
                                             0.0,
                                             100.0
                                         )
-                                    ).toString() + "%",
-                                    0f,
-                                    0f,
-                                    if (MathHelper.clamp(
+                                    ).toString() + "%", 0f, 0f, if (MathHelper.clamp(
                                             abs(100.0 - ((it.value.finalProgress / it.value.calcMineTime) * 100.0)),
                                             0.0,
                                             100.0
@@ -182,9 +161,9 @@ class BreakESP : Module() {
                         }
                     }
                     if (drawID.value) {
-                        if (0 >= mc.player.health){
-                            mineMap!!.clear()
-                            packetPos=null
+                        if (0 >= mc.player.health) {
+                            mineMap.clear()
+                            packetPos = null
                             return
                         }
                         if (mc.world.getEntityByID(it.key) is EntityPlayer) {
