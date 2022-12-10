@@ -35,13 +35,13 @@ class HoleKicker : Module() {
     private val blockPerPlace = isetting("BlocksTick", 8, 1, 30)
     private val breakcrystal = bsetting("BreakCrystal", false)
     private val placeMod = msetting("PlaceMod", PlaceMods.Piston)
+    private val breakMod = msetting("breakMod", BreakMod.Routine)
     private val timer = Timer()
 
     private var targets: EntityPlayer? = null
 
 
     var target: EntityPlayer? = null
-
 
 
     private var filler = false
@@ -210,29 +210,33 @@ class HoleKicker : Module() {
         if (targets == null) {
             return
         }
-        val breakpos = BlockPos(targets!!.posX, targets!!.posY, targets!!.posZ)
-        if (getBlock(breakpos.add(1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(1, 2, 0))
-            )
-        }
-        if (getBlock(breakpos.add(-1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(-1, 2, 0))
-            )
-        }
-        if (getBlock(breakpos.add(0, 2, 1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 2, 1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, 1))
-            )
-        }
-        if (getBlock(breakpos.add(0, 2, -1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 2, -1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, -1))
-            )
+        if (placeMod.value.equals(BreakMod.Routine)) {
+            val breakpos = BlockPos(targets!!.posX, targets!!.posY, targets!!.posZ)
+            if (getBlock(breakpos.add(1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(1, 2, 0))
+                )
+            }
+            if (getBlock(breakpos.add(-1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(-1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(-1, 2, 0))
+                )
+            }
+            if (getBlock(breakpos.add(0, 2, 1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(0, 2, 1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, 1))
+                )
+            }
+            if (getBlock(breakpos.add(0, 2, -1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(0, 2, -1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, -1))
+                )
+            }
+            if (placeMod.value.equals(BreakMod.none)) {
+            }
+            return;
         }
     }
-
     private fun placeList(pos: Vec3d, list: Array<Vec3d>) {
         for (vec3d in list) {
             val position = BlockPos(pos).add(vec3d.x, vec3d.y, vec3d.z)
@@ -273,7 +277,9 @@ class HoleKicker : Module() {
     enum class PlaceMods {
         Piston, SPiston
     }
-
+    enum class BreakMod {
+        Routine, none
+    }
 
     private fun getBlock(block: BlockPos): IBlockState? {
         return mc.world.getBlockState(block)
