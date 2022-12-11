@@ -11,7 +11,7 @@ import java.util.function.Consumer
 @HUDModule.Info(name = "WaterMark", x = 20, y = 20)
 class WaterMark : HUDModule() {
     var fonts = CopyOnWriteArrayList<RFontRenderer>()
-    var text = ssetting("ViewText", "Kura")
+    var text = ssetting("ViewText", "Kura.Net")
 
     //    public ColorSetting color = csetting("Color", new Color(255,255,255));
     var saturation: Setting<Float> = fsetting("Saturation", 1.0f, 0f, 1.0f)
