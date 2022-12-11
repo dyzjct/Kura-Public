@@ -22,7 +22,6 @@ class Welcomer : HUDModule() {
         if (!fonts.contains(font)) {
             fonts.add(font)
         }
-
         fun fontColor(): Int {
             val fontColor = Color(
                 GuiManager.getINSTANCE().red / 255f,
