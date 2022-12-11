@@ -28,7 +28,7 @@ public class AutoGG extends Module {
 
     private ConcurrentHashMap<String, Integer> targetedPlayers = null;
 
-    private final Setting<String> text = ssetting("Text", "RIP ");
+    private final Setting<String> text = ssetting("Text", "R.I.P ");
     private final Setting<Boolean> clientName = bsetting("ClientName", false);
     private final Setting<Integer> timeoutTicks = isetting("TimeOutTicks", 20, 1, 50);
 
@@ -161,7 +161,7 @@ public class AutoGG extends Module {
         if (clientName.getValue()) {
             message.append(" ");
             message.append(Kura.MOD_NAME);
-            message.append(" OWNS YOU!");
+            message.append(" INSTANCE Kill YOU!");
         }
 
         String messageSanitized = message.toString().replaceAll(ChatTextUtils.SECTIONSIGN, "");
