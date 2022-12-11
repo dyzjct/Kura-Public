@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 @HUDModule.Info(name = "Welcomer", x = 160, y = 160, width = 100, height = 10, category = Category.HUD)
 class Welcomer : HUDModule() {
     private var mode = msetting("Mode", Mode.Rainbow)
-    private var chunfeng666 = bsetting("chunfeng is god", true)
+    private var Eremin = bsetting("chunfeng is god", true)
     private var color = csetting("Color", Color(210, 100, 165)).m(mode, Mode.Custom)
     var fonts = CopyOnWriteArrayList<RFontRenderer>()
     var font = RFontRenderer(CFont.CustomFont("/assets/fonts/font.ttf", 47.0f, 0), true, false)
@@ -23,6 +23,7 @@ class Welcomer : HUDModule() {
     override fun onRender() {
         if (!fonts.contains(font)) {
             fonts.add(font)
+            (Eremin)
         }
         fun fontColor(): Int {
             val fontColor = Color(
