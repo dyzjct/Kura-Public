@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft
 import java.awt.Color
 import java.util.concurrent.CopyOnWriteArrayList
 
-@HUDModule.Info(name = "Welcomer", x = 160, y = 160, width = 100, height = 10, category = Category.HUD)
+@HUDModule.Info(name = "Welcomer", x = 20, y = 20, category = Category.HUD)
 class Welcomer : HUDModule() {
     var fonts = CopyOnWriteArrayList<RFontRenderer>()
 
