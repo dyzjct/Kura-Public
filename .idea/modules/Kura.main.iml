@@ -4,15 +4,19 @@
     <facet type="minecraft" name="Minecraft">
       <configuration>
         <autoDetectTypes>
-          <platformType>MIXIN</platformType>
           <platformType>FORGE</platformType>
+          <platformType>MIXIN</platformType>
           <platformType>MCP</platformType>
         </autoDetectTypes>
       </configuration>
     </facet>
   </component>
   <component name="McpModuleSettings">
-    <option name="srgType" value="SRG" />
+    <option name="mappingFile" value="C:\Users\adzc\Desktop\Kura\Kura\build\createMcpToSrg\output.tsrg" />
+    <option name="mcpVersion" value="stable_39-1.12" />
+    <option name="minecraftVersion" value="1.12.2" />
+    <option name="platformVersion" value="14.23.5.2860" />
+    <option name="srgType" value="TSRG" />
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$/../../build/generated/sources/annotationProcessor/java/main">

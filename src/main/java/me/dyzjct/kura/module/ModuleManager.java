@@ -10,6 +10,7 @@ import me.dyzjct.kura.module.modules.chat.ChatTimeStamps;
 import me.dyzjct.kura.module.modules.combat.HoleFiller.HoleFiller;
 import me.dyzjct.kura.module.modules.extra.AutoCraftBed;
 import me.dyzjct.kura.module.modules.sexy.MelonAuraPlus;
+import me.dyzjct.kura.module.modules.xddd.IQBooster;
 import me.dyzjct.kura.module.modules.xddd.NewBedAura;
 import me.dyzjct.kura.module.modules.xddd.SmartOffHand;
 import me.dyzjct.kura.module.modules.xddd.Surround;
@@ -355,6 +356,7 @@ public class ModuleManager {
         //XDDD
         registerModule(new Surround());
         registerModule(new AutoCraftBed());
+        registerModule(new IQBooster());
         registerModule(new SmartOffHand());
         //SEXY
         registerModule(new NewBedAura());
