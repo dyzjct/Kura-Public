@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
 public class Kura {
     public static final String MOD_ID = "kura";
     public static final String MOD_NAME = "Kura";
-    public static final String VERSION = "1.8";
+    public static final String VERSION = "1.9";
     public static final String DISPLAY_NAME = MOD_NAME + " " + VERSION;
     public static final String KANJI = "Kura";
     public static final String ALT_Encrypt_Key = "Kura";
@@ -106,7 +106,6 @@ public class Kura {
         FontManager.INSTANCE.onInit();
         MinecraftForge.EVENT_BUS.register(new ForgeEventProcessor());
         MinecraftForge.EVENT_BUS.register(new RotationManager());
-//        MinecraftForge.EVENT_BUS.register(new EventPlayerTravel());
         Kura.getInstance().guiRender = new GUIRender();
         Kura.getInstance().hudEditor = new HUDRender();
         Kura.getInstance().configManager = new FileManager();

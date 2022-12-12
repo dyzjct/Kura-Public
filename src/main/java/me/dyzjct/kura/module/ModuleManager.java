@@ -258,6 +258,7 @@ public class ModuleManager {
         registerModule(new AutoReplenish());
         registerModule(new AutoTotem());
         registerModule(new AutoTrap());
+//        registerModule(new AutoHoleMine());
         registerModule(new AutoWeb());
         registerModule(new AutoCity2());
         registerModule(new Burrow());
@@ -368,7 +369,6 @@ public class ModuleManager {
         registerHUD(new CrystalTargetHUD());
         registerHUD(new Player());
         registerHUD(new Ping());
-        registerHUD(new Welcomer());
         registerHUD(new FPS());
         registerHUD(new TPS());
         registerHUD(new CoordsHUD());

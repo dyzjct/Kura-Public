@@ -762,6 +762,7 @@ public class MelonAuraPlus extends Module {
         Strong
     }
 
+
     public enum Switch {
         AutoSwitch,
         GhostHand,
