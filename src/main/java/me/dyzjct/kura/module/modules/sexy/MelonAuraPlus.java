@@ -131,9 +131,9 @@ public class MelonAuraPlus extends Module {
     public BooleanSetting outline = bsetting("Outline", true).m(p, Page.RENDER);
     public BooleanSetting renderDamage = bsetting("RenderDamage", true).m(p, Page.RENDER);
     public ColorSetting textcolor = csetting("TextColor", new Color(255, 225, 255)).m(p, Page.RENDER).b(renderDamage);
-    public IntegerSetting textscalex = isetting("TextScaleX",1,0,5).b(renderDamage);
-    public IntegerSetting textscaley = isetting("TextScaleY",1,0,5).b(renderDamage);
-    public IntegerSetting textscalez = isetting("TextScaleZ",1,0,5).b(renderDamage);
+    public IntegerSetting textscalex = isetting("TextScaleX",1,0,5).b(renderDamage).m(p,Page.RENDER);
+    public IntegerSetting textscaley = isetting("TextScaleY",1,0,5).b(renderDamage).m(p,Page.RENDER);
+    public IntegerSetting textscalez = isetting("TextScaleZ",1,0,5).b(renderDamage).m(p,Page.RENDER);
     public BooleanSetting renderBreak = bsetting("RenderBreak", true).m(p, Page.RENDER);
     public BooleanSetting XG42OutLineMod = bsetting("XG42OutLineMod", true).m(p, Page.RENDER);
     public ColorSetting color = csetting("Color", new Color(20, 225, 219)).m(p, Page.RENDER);

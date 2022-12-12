@@ -279,7 +279,6 @@ public class ModuleManager {
         registerModule(new AntiBurrow2());
         registerModule(new HoleKicker());
         registerModule(new HoleFiller());
-        registerModule(new HolePushPlus());
         registerModule(new Burrow2());
         registerModule(new SmartBurrow());
         //Player

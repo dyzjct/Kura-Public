@@ -7,6 +7,7 @@ import me.dyzjct.kura.utils.NTMiku.BlockUtil
 import me.dyzjct.kura.utils.Timer
 import me.dyzjct.kura.utils.entity.EntityUtil
 import me.dyzjct.kura.utils.inventory.InventoryUtil
+import me.dyzjct.kura.utils.mc.ChatUtil
 import me.dyzjct.kura.utils.player.getTarget
 import net.minecraft.block.BlockAir
 import net.minecraft.block.BlockFire
@@ -34,10 +35,12 @@ class HoleKicker : Module() {
     private val delay = isetting("PlaceDelay", 50, 0, 250)
     private val range = isetting("Range", 5, 1, 16)
     private val blockPerPlace = isetting("BlocksTick", 8, 1, 30)
+    private val holepull = bsetting("HolePull",true)
     private val breakcrystal = bsetting("BreakCrystal", false)
     private val placeMod = msetting("PlaceMod", PlaceMods.Piston)
     private val timer = Timer()
 
+    var canpull:String="null"
     private var targets: EntityPlayer? = null
 
     var target: EntityPlayer? = null
@@ -78,6 +81,8 @@ class HoleKicker : Module() {
         }
         doPiston()
         breakredstone()
+        ChatUtil.sendMessage(canpull)
+        canpull="null"
         toggle()
     }
 
@@ -96,473 +101,396 @@ class HoleKicker : Module() {
     private fun doPistonTrap() {
         val b = mc.player.inventory.currentItem
         val c = target!!.positionVector
-        if (placeMod.value.equals(PlaceMods.Piston)) {
 //            Mode One
 //            +x
-            if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 2, 0)
-                )
-            ) if (checkList(c, EntityUtil.getVarOffsets(1, 2, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 2, 0)
+            )
+        ) if (checkList(c, EntityUtil.getVarOffsets(1, 2, 0)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(1, 2, 0))
+            }else{
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
-//            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 2, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 2, -1))
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(1, 2, 0))
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
+                canpull="pull"
             }
-//            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 2, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 2, 1))
-            }
-//            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 2, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-1, 2, 0))
-            }
-//            Mod Two
-//            +x
-            else if (checkList(c, EntityUtil.getVarOffsets(2, 1, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(2, 1, 0))
-            }
-//            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -2)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -2))
-            }
-//            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 1, 2)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 2))
-            }
-//            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-2, 1, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-2, 1, 0))
-            }
-//            Mode Three
-//            x
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
-            }
-//            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
-            }
-//            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
-            }
-//            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
-            }
-//            Mode Four
-            //            x
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
-            }
-//            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
-            }
-//            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
-            }
-//            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
+                canpull="pull"
             }
         }
-//            Sticky_Piston
-        if (placeMod.value.equals(PlaceMods.SPiston)) {
-//            Mode One
-//            +x
-            if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 2, 0)
-                )
-            ) if (checkList(c, EntityUtil.getVarOffsets(1, 2, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(1, 2, 0))
-            }
 //            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 2, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(0, 2, -1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, -1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 2, -1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(0, 2, -1))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
+                canpull="pull"
+            }
+        }
 //            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 2, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(0, 2, 1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, 1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 2, 1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(0, 2, 1))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
+                canpull="pull"
+            }
+        }
 //            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 2, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(-1, 2, 0)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(-1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-1, 2, 0))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(-1, 2, 0))
+            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
+                canpull="pull"
+            }
+        }
 //            Mod Two
 //            +x
-            else if (checkList(c, EntityUtil.getVarOffsets(2, 1, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(2, 1, 0)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(2, 1, 0))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(2, 1, 0))
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
+                canpull="pull"
+            }
+        }
 //            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -2)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -2)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, -1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -2))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(0, 1, -2))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
+                canpull="pull"
+            }
+        }
 //            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(0, 1, 2)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(0, 1, 2)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, 1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 2))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(0, 1, 2))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
+                canpull="pull"
+            }
+        }
 //            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-2, 1, 0)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(-2, 1, 0)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(-1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-2, 1, 0))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(-2, 1, 0))
+            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
+                canpull="pull"
+            }
+        }
 //            Mode Three
 //            x
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
+                canpull="pull"
+            }
+        }
 //            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, -1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
+                canpull="pull"
+            }
+        }
 //            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, 1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
+                canpull="pull"
+            }
+        }
 //            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(-1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
+            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
+                canpull="pull"
+            }
+        }
 //            Mode Four
-            //            x
-            else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        //            x
+        else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
+                canpull="pull"
+            }
+        }
 //            -z
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, -1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
+                canpull="pull"
+            }
+        }
 //            +z
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(0, 1, 1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //snowy day
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
             }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //snowy day
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
+            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
+                canpull="pull"
+            }
+        }
 //            -x
-            else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
-                    c,
-                    EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
+        else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
+                c,
+                EntityUtil.getVarOffsets(-1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            if (placeMod.value.equals(PlaceMods.Piston)){
+                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
+            }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
-                mc.playerController.updateController()
-                mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
-                mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-                mc.playerController.updateController() //Summer
-                placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
+            }
+            mc.playerController.updateController()
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
+            mc.playerController.updateController() //Summer
+            placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
+            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
+                canpull="pull"
+            }
+            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
+                canpull="pull"
             }
         }
         mc.player.inventory.currentItem = b
@@ -580,88 +508,91 @@ class HoleKicker : Module() {
         }
         val breakpos = BlockPos(targets!!.posX, targets!!.posY, targets!!.posZ)
 //        Mode One
-        if (getBlock(breakpos.add(1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(1, 2, 0))
-            )
-        }
-        if (getBlock(breakpos.add(-1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(-1, 2, 0))
-            )
-        }
-        if (getBlock(breakpos.add(0, 2, 1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 2, 1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, 1))
-            )
-        }
-        if (getBlock(breakpos.add(0, 2, -1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 2, -1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, -1))
-            )
-        }
+        if (canpull=="pull"&&holepull.value){
+
+            if (getBlock(breakpos.add(1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(1, 2, 0))
+                )
+            }
+            if (getBlock(breakpos.add(-1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(-1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(-1, 2, 0))
+                )
+            }
+            if (getBlock(breakpos.add(0, 2, 1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(0, 2, 1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, 1))
+                )
+            }
+            if (getBlock(breakpos.add(0, 2, -1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(0, 2, -1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, -1))
+                )
+            }
 //        Mode Two
-        if (getBlock(breakpos.add(2, 1, 0))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(2, 1, 0), BlockUtil.getRayTraceFacing(breakpos.add(2, 1, 0))
-            )
-        }
-        if (getBlock(breakpos.add(-2, 1, 0))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-2, 1, 0), BlockUtil.getRayTraceFacing(breakpos.add(-2, 1, 0))
-            )
-        }
-        if (getBlock(breakpos.add(0, 1, 2))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 1, 2), BlockUtil.getRayTraceFacing(breakpos.add(0, 1, 2))
-            )
-        }
-        if (getBlock(breakpos.add(0, 1, -2))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(0, 1, -2), BlockUtil.getRayTraceFacing(breakpos.add(0, 1, -2))
-            )
-        }
+            if (getBlock(breakpos.add(2, 1, 0))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(2, 1, 0), BlockUtil.getRayTraceFacing(breakpos.add(2, 1, 0))
+                )
+            }
+            if (getBlock(breakpos.add(-2, 1, 0))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(-2, 1, 0), BlockUtil.getRayTraceFacing(breakpos.add(-2, 1, 0))
+                )
+            }
+            if (getBlock(breakpos.add(0, 1, 2))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(0, 1, 2), BlockUtil.getRayTraceFacing(breakpos.add(0, 1, 2))
+                )
+            }
+            if (getBlock(breakpos.add(0, 1, -2))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(0, 1, -2), BlockUtil.getRayTraceFacing(breakpos.add(0, 1, -2))
+                )
+            }
 //        Mode Three
-        if (getBlock(breakpos.add(1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, 1))
-            )
-        }
-        if (getBlock(breakpos.add(-1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, 1))
-            )
-        }
-        if (getBlock(breakpos.add(1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, 1))
-            )
-        }
-        if (getBlock(breakpos.add(1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, -1))
-            )
-        }
+            if (getBlock(breakpos.add(1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, 1))
+                )
+            }
+            if (getBlock(breakpos.add(-1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(-1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, 1))
+                )
+            }
+            if (getBlock(breakpos.add(1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, 1))
+                )
+            }
+            if (getBlock(breakpos.add(1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, -1))
+                )
+            }
 //        Mode Four
-        if (getBlock(breakpos.add(1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, -1))
-            )
-        }
-        if (getBlock(breakpos.add(-1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, -1))
-            )
-        }
-        if (getBlock(breakpos.add(-1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, 1))
-            )
-        }
-        if (getBlock(breakpos.add(-1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
-            mc.playerController.onPlayerDamageBlock(
-                breakpos.add(-1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, -1))
-            )
+            if (getBlock(breakpos.add(1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, -1))
+                )
+            }
+            if (getBlock(breakpos.add(-1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(-1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, -1))
+                )
+            }
+            if (getBlock(breakpos.add(-1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(-1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, 1))
+                )
+            }
+            if (getBlock(breakpos.add(-1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakpos.add(-1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, -1))
+                )
+            }
         }
     }
 

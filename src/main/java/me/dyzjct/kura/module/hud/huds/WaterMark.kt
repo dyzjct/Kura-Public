@@ -16,7 +16,7 @@ class WaterMark : HUDModule() {
     var brightness: Setting<Float> = fsetting("Brightness", 1.0f, 0f, 1.0f)
     var alpha: Setting<Int> = isetting("Alpha", 90, 1, 255)
     var speed = isetting("RainbowSpeed", 1, 0, 1)
-    var Scala = dsetting("Scala", 1.0, 0.0, 3.0)
+//    var Scala = dsetting("Scala", 1.0, 0.0, 3.0)
 
 
     fun generateColor(): Int {
@@ -41,8 +41,8 @@ class WaterMark : HUDModule() {
 //        GL11.glScaled(Scala.value.toDouble(), Scala.value.toDouble(), 0.0)
         FontManager.font2!!.drawString(text.value, 0.0, 0.0, generateColor(), false)
         GL11.glPopMatrix()
-        width = (FontManager.font2!!.getStringWidth(text.value).toFloat() * Scala.value).toInt()
-        height = (FontManager.font2!!.height.toFloat() * Scala.value).toInt()
+//        width = (FontManager.font2!!.getStringWidth(text.value).toFloat() * Scala.value).toInt()
+//        height = (FontManager.font2!!.height.toFloat() * Scala.value).toInt()
     }
 
     enum class ColorMode {

@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
 public class Kura {
     public static final String MOD_ID = "kura";
     public static final String MOD_NAME = "Kura";
-    public static final String VERSION = "1.9";
+    public static final String VERSION = "2.0";
     public static final String DISPLAY_NAME = MOD_NAME + " " + VERSION;
     public static final String KANJI = "Kura";
     public static final String ALT_Encrypt_Key = "Kura";
