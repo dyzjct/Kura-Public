@@ -44,10 +44,6 @@ class BreakESP : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (0 >= mc.player.health) {
-            mineMap!!.clear()
-            packetPos = null
-        }
         if (event.position != null) {
             if (!renderSelf.value) {
                 if (event.breakerId == mc.player.entityId) {
@@ -94,11 +90,6 @@ class BreakESP : Module() {
                 ).toFloat()), 0.0f, it.value.calcMineTime
             )
             if (mc.world.getBlockState(packetPos!!).block === Blocks.AIR && !renderAir.value) {
-                return@forEach
-            }
-            if (0 >= mc.player.health) {
-                mineMap.clear()
-                packetPos = null
                 return@forEach
             }
             if (packetPos != null && packetPos !== minePos && mc.world.getEntityByID(it.value.minerID) != null) {
@@ -161,11 +152,6 @@ class BreakESP : Module() {
                         }
                     }
                     if (drawID.value) {
-                        if (0 >= mc.player.health) {
-                            mineMap.clear()
-                            packetPos = null
-                            return
-                        }
                         if (mc.world.getEntityByID(it.key) is EntityPlayer) {
                             GlStateManager.pushMatrix()
                             MelonTessellator.glBillboardDistanceScaled(

@@ -1,50 +1,43 @@
 package me.dyzjct.kura.module.hud.huds
 
+import me.dyzjct.kura.manager.FontManager
 import me.dyzjct.kura.manager.GuiManager
-import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.HUDModule
 import me.dyzjct.kura.utils.color.ColorUtil
-import me.dyzjct.kura.utils.font.CFont
-import me.dyzjct.kura.utils.font.RFontRenderer
+
 import net.minecraft.client.Minecraft
+import org.lwjgl.opengl.GL11
 import java.awt.Color
-import java.util.concurrent.CopyOnWriteArrayList
-/**
- * Created by chunfeng666 22/12/10
- */
-@HUDModule.Info(name = "Welcomer", x = 160, y = 160, width = 100, height = 10, category = Category.HUD)
+@HUDModule.Info(name = "Welcomer", x = 50, y = 50, width = 100, height = 15)
 class Welcomer : HUDModule() {
-    private var mode = msetting("Mode", Mode.Rainbow)
-    private var Eremin = bsetting("chunfeng is god", true)
-    private var color = csetting("Color", Color(210, 100, 165)).m(mode, Mode.Custom)
-    var fonts = CopyOnWriteArrayList<RFontRenderer>()
-    var font = RFontRenderer(CFont.CustomFont("/assets/fonts/font.ttf", 47.0f, 0), true, false)
+    var color = csetting("Color", Color(255, 255, 255))
+    var colormod = msetting("ColorMod", ColorMode.GuiSync)
+
+    fun generateColor(): Int {
+        val fontColor = Color(
+            GuiManager.getINSTANCE().red / 255f,
+            GuiManager.getINSTANCE().green / 255f,
+            GuiManager.getINSTANCE().blue / 255f,
+            1f
+        ).rgb
+        val custom = Color(color.value.red, color.value.green, color.value.blue).rgb
+        when (colormod.value) {
+            ColorMode.Rainbow -> return ColorUtil.staticRainbow().rgb
+            ColorMode.GuiSync -> return fontColor
+            ColorMode.Custom -> return custom
+        }
+        return -1
+    }
 
     override fun onRender() {
-        if (!fonts.contains(font)) {
-            fonts.add(font)
-            (Eremin)
-        }
-        fun fontColor(): Int {
-            val fontColor = Color(
-                GuiManager.getINSTANCE().red / 255f,
-                GuiManager.getINSTANCE().green / 255f,
-                GuiManager.getINSTANCE().blue / 255f,
-                1f
-            ).rgb
-            val custom = Color(color.value.red, color.value.green, color.value.blue).rgb
-            when (mode.value) {
-                Mode.Rainbow -> return ColorUtil.staticRainbow().rgb
-                Mode.GuiSync -> return fontColor
-                Mode.Custom -> return custom
-            }
-            return -1
-        }
-        val Final = "Hello " + Minecraft.getMinecraft().player.name + "! Thanks for use:)"
-        fontRenderer.drawString(Final, x + 2, y + 4, fontColor())
-        width = fontRenderer.getStringWidth(Final) + 4
+        GL11.glPushMatrix()
+        GL11.glTranslated(x.toDouble(), y.toFloat().toDouble(), 0.0)
+        val Final = "Welcome " + Minecraft.getMinecraft().player.name + "! Have a nice day :)"
+        FontManager.font2!!.drawString(Final, 0.0, 0.0, generateColor(), false)
+        GL11.glPopMatrix()
     }
-    enum class Mode {
-        Rainbow, GuiSync, Custom
+
+    enum class ColorMode {
+        GuiSync, Custom, Rainbow
     }
 }

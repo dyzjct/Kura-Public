@@ -37,8 +37,7 @@ class ShowArrayList : HUDModule() {
     override fun onRender() {
         count = 0
         val screenWidth = ScaledResolution(mc).scaledWidth
-        getModules().stream().filter { it!!.isEnabled }
-            .sorted(Comparator.comparing {
+        getModules().stream().filter { it!!.isEnabled }.sorted(Comparator.comparing {
                 if (customFont.value) fonts.getStringWidth(
                     getArrayList(
                         it!!

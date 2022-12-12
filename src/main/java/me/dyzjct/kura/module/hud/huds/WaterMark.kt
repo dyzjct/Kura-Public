@@ -12,6 +12,8 @@ import java.util.function.Consumer
 class WaterMark : HUDModule() {
     var fonts = CopyOnWriteArrayList<RFontRenderer>()
     var text = ssetting("ViewText", "Kura.Net")
+
+    //    public ColorSetting color = csetting("Color", new Color(255,255,255));
     var saturation: Setting<Float> = fsetting("Saturation", 1.0f, 0f, 1.0f)
     var brightness: Setting<Float> = fsetting("Brightness", 1.0f, 0f, 1.0f)
     var alpha: Setting<Int> = isetting("Alpha", 90, 1, 255)
@@ -22,6 +24,7 @@ class WaterMark : HUDModule() {
         if (!fonts.contains(font)) {
             fonts.add(font)
         }
+        //        int fontColor = new Color(GuiManager.getINSTANCE().getRed() / 255f, GuiManager.getINSTANCE().getGreen() / 255f, GuiManager.getINSTANCE().getBlue() / 255f, 1F).getRGB();
         fonts.forEach(Consumer { f: RFontRenderer ->
             GL11.glPushMatrix()
             GL11.glTranslated(x.toDouble(), y.toFloat().toDouble(), 0.0)
