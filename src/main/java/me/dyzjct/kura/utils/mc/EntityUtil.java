@@ -2,7 +2,7 @@ package me.dyzjct.kura.utils.mc;
 
 import com.google.gson.JsonParser;
 import me.dyzjct.kura.Kura;
-import me.dyzjct.kura.manager.FriendManager;
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.utils.MathUtil;
 import me.dyzjct.kura.utils.Wrapper;
 import java.awt.Color;

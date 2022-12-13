@@ -1,7 +1,7 @@
 package me.dyzjct.kura.module.hud.info;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import me.dyzjct.kura.manager.FriendManager;
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.HUDModule;
 import me.dyzjct.kura.utils.mc.ChatUtil;

@@ -1,5 +1,6 @@
 package me.dyzjct.kura.module.modules.player;
 
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.module.*;
 import me.dyzjct.kura.setting.*;
 import net.minecraft.entity.player.*;

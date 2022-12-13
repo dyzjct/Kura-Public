@@ -1,4 +1,4 @@
-package me.dyzjct.kura.manager;
+package me.dyzjct.kura.friend;
 
 import me.dyzjct.kura.utils.other.Friend;
 import net.minecraft.entity.Entity;

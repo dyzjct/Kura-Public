@@ -3,6 +3,7 @@ package me.dyzjct.kura.manager;
 import com.google.gson.*;
 import me.dyzjct.kura.Kura;
 import me.dyzjct.kura.command.commands.comm.BindCommand;
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.gui.alt.utils.Alt;
 import me.dyzjct.kura.gui.alt.utils.AltSystem;
 import me.dyzjct.kura.gui.clickgui.GUIRender;

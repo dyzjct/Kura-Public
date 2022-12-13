@@ -2,7 +2,7 @@ package me.dyzjct.kura.mixin.client;
 
 import me.dyzjct.kura.event.events.render.RenderPlayerTagsEvent;
 import me.dyzjct.kura.event.events.render.entity.RenderEntityModelEvents;
-import me.dyzjct.kura.manager.FriendManager;
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.module.modules.render.Wireframe;
 import me.dyzjct.kura.utils.color.ColorUtil;
 import net.minecraft.client.Minecraft;

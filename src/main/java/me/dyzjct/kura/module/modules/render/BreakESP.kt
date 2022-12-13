@@ -3,7 +3,7 @@ package me.dyzjct.kura.module.modules.render
 import com.google.common.collect.Maps
 import me.dyzjct.kura.event.events.block.BlockBreakEvent
 import me.dyzjct.kura.event.events.render.RenderEvent
-import me.dyzjct.kura.manager.FriendManager
+import me.dyzjct.kura.friend.FriendManager
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
 import me.dyzjct.kura.setting.BooleanSetting

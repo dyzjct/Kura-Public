@@ -2,7 +2,7 @@ package me.dyzjct.kura;
 
 import me.dyzjct.kura.command.CommandManager;
 import me.dyzjct.kura.event.ForgeEventProcessor;
-import me.dyzjct.kura.event.events.player.EventPlayerTravel;
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.gui.clickgui.GUIRender;
 import me.dyzjct.kura.gui.clickgui.HUDRender;
 import me.dyzjct.kura.gui.settingpanel.XG42SettingPanel;
