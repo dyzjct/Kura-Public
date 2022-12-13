@@ -26,6 +26,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.stream.Collectors
 
+
 /**
  * created by chunfeng666 on 2022-10-05
  * update by dyzjct on 2022-12-10
@@ -36,6 +37,7 @@ class HoleKicker : Module() {
     private val range = isetting("Range", 5, 1, 16)
     private val blockPerPlace = isetting("BlocksTick", 8, 1, 30)
     private val holepull = bsetting("HolePull",true)
+    private val obihelper = bsetting("ObiHelper",true)
     private val breakcrystal = bsetting("BreakCrystal", false)
     private val placeMod = msetting("PlaceMod", PlaceMods.Piston)
     private val timer = Timer()
@@ -45,7 +47,12 @@ class HoleKicker : Module() {
 
     var target: EntityPlayer? = null
 
+    private var obsidian = -1
 
+    var obix:String="null"
+    var obiz:String="null"
+    var obix1:String="null"
+    var obiz1:String="null"
     private var filler = false
     private var didPlace = false
     private var isSneaking = false
@@ -83,6 +90,10 @@ class HoleKicker : Module() {
         breakredstone()
         ChatUtil.sendMessage(canpull)
         canpull="null"
+        obix="null"
+        obiz="null"
+        obix1="null"
+        obiz1="null"
         toggle()
     }
 
@@ -94,6 +105,14 @@ class HoleKicker : Module() {
 
     private fun doPiston() {
         if (check()) return
+        if (obihelper.value){
+            getobipos()
+            placeobi()
+            ChatUtil.sendMessage("x"+obix)
+            ChatUtil.sendMessage("z"+obiz)
+            ChatUtil.sendMessage("-x"+obix1)
+            ChatUtil.sendMessage("-z"+obiz1)
+        }
         doPistonTrap()
         if (didPlace) timer.reset()
     }
@@ -117,6 +136,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obix="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
@@ -141,6 +161,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obiz1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
@@ -165,6 +186,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obiz="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
@@ -189,6 +211,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obix1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
@@ -214,6 +237,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obix="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
@@ -238,6 +262,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obiz1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
@@ -262,6 +287,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obiz="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
@@ -286,6 +312,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obix1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
@@ -311,6 +338,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obix="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
@@ -335,6 +363,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obiz1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
@@ -359,6 +388,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obiz="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
@@ -383,6 +413,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+//            obix1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
@@ -408,6 +439,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+            obix="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
@@ -432,6 +464,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+            obiz1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
@@ -456,6 +489,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+            obiz="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
@@ -480,6 +514,7 @@ class HoleKicker : Module() {
             }else{
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
+            obix1="place"
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
@@ -596,6 +631,39 @@ class HoleKicker : Module() {
         }
     }
 
+
+    private fun placeobi() {
+        if (fullNullCheck()) {
+            return
+        }
+        targets = getTarget(range.value)
+        if (targets == null) {
+            return
+        }
+        obsidian = InventoryUtil.findHotbarBlock(Blocks.OBSIDIAN)
+        if (obsidian == -1) {
+            return
+        }
+        val placepos = BlockPos(targets!!.posX, targets!!.posY, targets!!.posZ)
+        
+//        +x
+        if (this.getBlock(placepos.add(1, 0, 0))!!.block == Blocks.AIR && obix == "place"){
+            this.perform(placepos.add(1,0,0))
+        }
+//        -z
+        if (this.getBlock(placepos.add(0, 0, -1))!!.block == Blocks.AIR && obiz1 == "place"){
+            this.perform(placepos.add(0,0,-1))
+        }
+//        +z
+        if (this.getBlock(placepos.add(0, 0, 1))!!.block == Blocks.AIR && obiz == "place"){
+            this.perform(placepos.add(0,0,1))
+        }
+//        -x
+        if (this.getBlock(placepos.add(-1, 0, 0))!!.block == Blocks.AIR && obix1 == "place"){
+            this.perform(placepos.add(-1,0,0))
+        }
+    }
+
     private fun placeList(pos: Vec3d, list: Array<Vec3d>) {
         for (vec3d in list) {
             val position = BlockPos(pos).add(vec3d.x, vec3d.y, vec3d.z)
@@ -640,6 +708,53 @@ class HoleKicker : Module() {
     private fun getBlock(block: BlockPos): IBlockState? {
         return mc.world.getBlockState(block)
     }
+
+    private fun switchToSlot(slot: Int) {
+        mc.player.connection.sendPacket(CPacketHeldItemChange(slot) as Packet<*>)
+        mc.player.inventory.currentItem = slot
+        mc.playerController.updateController()
+    }
+    private fun perform(pos: BlockPos) {
+        val old = mc.player.inventory.currentItem
+        this.switchToSlot(this.obsidian)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, false, true, false)
+        this.switchToSlot(old)
+    }
+
+    private fun getobipos() {
+        val c = target!!.positionVector
+//            Mode One
+//            +x
+        if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0)))
+            if (checkList(
+                    c, EntityUtil.getVarOffsets(1, 1, 0)
+                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+            ) {
+                obix = "place"
+            }
+//            -z
+            else if (checkList(
+                    c, EntityUtil.getVarOffsets(0, 1, -1)
+                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+            ) {
+                obiz1 = "place"
+            }
+//            +z
+            else if (checkList(
+                    c, EntityUtil.getVarOffsets(0, 1, 1)
+                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+            ) {
+                obiz = "place"
+            }
+//            -x
+            else if (checkList(
+                    c, EntityUtil.getVarOffsets(-1, 1, 0)
+                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+            ) {
+                obix1 = "place"
+            }
+    }
+
 
     companion object {
         var isPlacing = false

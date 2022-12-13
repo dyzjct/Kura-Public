@@ -3,7 +3,6 @@ package me.dyzjct.kura.module.modules.sexy;
 import me.dyzjct.kura.event.events.client.PacketEvents;
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent;
 import me.dyzjct.kura.event.events.render.RenderEvent;
-import me.dyzjct.kura.gui.clickgui.font.FontRenderer;
 import me.dyzjct.kura.manager.FriendManager;
 import me.dyzjct.kura.manager.GuiManager;
 import me.dyzjct.kura.manager.HotbarManager;
@@ -170,12 +169,18 @@ public class MelonAuraPlus extends Module {
     public int DamageCA;
     public int PopTicks;
     private String breaked="NULL";
-    private int breaktime=0;
 
     @SubscribeEvent
     public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         if (PredictHitFactor.getValue() != 0) {
             toggle();
+        }
+    }
+
+    @SubscribeEvent
+    public void onTick(MotionUpdateEvent event){
+        if (crystalTarget==null){
+            breaked="NULL";
         }
     }
 
@@ -255,6 +260,7 @@ public class MelonAuraPlus extends Module {
     }
 
     public void Explode(MotionUpdateEvent.Tick event) {
+        this.breaked = "BREAK";
         EntityEnderCrystal crystal = new ArrayList<>(mc.world.loadedEntityList).stream().filter(e -> e instanceof EntityEnderCrystal &&
                 canHitCrystal(e.getPositionVector()) && CrystalHelper.checkBreakRange((EntityEnderCrystal) e, breakRange.getValue(), wallRange.getValue(), 20, new BlockPos.MutableBlockPos())).map(e -> (EntityEnderCrystal) e).min(Comparator.comparing(e -> mc.player.getDistance(e))).orElse(null);
         if (mc.player != null && crystal != null && renderEnt != null) {
@@ -543,11 +549,7 @@ public class MelonAuraPlus extends Module {
     }
 
     public boolean canHitCrystal(Vec3d crystal) {
-        this.breaktime++;
-        if (breaktime==3){
-            this.breaked = "BREAK";
-            breaktime=0;
-        }
+        this.breaked = "BREAK";
 //
         float selfDamage = CrystalDamageCalculator.Companion.calcDamage(mc.player, mc.player.getPositionVector(), mc.player.getEntityBoundingBox(), crystal.x, crystal.y, crystal.z, new BlockPos.MutableBlockPos());
         float healthSelf = mc.player.getHealth() + mc.player.getAbsorptionAmount();
@@ -576,6 +578,7 @@ public class MelonAuraPlus extends Module {
 
     public List<BlockPos> rendertions(double range) {
         NonNullList<BlockPos> Positions = NonNullList.create();
+        this.breaked="PLACE";
         Positions.addAll(CrystalUtil.getSphere(EntityUtil.getPlayerPos(), range, range, false, true, 0)
                 .stream()
                 .filter(v -> canPlaceCrystal(v, endcrystal.getValue())).collect(Collectors.toList()));
@@ -652,15 +655,17 @@ public class MelonAuraPlus extends Module {
                     if (fullNullCheck()){
                         return;
                     }
-                    if (breaked == "PLACE"||breaked=="NULL"){
+                    if (breaked == "PLACE" || breaked == "NULL"){
                         XG42Tessellator.prepare(GL11.GL_QUADS);
                         XG42Tessellator.drawFullBox(render, OutLineWidth.getValue(), (rainbow.getValue()) ? r : (this.color.getValue().getRed()), (rainbow.getValue()) ? g : (this.color.getValue().getGreen()), (rainbow.getValue()) ? b : (this.color.getValue().getBlue()), alpha.getValue());
                         XG42Tessellator.release();
+//                        breaked = "BREAK";
                     }else if (breaked == "BREAK"){
                         XG42Tessellator.prepare(GL11.GL_QUADS);
                         XG42Tessellator.drawFullBox(render, OutLineWidth.getValue(), (rainbow.getValue()) ? r : (this.color.getValue().getRed()), (rainbow.getValue()) ? g : (this.color.getValue().getGreen()), (rainbow.getValue()) ? b : (this.color.getValue().getBlue()), breakalpha.getValue());
                         XG42Tessellator.release();
-                        this.breaked="NULL";
+//                        breaked = "PLACE";
+                        breaked="NULL";
                     }
                 }
                 if (renderDamage.getValue()) {
@@ -739,6 +744,7 @@ public class MelonAuraPlus extends Module {
         blockRenderSmooth.end();
         renderEnt = null;
         render = null;
+        breaked= "NULL";
     }
 
     @Override

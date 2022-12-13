@@ -61,12 +61,10 @@ public class AutoTotem extends Module {
                 mc.playerController.windowClick(0, preferredTotemSlot, 0, ClickType.PICKUP, mc.player);
                 if (strict.getValue() && EntityUtil.isMoving()) {
                     mc.player.setVelocity(0, 0, 0);
-                    return;
                 }
                 mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
                 if (strict.getValue() && EntityUtil.isMoving()) {
                     mc.player.setVelocity(0, 0, 0);
-                    return;
                 }
                 mc.playerController.updateController();
             }
@@ -81,12 +79,10 @@ public class AutoTotem extends Module {
                 mc.playerController.windowClick(0, preferredTotemSlot, 0, ClickType.PICKUP, mc.player);
                 if (strict.getValue() && EntityUtil.isMoving()) {
                     mc.player.setVelocity(0, 0, 0);
-                    return;
                 }
                 mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
                 if (strict.getValue() && EntityUtil.isMoving()) {
                     mc.player.setVelocity(0, 0, 0);
-                    return;
                 }
                 if (!offhandEmptyPreSwitch) {
                     mc.playerController.windowClick(0, preferredTotemSlot, 0, ClickType.PICKUP, mc.player);
