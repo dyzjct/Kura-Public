@@ -8,7 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 public class Module
         extends IModule {
     ModeSetting visible_value;
-    public boolean state = false;
+
+    public boolean state = true;
     private int offset = 0;
 
     public Module() {
