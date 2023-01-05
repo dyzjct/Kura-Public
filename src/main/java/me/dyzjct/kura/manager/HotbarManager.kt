@@ -1,8 +1,9 @@
 package me.dyzjct.kura.manager
 
-import com.sun.istack.internal.NotNull
+import me.dyzjct.kura.event.events.entity.MotionUpdateEvent
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent.FastTick
 import me.dyzjct.kura.event.events.player.PacketEvent
+import me.dyzjct.kura.utils.inventory.HotbarSlot
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.item.ItemStack
@@ -15,35 +16,19 @@ object HotbarManager : net.minecraftforge.fml.common.eventhandler.Event() {
     var serverSideHotbar = 0; private set
 
     @SubscribeEvent
+    fun FastTick(event:MotionUpdateEvent.FastTick){
+        if (mc!!.world==null||mc!!.player==null){
+            return
+        }
+        mc!!.playerController.updateController()
+    }
+    @SubscribeEvent
     fun onPacket(it: PacketEvent.Send) {
         if (it.isCanceled || it.getPacket<Packet<*>>() !is CPacketHeldItemChange) return
 
         synchronized(mc!!.playerController) {
             serverSideHotbar = (it.getPacket<Packet<*>>() as CPacketHeldItemChange).slotId
         }
-    }
-
-    @JvmStatic
-    inline fun spoofHotbarInvoke(slot: Int, crossinline block: () -> Unit) {
-        synchronized(mc!!.playerController) {
-            if (serverSideHotbar != slot) {
-                mc!!.connection!!.sendPacket(CPacketHeldItemChange(slot))
-            }
-            block.invoke()
-            resetHotbar()
-        }
-    }
-
-    fun resetHotbar() {
-        val slot = mc!!.playerController.currentPlayerItem
-        if (serverSideHotbar != slot) {
-            mc!!.connection!!.sendPacket(CPacketHeldItemChange(slot))
-        }
-    }
-
-    @NotNull
-    fun getServerSideItem(@NotNull player: EntityPlayerSP): ItemStack {
-        return player.inventory.mainInventory[serverSideHotbar]
     }
 
     @JvmStatic
@@ -94,4 +79,41 @@ object HotbarManager : net.minecraftforge.fml.common.eventhandler.Event() {
             if (swap) mc!!.playerController.pickItem(slot)
         }
     }
+
+    val EntityPlayerSP.serverSideItem: ItemStack
+        get() = inventory.mainInventory[serverSideHotbar]
+
+    inline fun spoofHotbarNew(slot: HotbarSlot) {
+        return spoofHotbarNew(slot.hotbarSlot)
+    }
+
+    inline fun spoofHotbarNew(slot: Int) {
+        if (serverSideHotbar != slot) {
+            mc!!.player.connection.sendPacket(CPacketHeldItemChange(slot))
+        }
+    }
+
+    inline fun spoofHotbarNew(slot: HotbarSlot, crossinline block: () -> Unit) {
+        synchronized(mc!!.playerController) {
+            spoofHotbarNew(slot)
+            block.invoke()
+            resetHotbar()
+        }
+    }
+
+    inline fun spoofHotbarNew(slot: Int, crossinline block: () -> Unit) {
+        synchronized(mc!!.playerController) {
+            spoofHotbarNew(slot)
+            block.invoke()
+            resetHotbar()
+        }
+    }
+
+    inline fun resetHotbar() {
+        val slot = mc!!.playerController.currentPlayerItem
+        if (serverSideHotbar != slot) {
+            spoofHotbarNew(slot)
+        }
+    }
+
 }

@@ -7,6 +7,7 @@ import me.dyzjct.kura.utils.MathUtil;
 import me.dyzjct.kura.utils.entity.EntityUtil;
 import me.dyzjct.kura.utils.inventory.InventoryUtil;
 import me.dyzjct.kura.utils.math.RotationUtil;
+import me.dyzjct.kura.utils.mc.ChatUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -78,9 +79,13 @@ public class BlockUtil {
         for (EnumFacing side : EnumFacing.values()) {
             IBlockState blockState;
             BlockPos neighbour = pos.offset(side);
-            if (!mc.world.getBlockState(neighbour).getBlock().canCollideCheck(mc.world.getBlockState(neighbour), false) || (blockState = mc.world.getBlockState(neighbour)).getMaterial().isReplaceable())
-                continue;
-            facings.add(side);
+            try {
+                if (!mc.world.getBlockState(neighbour).getBlock().canCollideCheck(mc.world.getBlockState(neighbour), false) || (blockState = mc.world.getBlockState(neighbour)).getMaterial().isReplaceable())
+                    continue;
+                facings.add(side);
+            }catch (Exception e){
+                //shit
+            }
         }
         return facings;
     }
@@ -96,6 +101,26 @@ public class BlockUtil {
             return EnumFacing.DOWN;
         }
         return EnumFacing.UP;
+    }
+    public static boolean placeBlockSmartRotate(BlockPos pos, EnumHand hand , boolean packet, boolean isSneaking) {
+        boolean sneaking = false;
+        EnumFacing side = BlockUtil.getFirstFacing(pos);
+        ChatUtil.sendMessage(side.toString());
+        if (side == null) {
+            return isSneaking;
+        }
+        BlockPos neighbour = pos.offset(side);
+        EnumFacing opposite = side.getOpposite();
+        Vec3d hitVec = new Vec3d((Vec3i) neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
+        Block neighbourBlock = mc.world.getBlockState(neighbour).getBlock();
+        if (!mc.player.isSneaking() && (blackList.contains(neighbourBlock) || shulkerList.contains(neighbourBlock))) {
+            mc.player.connection.sendPacket((Packet) new CPacketEntityAction((Entity) mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            sneaking = true;
+        }
+        BlockUtil.rightClickBlock(neighbour, hitVec, hand, opposite, packet);
+        mc.player.swingArm(EnumHand.MAIN_HAND);
+        mc.rightClickDelayTimer = 4;
+        return sneaking || isSneaking;
     }
 
     public static EnumFacing getFirstFacing(BlockPos pos) {

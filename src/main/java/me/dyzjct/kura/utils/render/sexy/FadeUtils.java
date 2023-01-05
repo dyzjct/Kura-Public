@@ -3,9 +3,9 @@ package me.dyzjct.kura.utils.render.sexy;
 public class FadeUtils {
 
     protected long start;
-    protected long length;
+    protected float length;
 
-    public FadeUtils(long ms) {
+    public FadeUtils(float ms) {
         length = ms;
         reset();
     }

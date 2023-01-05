@@ -40,7 +40,7 @@ public class ESP extends Module {
                     continue;
                 Vec3d interp = EntityUtil.getInterpolatedRenderPos(entity, mc.getRenderPartialTicks());
                 AxisAlignedBB bb = new AxisAlignedBB((entity.getEntityBoundingBox()).minX - 0.05D - entity.posX + interp.x, (entity.getEntityBoundingBox()).minY - 0.0D - entity.posY + interp.y, (entity.getEntityBoundingBox()).minZ - 0.05D - entity.posZ + interp.z, (entity.getEntityBoundingBox()).maxX + 0.05D - entity.posX + interp.x, (entity.getEntityBoundingBox()).maxY + 0.1D - entity.posY + interp.y, (entity.getEntityBoundingBox()).maxZ + 0.05D - entity.posZ + interp.z);
-                MelonTessellator.prepare(7);
+                MelonTessellator.INSTANCE.prepare(7);
                 GL11.glLineWidth(1f);
                 RenderGlobal.renderFilledBox(bb, color.getValue().getRed() / 255f, color.getValue().getGreen() / 255f, color.getValue().getBlue() / 255f, boxAlpha.getValue() / 255F);
                 MelonTessellator.drawBlockOutline(bb, color.getValue(), alpha.getValue(), 2f);
@@ -53,7 +53,7 @@ public class ESP extends Module {
                     continue;
                 Vec3d interp = EntityUtil.getInterpolatedRenderPos(entity, mc.getRenderPartialTicks());
                 AxisAlignedBB bb = new AxisAlignedBB((entity.getEntityBoundingBox()).minX - 0.05D - entity.posX + interp.x, (entity.getEntityBoundingBox()).minY - 0.0D - entity.posY + interp.y, (entity.getEntityBoundingBox()).minZ - 0.05D - entity.posZ + interp.z, (entity.getEntityBoundingBox()).maxX + 0.05D - entity.posX + interp.x, (entity.getEntityBoundingBox()).maxY + 0.1D - entity.posY + interp.y, (entity.getEntityBoundingBox()).maxZ + 0.05D - entity.posZ + interp.z);
-                MelonTessellator.prepare(7);
+                MelonTessellator.INSTANCE.prepare(7);
                 GL11.glLineWidth(1f);
                 RenderGlobal.renderFilledBox(bb, color.getValue().getRed() / 255f, color.getValue().getGreen() / 255f, color.getValue().getBlue() / 255f, boxAlpha.getValue() / 255F);
                 MelonTessellator.drawBlockOutline(bb, color.getValue(), alpha.getValue(), 2f);
@@ -66,7 +66,7 @@ public class ESP extends Module {
                     continue;
                 Vec3d interp = EntityUtil.getInterpolatedRenderPos(entity, mc.getRenderPartialTicks());
                 AxisAlignedBB bb = new AxisAlignedBB((entity.getEntityBoundingBox()).minX - 0.05D - entity.posX + interp.x, (entity.getEntityBoundingBox()).minY - 0.0D - entity.posY + interp.y, (entity.getEntityBoundingBox()).minZ - 0.05D - entity.posZ + interp.z, (entity.getEntityBoundingBox()).maxX + 0.05D - entity.posX + interp.x, (entity.getEntityBoundingBox()).maxY + 0.1D - entity.posY + interp.y, (entity.getEntityBoundingBox()).maxZ + 0.05D - entity.posZ + interp.z);
-                MelonTessellator.prepare(7);
+                MelonTessellator.INSTANCE.prepare(7);
                 GL11.glLineWidth(1f);
                 RenderGlobal.renderFilledBox(bb, color.getValue().getRed() / 255f, color.getValue().getGreen() / 255f, color.getValue().getBlue() / 255f, boxAlpha.getValue() / 255F);
                 MelonTessellator.drawBlockOutline(bb, color.getValue(), alpha.getValue(), 2f);

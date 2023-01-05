@@ -65,6 +65,25 @@ public class CrystalUtil {
         return circleblocks;
     }
 
+    public static List<BlockPos> getSphere(Vec3d loc, double r, double h, boolean hollow, boolean sphere, int plus_y) {
+        List<BlockPos> circleblocks = new ArrayList<>();
+        int cx = (int) loc.x;
+        int cy = (int) loc.y;
+        int cz = (int) loc.z;
+        for (int x = cx - (int) r; x <= cx + r; x++) {
+            for (int z = cz - (int) r; z <= cz + r; z++) {
+                for (int y = (sphere ? cy - (int) r : cy); y < (sphere ? cy + r : cy + h); y++) {
+                    double dist = (cx - x) * (cx - x) + (cz - z) * (cz - z) + (sphere ? (cy - y) * (cy - y) : 0);
+                    if (dist < r * r && !(hollow && dist < (r - 1) * (r - 1))) {
+                        BlockPos l = new BlockPos(x, y + plus_y, z);
+                        circleblocks.add(l);
+                    }
+                }
+            }
+        }
+        return circleblocks;
+    }
+
     public static List<BlockPos> getSphereVec(Vec3d loc, double r, double h, boolean hollow, boolean sphere, int plus_y) {
         List<BlockPos> circleblocks = new ArrayList<>();
         int cx = (int) loc.x;

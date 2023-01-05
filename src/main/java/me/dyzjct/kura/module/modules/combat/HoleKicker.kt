@@ -7,7 +7,6 @@ import me.dyzjct.kura.utils.NTMiku.BlockUtil
 import me.dyzjct.kura.utils.Timer
 import me.dyzjct.kura.utils.entity.EntityUtil
 import me.dyzjct.kura.utils.inventory.InventoryUtil
-import me.dyzjct.kura.utils.mc.ChatUtil
 import me.dyzjct.kura.utils.player.getTarget
 import net.minecraft.block.BlockAir
 import net.minecraft.block.BlockFire
@@ -16,6 +15,8 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
+import net.minecraft.init.Items
+import net.minecraft.inventory.ClickType
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketHeldItemChange
@@ -29,36 +30,39 @@ import java.util.stream.Collectors
 
 /**
  * created by chunfeng666 on 2022-10-05
- * update by dyzjct on 2022-12-10
+ * update by dyzjct on 2022-12-17
  */
 @Module.Info(name = "HoleKicker", category = Category.COMBAT)
 class HoleKicker : Module() {
     private val delay = isetting("PlaceDelay", 50, 0, 250)
     private val range = isetting("Range", 5, 1, 16)
     private val blockPerPlace = isetting("BlocksTick", 8, 1, 30)
-    private val holepull = bsetting("HolePull",true)
-    private val obihelper = bsetting("ObiHelper",true)
+    private val holepull = bsetting("HolePull", true)
+    private val obihelper = bsetting("ObiHelper", true)
     private val breakcrystal = bsetting("BreakCrystal", false)
     private val placeMod = msetting("PlaceMod", PlaceMods.Piston)
+    private val packetPlace = bsetting("PacketPlace", false)
     private val timer = Timer()
-
-    var canpull:String="null"
+    private var redstonemod: Boolean = false
+    private var canpull: String = "null"
     private var targets: EntityPlayer? = null
 
     var target: EntityPlayer? = null
 
+    private var packetmode: Boolean = packetPlace.value
+
     private var obsidian = -1
 
-    var obix:String="null"
-    var obiz:String="null"
-    var obix1:String="null"
-    var obiz1:String="null"
+    private var obix: String = "null"
+    private var obiz: String = "null"
+    private var obix1: String = "null"
+    private var obiz1: String = "null"
     private var filler = false
     private var didPlace = false
     private var isSneaking = false
     private var placements = 0
     override fun onEnable() {
-        if (placeMod.value.equals(PlaceMods.Piston)) {
+        if (placeMod.value!! == PlaceMods.Piston) {
             if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1) {
                 disable()
                 return
@@ -68,7 +72,7 @@ class HoleKicker : Module() {
                 return
             }
         }
-        if (placeMod.value.equals(PlaceMods.SPiston)) {
+        if (placeMod.value!! == PlaceMods.SPiston) {
             if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1) {
                 disable()
                 return
@@ -83,449 +87,454 @@ class HoleKicker : Module() {
     }
 
     override fun onUpdate() {
+        if (fullNullCheck()) {
+            return
+        }
         if (breakcrystal.value) {
             breakcrystal()
         }
         doPiston()
         breakredstone()
-        ChatUtil.sendMessage(canpull)
-        canpull="null"
-        obix="null"
-        obiz="null"
-        obix1="null"
-        obiz1="null"
+        canpull = "null"
+        obix = "null"
+        obiz = "null"
+        obix1 = "null"
+        obiz1 = "null"
         toggle()
     }
 
     override fun onDisable() {
         isPlacing = false
+        redstonemod = false
+        packetmode = false
         isSneaking = EntityUtil.stopSneaking(isSneaking)
     }
 
 
     private fun doPiston() {
+        if (fullNullCheck()) {
+            return
+        }
         if (check()) return
-        if (obihelper.value){
+        if (obihelper.value) {
             getobipos()
             placeobi()
-            ChatUtil.sendMessage("x"+obix)
-            ChatUtil.sendMessage("z"+obiz)
-            ChatUtil.sendMessage("-x"+obix1)
-            ChatUtil.sendMessage("-z"+obiz1)
         }
         doPistonTrap()
         if (didPlace) timer.reset()
     }
 
     private fun doPistonTrap() {
+        if (fullNullCheck()) {
+            return
+        }
         val b = mc.player.inventory.currentItem
         val c = target!!.positionVector
 //            Mode One
 //            +x
         if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 2, 0)
+                c, EntityUtil.getVarOffsets(0, 2, 0)
             )
         ) if (checkList(c, EntityUtil.getVarOffsets(1, 2, 0)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(1, 1, 0)
+                c, EntityUtil.getVarOffsets(1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obix="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(1, 2, 0))
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 2, 0))) {
+                canpull = "pull"
             }
         }
 //            -z
         else if (checkList(c, EntityUtil.getVarOffsets(0, 2, -1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, -1)
+                c, EntityUtil.getVarOffsets(0, 1, -1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obiz1="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(0, 2, -1))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, 1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, 1))) {
+                canpull = "pull"
             }
         }
 //            +z
         else if (checkList(c, EntityUtil.getVarOffsets(0, 2, 1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, 1)
+                c, EntityUtil.getVarOffsets(0, 1, 1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obiz="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(0, 2, 1))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, -1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, -1))) {
+                canpull = "pull"
             }
         }
 //            -x
         else if (checkList(c, EntityUtil.getVarOffsets(-1, 2, 0)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(-1, 1, 0)
+                c, EntityUtil.getVarOffsets(-1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obix1="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(-1, 2, 0))
-            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 2, 0))) {
+                canpull = "pull"
             }
         }
 //            Mod Two
 //            +x
         else if (checkList(c, EntityUtil.getVarOffsets(2, 1, 0)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(1, 1, 0)
+                c, EntityUtil.getVarOffsets(1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obix="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(2, 1, 0))
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 2, 0))) {
+                canpull = "pull"
             }
         }
 //            -z
         else if (checkList(c, EntityUtil.getVarOffsets(0, 1, -2)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, -1)
+                c, EntityUtil.getVarOffsets(0, 1, -1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obiz1="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(0, 1, -2))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, 1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, 1))) {
+                canpull = "pull"
             }
         }
 //            +z
         else if (checkList(c, EntityUtil.getVarOffsets(0, 1, 2)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, 1)
+                c, EntityUtil.getVarOffsets(0, 1, 1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obiz="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(0, 1, 2))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, -1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, -1))) {
+                canpull = "pull"
             }
         }
 //            -x
         else if (checkList(c, EntityUtil.getVarOffsets(-2, 1, 0)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(-1, 1, 0)
+                c, EntityUtil.getVarOffsets(-1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obix1="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(-2, 1, 0))
-            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 2, 0))) {
+                canpull = "pull"
             }
         }
 //            Mode Three
 //            x
         else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(1, 1, 0)
+                c, EntityUtil.getVarOffsets(1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obix="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 2, 0))) {
+                canpull = "pull"
             }
         }
 //            -z
         else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, -1)
+                c, EntityUtil.getVarOffsets(0, 1, -1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obiz1="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, 1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, 1))) {
+                canpull = "pull"
             }
         }
 //            +z
         else if (checkList(c, EntityUtil.getVarOffsets(1, 1, 1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, 1)
+                c, EntityUtil.getVarOffsets(0, 1, 1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obiz="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(1, 1, 1))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, -1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, -1))) {
+                canpull = "pull"
             }
         }
 //            -x
         else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(-1, 1, 0)
+                c, EntityUtil.getVarOffsets(-1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
 //            obix1="place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
-            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 2, 0))) {
+                canpull = "pull"
             }
         }
 //            Mode Four
         //            x
         else if (checkList(c, EntityUtil.getVarOffsets(1, 1, -1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(1, 1, 0)
+                c, EntityUtil.getVarOffsets(1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
-            obix="place"
+            obix = "place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(1, 1, -1))
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(-1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(-1, 2, 0))) {
+                canpull = "pull"
             }
         }
 //            -z
         else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, -1)
+                c, EntityUtil.getVarOffsets(0, 1, -1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
-            obiz1="place"
+            obiz1 = "place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, -1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, 1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, 1))) {
+                canpull = "pull"
             }
         }
 //            +z
         else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, 1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(0, 1, 1)
+                c, EntityUtil.getVarOffsets(0, 1, 1)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
-            obiz="place"
+            obiz = "place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(0, 1, 1))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //snowy day
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 1))
-            if (!checkList(c,EntityUtil.getVarOffsets(0,1,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 1, -1))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(0,2,-1))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(0, 2, -1))) {
+                canpull = "pull"
             }
         }
 //            -x
         else if (checkList(c, EntityUtil.getVarOffsets(-1, 1, -1)) && checkList(
-                c,
-                EntityUtil.getVarOffsets(-1, 1, 0)
+                c, EntityUtil.getVarOffsets(-1, 1, 0)
             ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
         ) {
-            if (placeMod.value.equals(PlaceMods.Piston)){
+            if (placeMod.value!! == PlaceMods.Piston) {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.PISTON)
-            }else{
+            } else {
                 mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)
             }
-            obix1="place"
+            obix1 = "place"
+            redstonemod = true
             mc.playerController.updateController()
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f, 0f, true) as Packet<*>)
             placeList(c, EntityUtil.getVarOffsets(-1, 1, 0))
             mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController() //Summer
             placeList(c, EntityUtil.getVarOffsets(-1, 1, -1))
-            if (!checkList(c,EntityUtil.getVarOffsets(1,1,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 1, 0))) {
+                canpull = "pull"
             }
-            if (!checkList(c,EntityUtil.getVarOffsets(1,2,0))){
-                canpull="pull"
+            if (!checkList(c, EntityUtil.getVarOffsets(1, 2, 0))) {
+                canpull = "pull"
             }
         }
         mc.player.inventory.currentItem = b
@@ -543,7 +552,7 @@ class HoleKicker : Module() {
         }
         val breakpos = BlockPos(targets!!.posX, targets!!.posY, targets!!.posZ)
 //        Mode One
-        if (canpull=="pull"&&holepull.value){
+        if (canpull == "pull" && holepull.value) {
 
             if (getBlock(breakpos.add(1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
@@ -645,22 +654,22 @@ class HoleKicker : Module() {
             return
         }
         val placepos = BlockPos(targets!!.posX, targets!!.posY, targets!!.posZ)
-        
+
 //        +x
-        if (this.getBlock(placepos.add(1, 0, 0))!!.block == Blocks.AIR && obix == "place"){
-            this.perform(placepos.add(1,0,0))
+        if (this.getBlock(placepos.add(1, 0, 0))!!.block == Blocks.AIR && obix == "place") {
+            this.perform(placepos.add(1, 0, 0))
         }
 //        -z
-        if (this.getBlock(placepos.add(0, 0, -1))!!.block == Blocks.AIR && obiz1 == "place"){
-            this.perform(placepos.add(0,0,-1))
+        if (this.getBlock(placepos.add(0, 0, -1))!!.block == Blocks.AIR && obiz1 == "place") {
+            this.perform(placepos.add(0, 0, -1))
         }
 //        +z
-        if (this.getBlock(placepos.add(0, 0, 1))!!.block == Blocks.AIR && obiz == "place"){
-            this.perform(placepos.add(0,0,1))
+        if (this.getBlock(placepos.add(0, 0, 1))!!.block == Blocks.AIR && obiz == "place") {
+            this.perform(placepos.add(0, 0, 1))
         }
 //        -x
-        if (this.getBlock(placepos.add(-1, 0, 0))!!.block == Blocks.AIR && obix1 == "place"){
-            this.perform(placepos.add(-1,0,0))
+        if (this.getBlock(placepos.add(-1, 0, 0))!!.block == Blocks.AIR && obix1 == "place") {
+            this.perform(placepos.add(-1, 0, 0))
         }
     }
 
@@ -693,8 +702,11 @@ class HoleKicker : Module() {
     private fun placeBlock(pos: BlockPos) {
         if (placements < blockPerPlace.value && mc.player.getDistanceSq(pos) <= MathUtil.square(6.0)) {
             isPlacing = true
+            if (redstonemod) {
+                packetmode = false
+            }
             isSneaking = me.dyzjct.kura.utils.block.BlockUtil.placeBlock(
-                pos, EnumHand.MAIN_HAND, false, false, true
+                pos, EnumHand.MAIN_HAND, false, packetmode, true
             )
             didPlace = true
             placements++
@@ -714,6 +726,7 @@ class HoleKicker : Module() {
         mc.player.inventory.currentItem = slot
         mc.playerController.updateController()
     }
+
     private fun perform(pos: BlockPos) {
         val old = mc.player.inventory.currentItem
         this.switchToSlot(this.obsidian)
@@ -725,34 +738,36 @@ class HoleKicker : Module() {
         val c = target!!.positionVector
 //            Mode One
 //            +x
-        if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0)))
-            if (checkList(
-                    c, EntityUtil.getVarOffsets(1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                obix = "place"
-            }
+        if (checkList(c, EntityUtil.getVarOffsets(0, 1, 0)) && checkList(
+                c, EntityUtil.getVarOffsets(0, 2, 0)
+            )
+        ) if (checkList(
+                c, EntityUtil.getVarOffsets(1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            obix = "place"
+        }
 //            -z
-            else if (checkList(
-                    c, EntityUtil.getVarOffsets(0, 1, -1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                obiz1 = "place"
-            }
+        else if (checkList(
+                c, EntityUtil.getVarOffsets(0, 1, -1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            obiz1 = "place"
+        }
 //            +z
-            else if (checkList(
-                    c, EntityUtil.getVarOffsets(0, 1, 1)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                obiz = "place"
-            }
+        else if (checkList(
+                c, EntityUtil.getVarOffsets(0, 1, 1)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            obiz = "place"
+        }
 //            -x
-            else if (checkList(
-                    c, EntityUtil.getVarOffsets(-1, 1, 0)
-                ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
-            ) {
-                obix1 = "place"
-            }
+        else if (checkList(
+                c, EntityUtil.getVarOffsets(-1, 1, 0)
+            ) && checkList(c, EntityUtil.getVarOffsets(0, 2, 0))
+        ) {
+            obix1 = "place"
+        }
     }
 
 

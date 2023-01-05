@@ -1,4 +1,4 @@
-package me.dyzjct.kura.module.modules.extra
+package me.dyzjct.kura.module.modules.xddd
 
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent.Tick
 import me.dyzjct.kura.module.Category

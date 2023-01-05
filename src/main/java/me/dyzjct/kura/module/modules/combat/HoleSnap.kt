@@ -8,6 +8,8 @@ import me.dyzjct.kura.module.Module
 import me.dyzjct.kura.module.ModuleManager
 import me.dyzjct.kura.module.modules.movement.Speed
 import me.dyzjct.kura.module.modules.movement.Step
+import me.dyzjct.kura.module.modules.player.Blink
+import me.dyzjct.kura.module.modules.player.Timer
 import me.dyzjct.kura.setting.BooleanSetting
 import me.dyzjct.kura.setting.FloatSetting
 import me.dyzjct.kura.setting.IntegerSetting
@@ -42,9 +44,11 @@ import kotlin.math.*
 @Module.Info(name = "HoleSnap", category = Category.COMBAT)
 class HoleSnap : Module() {
     private var range: IntegerSetting = isetting("Range", 5, 1, 50)
-    private var timer: FloatSetting = fsetting("TimerVal", 3.4f, 1f, 4f)
+    private var timer: FloatSetting = fsetting("TimerVal", 3.4f, 1f, 25f)
+    private var blink: BooleanSetting = bsetting("BlinkSnap", false)
     private var timeoutTicks: IntegerSetting = isetting("TimeOutTicks", 60, 0, 1000)
     private var toggleStep: BooleanSetting = bsetting("EnableStep", true)
+    private var toggleTimer: BooleanSetting = bsetting("ToggleTimer", true)
     private var disableStrafe: BooleanSetting = bsetting("DisableSpeed", false)
     private var antiAim: BooleanSetting = bsetting("AntiAim", true)
     private var packetListReset: TimerUtils = TimerUtils()
@@ -66,6 +70,9 @@ class HoleSnap : Module() {
         }
         lastYaw = mc.player.rotationYaw
         lastPitch = mc.player.rotationPitch
+        if (blink.value && !ModuleManager.getModuleByClass(Blink::class.java).isEnabled) {
+            ModuleManager.getModuleByClass(Blink::class.java).enable()
+        }
     }
 
     override fun onDisable() {
@@ -80,6 +87,12 @@ class HoleSnap : Module() {
         if (toggleStep.value && ModuleManager.getModuleByClass(Step::class.java).isEnabled) {
             ModuleManager.getModuleByClass(Step::class.java).disable()
         }
+        if (toggleTimer.value && ModuleManager.getModuleByClass(Timer::class.java).isEnabled) {
+            ModuleManager.getModuleByClass(Timer::class.java).disable()
+        }
+        if (blink.value && ModuleManager.getModuleByClass(Blink::class.java).isEnabled) {
+            ModuleManager.getModuleByClass(Blink::class.java).disable()
+        }
     }
 
     val Entity.speed get() = hypot(motionX, motionZ)
@@ -91,7 +104,7 @@ class HoleSnap : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (event.getPacket<Packet<*>>() is SPacketPlayerPosLook) {
+        if (event.packet is SPacketPlayerPosLook) {
             disable()
         }
     }
@@ -101,7 +114,7 @@ class HoleSnap : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (event.getPacket<Packet<*>>() is CPacketPlayer.Position && rotationMode == 1) {
+        if (event.packet is CPacketPlayer.Position && rotationMode == 1) {
             normalPos++
             if (normalPos > 20) {
                 rotationMode = if (normalLookPos > 20) {
@@ -110,7 +123,7 @@ class HoleSnap : Module() {
                     2
                 }
             }
-        } else if (event.getPacket<Packet<*>>() is CPacketPlayer.PositionRotation && rotationMode == 2) {
+        } else if (event.packet is CPacketPlayer.PositionRotation && rotationMode == 2) {
             normalLookPos++
             if (normalLookPos > 20) {
                 rotationMode = if (normalPos > 20) {
@@ -165,10 +178,12 @@ class HoleSnap : Module() {
                         event.setRotation(lastYaw, lastPitch)
                     }
                 }
+
                 2 -> {
                     //PosLook
                     event.setRotation(lastYaw + RandomUtil.nextFloat(1f, 3f), lastPitch + RandomUtil.nextFloat(1f, 5f))
                 }
+
                 3 -> {
                     //Mixed
                     event.setRotation(lastYaw, lastPitch)
@@ -208,9 +223,7 @@ class HoleSnap : Module() {
             if (!mc.player.isCentered(it)) {
                 timerBypassing = true
                 val playerPos = mc.player.positionVector
-                val targetPos =
-                    Vec3d(it.x + 0.5, mc.player.posY, it.z + 0.5)
-                /*: Vec3d = if (HoleUtil.is2HoleB(it)) {
+                val targetPos = Vec3d(it.x + 0.5, mc.player.posY, it.z + 0.5)/*: Vec3d = if (HoleUtil.is2HoleB(it)) {
                     //Vec3d(it.x.toDouble() + ((it.x - playerPos.x) / 2), mc.player.posY, it.z.toDouble() + ((it.z - playerPos.z) / 2))
                     Vec3d(it.toVec3dCenter().x, mc.player.posY, it.toVec3dCenter().z)
                 } else {
@@ -269,9 +282,9 @@ class HoleSnap : Module() {
     }
 
     private fun shouldDisable(currentSpeed: Double) =
-        holePos?.let { mc.player.posY < it.y } ?: false
-                || stuckTicks > 5 && currentSpeed < 0.1
-                || currentSpeed < 0.01 && getHole()?.let { mc.player.isCentered(it) } == true || (checkHole(mc.player) != SurroundUtils.HoleType.NONE)
+        holePos?.let { mc.player.posY < it.y } ?: false || stuckTicks > 5 && currentSpeed < 0.1 || currentSpeed < 0.01 && getHole()?.let {
+            mc.player.isCentered(it)
+        } == true || (checkHole(mc.player) != SurroundUtils.HoleType.NONE)
 
     /*
     private fun shouldDisable(currentSpeed: Double) =
@@ -287,21 +300,18 @@ class HoleSnap : Module() {
     }
 
     private fun EntityPlayerSP.isCentered(x: Double, z: Double): Boolean {
-        return abs(this.posX - x) < 0.2
-                && abs(this.posZ - z) < 0.2
+        return abs(this.posX - x) < 0.2 && abs(this.posZ - z) < 0.2
     }
 
-    private fun getHole() =
-        if (mc.player.ticksExisted % 10 == 0 && mc.player.betterPosition != holePos) findHole()
-        else holePos ?: findHole()
+    private fun getHole() = if (mc.player.ticksExisted % 10 == 0 && mc.player.betterPosition != holePos) findHole()
+    else holePos ?: findHole()
 
     private fun findHole(): BlockPos? {
         var closestHole = Pair(69.69, BlockPos.ORIGIN)
         val playerPos = mc.player.betterPosition
         val ceilRange = range.value
         val posList = VectorUtils.getBlockPositionsInArea(
-            playerPos.add(ceilRange, -1, ceilRange),
-            playerPos.add(-ceilRange, -1, -ceilRange)
+            playerPos.add(ceilRange, -1, ceilRange), playerPos.add(-ceilRange, -1, -ceilRange)
         )
 
         for (posXZ in posList) {
@@ -313,9 +323,9 @@ class HoleSnap : Module() {
                 if (!mc.world.isAirBlock(pos.up())) break
                 if (HoleUtil.is2HoleB(pos)) {
                     //if (HoleUtil.isHole(pos, false, false).type == HoleUtil.HoleType.DOUBLE) {
-                        closestHole = dist to pos//HoleUtil.isHole(pos, false, false).centerPos
-                        continue
-                    }
+                    closestHole = dist to pos//HoleUtil.isHole(pos, false, false).centerPos
+                    continue
+                }
                 if (checkHole(pos) == SurroundUtils.HoleType.NONE) continue
                 closestHole = dist to pos
             }

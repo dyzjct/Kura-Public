@@ -157,7 +157,7 @@ public class RenderUtils3D {
             double d4;
             double d5;
             double d6;
-            MelonTessellator.prepare(7);
+            MelonTessellator.INSTANCE.prepare(7);
             GL11.glLineWidth(lineWidth);
             double d8 = mc.playerController.curBlockDamageMP;
             d6 = axisAlignedBB.minX + 1 - quint(d8);
@@ -206,7 +206,7 @@ public class RenderUtils3D {
     }
 
     public static void drawEntityESP(double x, double y, double z, float width, double height, float red, float green, float blue, float alpha) {
-        MelonTessellator.prepare(GL11.GL_QUADS);
+        MelonTessellator.INSTANCE.prepare(GL11.GL_QUADS);
         GL11.glLineWidth(width);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glColor4f(red / 255f, green / 255f, blue / 255f, alpha / 255f);
@@ -248,7 +248,7 @@ public class RenderUtils3D {
         if (w > width) {
             width = w;
         }
-        MelonTessellator.prepare(7);
+        MelonTessellator.INSTANCE.prepare(7);
         //MelonTessellator.drawRect((float) (-width - 1f), -mc.fontRenderer.FONT_HEIGHT, (float) (width + 2f), 2f, bcolor.getRGB());
         drawBorderedRect(-width - 1, -mc.fontRenderer.FONT_HEIGHT, width + 2, 2f, 2f, new GSColor(0, 4, 0, 100), bcolor);
         MelonTessellator.release();

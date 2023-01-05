@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Module.Info(name = "ChatSuffix", category = Category.CHAT, description = "Custom Chat Suffix")
 public class ChatSuffix extends Module {
 
-    public static String CHAT_SUFFIX = " ♡ ᴋᴜʀᴀツ";
+    public static String CHAT_SUFFIX = "⇜ ᴋᴜʀᴀ";
     public Setting<Boolean> commands = bsetting("Command", false);
 
     @SubscribeEvent

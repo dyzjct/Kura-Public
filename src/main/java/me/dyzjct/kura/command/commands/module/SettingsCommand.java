@@ -36,7 +36,7 @@ extends Command {
             result[i] = "§b" + setting.getName() + "§3(=" + setting.getValue() + ")  §ftype: §3" + setting.getValue().getClass().getSimpleName();
             if (!(setting instanceof ModeSetting)) continue;
             result[i] = result[i] + "  (";
-            for (Enum e : ((ModeSetting) setting).getModes()) {
+            for (Object e : ((ModeSetting) setting).getModes()) {
                 result[i] = result[i] + e.toString().toUpperCase() + ", ";
             }
             result[i] = result[i].substring(0, result[i].length() - 2) + ")";

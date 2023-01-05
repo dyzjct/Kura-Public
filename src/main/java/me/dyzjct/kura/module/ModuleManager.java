@@ -8,12 +8,14 @@ import me.dyzjct.kura.module.modules.chat.AutoGG;
 import me.dyzjct.kura.module.modules.chat.ChatSuffix;
 import me.dyzjct.kura.module.modules.chat.ChatTimeStamps;
 import me.dyzjct.kura.module.modules.combat.HoleFiller.HoleFiller;
-import me.dyzjct.kura.module.modules.extra.AutoCraftBed;
-import me.dyzjct.kura.module.modules.sexy.MelonAuraPlus;
+import me.dyzjct.kura.module.modules.crystalaura.LunarAura;
+import me.dyzjct.kura.module.modules.xddd.AutoCraftBed;
+import me.dyzjct.kura.module.modules.crystalaura.KuraAura;
 import me.dyzjct.kura.module.modules.xddd.IQBooster;
 import me.dyzjct.kura.module.modules.xddd.NewBedAura;
 import me.dyzjct.kura.module.modules.xddd.SmartOffHand;
 import me.dyzjct.kura.module.modules.xddd.Surround;
+import me.dyzjct.kura.module.modules.xddd.SurroundRewrite;
 import me.dyzjct.kura.utils.gl.XG42Tessellator;
 import me.dyzjct.kura.utils.mc.EntityUtil;
 import me.dyzjct.kura.module.hud.info.*;
@@ -222,14 +224,13 @@ public class ModuleManager {
         registerModule(new CustomFont());
         registerModule(new HUDEditor());
         registerModule(new NullModule());
-        registerModule(new SettingPanel());
-        registerModule(new SettingPanelColor());
+//        registerModule(new Overlay());
         //Render
         registerModule(new Animations());
         registerModule(new AntiPlayerSwing());
+        registerModule(new BurrowESP());
         registerModule(new CameraClip());
         registerModule(new SkyColor());
-        registerModule(new LocalWorldTime());
         registerModule(new CustomFov());
         registerModule(new Wireframe());
         registerModule(new HandColor());
@@ -251,18 +252,17 @@ public class ModuleManager {
         registerModule(new ESP());
         //Combat
         registerModule(new Aimbot());
-        registerModule(new AntiBot());
         registerModule(new Anti32kTotem());
         registerModule(new Aura32K());
         registerModule(new Auto32GAY());
-        registerModule(new AutoEXP());
+        registerModule(new AutoMend());
         registerModule(new AutoReplenish());
         registerModule(new AutoTotem());
         registerModule(new AutoTrap());
-//        registerModule(new AutoHoleMine());
-        registerModule(new AutoWeb());
-        registerModule(new AutoCity2());
+        registerModule(new AutoCity());
+        registerModule(new AutoPiston());
         registerModule(new Burrow());
+        registerModule(new Burrow2());
         registerModule(new Criticals());
         registerModule(new CevBreaker());
         registerModule(new DispenserMeta());
@@ -276,13 +276,14 @@ public class ModuleManager {
         registerModule(new TotemPopCounter());
         registerModule(new VisualRange());
         registerModule(new EzBow());
-        registerModule(new AntiBurrow2());
+        registerModule(new AntiBurrow());
         registerModule(new HoleKicker());
         registerModule(new HoleFiller());
-        registerModule(new Burrow2());
         registerModule(new SmartBurrow());
+        registerModule(new HolePush());
+        registerModule(new TNTHead());
         //Player
-        registerModule(new AutoPush());
+        registerModule(new AntiShulkerBox());
         registerModule(new StrictPacketMine());
         registerModule(new LiquidInteract());
         registerModule(new Reach());
@@ -301,17 +302,13 @@ public class ModuleManager {
         registerModule(new Timer());
         registerModule(new TpsSync());
         registerModule(new Disabler());
-        registerModule(new FeetFiller());
-        registerModule(new HeadFiller());
-        registerModule(new WebFiller());
+        registerModule(new CancelPearl());
+        registerModule(new TargetBuilder());
         //Misc
         registerModule(new AntiAim());
-        registerModule(new AntiHoleMine());
-        registerModule(new AntiBurrowHelper());
-        registerModule(new AntiAnvil());
-        registerModule(new AntiPiston());
-        registerModule(new AntiCity());
         registerModule(new HeadBlocker());
+        registerModule(new AntiBurrowHelper());
+        registerModule(new AntiPiston());
         registerModule(new NoteBot());
         registerModule(new EntityDeSync());
         registerModule(new NoPacketKick( ));
@@ -352,19 +349,23 @@ public class ModuleManager {
         registerModule(new Flight());
         registerModule(new SafeWalk());
         registerModule(new TestPhase());
+        registerModule(new PositionBug());
         //XDDD
+        registerModule(new SurroundRewrite());
         registerModule(new Surround());
         registerModule(new AutoCraftBed());
         registerModule(new IQBooster());
         registerModule(new SmartOffHand());
         //SEXY
         registerModule(new NewBedAura());
-        registerModule(new MelonAuraPlus());
+        registerModule(new KuraAura());
+        registerModule(new LunarAura());
         getModules().sort(Comparator.comparing(IModule::getName));
     }
-
     public void loadHUDs() {
         registerHUD(new ShowArrayList());
+        registerHUD(new Direction());
+        registerHUD(new XG42ShowArrayList());
         registerHUD(new Welcomer());
         registerHUD(new WaterMark());
         registerHUD(new CrystalTargetHUD());

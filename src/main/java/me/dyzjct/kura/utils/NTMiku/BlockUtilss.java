@@ -1,7 +1,6 @@
 package me.dyzjct.kura.utils.NTMiku;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import me.dyzjct.kura.manager.RotationManager;
 import me.dyzjct.kura.utils.entity.EntityUtil;
 import me.dyzjct.kura.utils.inventory.InventoryUtil;
 import me.dyzjct.kura.utils.math.MathUtil;

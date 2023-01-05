@@ -8,7 +8,7 @@ import me.dyzjct.kura.event.events.client.ConnectEvent
 import me.dyzjct.kura.event.events.client.DisconnectEvent
 import me.dyzjct.kura.event.events.client.PacketEvents
 import me.dyzjct.kura.module.ModuleManager
-import me.dyzjct.kura.module.modules.xddd.CrystalDamageCalculator
+import me.dyzjct.kura.module.modules.crystalaura.CrystalHelper.CrystalDamageCalculator
 import me.dyzjct.kura.notification.NotificationManager
 import me.dyzjct.kura.utils.Timer
 import me.dyzjct.kura.utils.Utils
@@ -20,7 +20,6 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiShulkerBox
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.passive.AbstractHorse
-import net.minecraft.network.Packet
 import net.minecraft.network.play.server.SPacketPlayerListItem
 import net.minecraft.network.play.server.SPacketPlayerListItem.AddPlayerData
 import net.minecraftforge.client.event.ClientChatEvent
@@ -39,10 +38,11 @@ import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.util.*
 
-class ForgeEventProcessor : Event() {
+object ForgeEventProcessor : Event() {
     var logoutTimer = Timer()
     var yaw = 0f
     var pitch = 0f
+
     @SubscribeEvent
     fun onWorldRender(event: RenderWorldLastEvent) {
         if (event.isCanceled || Utils.nullCheck()) {
@@ -125,16 +125,16 @@ class ForgeEventProcessor : Event() {
 
     @SubscribeEvent
     fun onPacketReceive(event: PacketEvents.Receive) {
-        if (event.getPacket<Packet<*>>() is SPacketPlayerListItem && logoutTimer.passed(1)) {
-            val packet = event.getPacket<SPacketPlayerListItem>()
-            if (SPacketPlayerListItem.Action.ADD_PLAYER != packet.action && SPacketPlayerListItem.Action.REMOVE_PLAYER != packet.action) {
+        if (event.packet is SPacketPlayerListItem && logoutTimer.passed(1)) {
+            val packet = event.packet
+            if (SPacketPlayerListItem.Action.ADD_PLAYER != (event.packet as SPacketPlayerListItem).action && SPacketPlayerListItem.Action.REMOVE_PLAYER != (event.packet as SPacketPlayerListItem).action) {
                 return
             }
-            packet.entries.stream().filter { obj: AddPlayerData? -> Objects.nonNull(obj) }
+            (event.packet as SPacketPlayerListItem).entries.stream().filter { obj: AddPlayerData? -> Objects.nonNull(obj) }
                 .filter { data: AddPlayerData -> !Strings.isNullOrEmpty(data.profile.name) || data.profile.id != null }
                 .forEach { data: AddPlayerData ->
                     val id = data.profile.id
-                    when (packet.action) {
+                    when ((event.packet as SPacketPlayerListItem).action) {
                         SPacketPlayerListItem.Action.ADD_PLAYER -> {
                             val name = data.profile.name
                             MinecraftForge.EVENT_BUS.post(ConnectEvent(name))
@@ -174,7 +174,7 @@ class ForgeEventProcessor : Event() {
             try {
                 Wrapper.getMinecraft().ingameGUI.chatGUI.addToSentMessages(event.message)
                 if (event.message.length > 1) {
-                    Kura.getInstance().getCommandManager()
+                    Kura.instance.commandManager!!
                         .callCommand(event.message.substring(Command.getCommandPrefix().length - 1))
                 } else {
                     ChatUtil.NoSpam.sendWarnMessage("Please enter a command.")
@@ -186,7 +186,5 @@ class ForgeEventProcessor : Event() {
         }
     }
 
-    companion object {
-        var mc = Minecraft.getMinecraft()
-    }
+    var mc = Minecraft.getMinecraft()
 }

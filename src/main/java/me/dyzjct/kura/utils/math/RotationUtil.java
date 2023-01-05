@@ -22,7 +22,6 @@ public class RotationUtil {
         double dist = MathHelper.sqrt((difX * difX + difZ * difZ));
         return new float[]{(float) MathHelper.wrapDegrees((Math.toDegrees(Math.atan2(difZ, difX)) - 90.0)), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
     }
-
     public static float[] getRotationsBlock(BlockPos block, EnumFacing face, boolean Legit) {
         double x = block.getX() + 0.5 - mc.player.posX + (double) face.getXOffset() / 2;
         double z = block.getZ() + 0.5 - mc.player.posZ + (double) face.getZOffset() / 2;
@@ -116,13 +115,12 @@ public class RotationUtil {
         float[] angle = MathUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(vec3d.x, vec3d.y, vec3d.z));
         setPlayerRotations(angle[0], angle[1]);
     }
-
     public void lookAtVec3d(double x, double y, double z) {
         Vec3d vec3d = new Vec3d(x, y, z);
         this.lookAtVec3d(vec3d);
     }
 
-    public void lookAtEntity(Entity entity) {
+    public static void lookAtEntity(Entity entity) {
         float[] angle = MathUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), entity.getPositionEyes(mc.getRenderPartialTicks()));
         setPlayerRotations(angle[0], angle[1]);
     }
@@ -150,8 +148,28 @@ public class RotationUtil {
     public static int getDirection4D() {
         return getDirection4D();
     }
+    public static int getDirection() {
+        return MathHelper.floor((double) (RotationUtil.mc.player.rotationYaw * 4.0f / 360.0f) + 0.5) & 3;
+    }
 
     public String getDirection4D(boolean northRed) {
         return getDirection4D(northRed);
+    }
+
+    public static String getDirection(boolean northRed) {
+        int dirnumber = RotationUtil.getDirection();
+        if (dirnumber == 0) {
+            return "South (+Z)";
+        }
+        if (dirnumber == 1) {
+            return "West (-X)";
+        }
+        if (dirnumber == 2) {
+            return (northRed ? "Â§c" : "") + "North (-Z)";
+        }
+        if (dirnumber == 3) {
+            return "East (+X)";
+        }
+        return "Loading...";
     }
 }

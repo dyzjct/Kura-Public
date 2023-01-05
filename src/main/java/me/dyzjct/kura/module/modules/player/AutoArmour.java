@@ -3,7 +3,7 @@ package me.dyzjct.kura.module.modules.player;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;
 import me.dyzjct.kura.module.ModuleManager;
-import me.dyzjct.kura.module.modules.combat.AutoEXP;
+import me.dyzjct.kura.module.modules.combat.AutoMend;
 import me.dyzjct.kura.module.modules.misc.XCarry;
 import me.dyzjct.kura.module.modules.movement.ElytraPlus;
 import me.dyzjct.kura.setting.BooleanSetting;
@@ -81,7 +81,7 @@ public class AutoArmour extends Module {
             return;
         }
         if (xpcheck.getValue()) {
-            if (ModuleManager.getModuleByClass(AutoEXP.class).isEnabled()) {
+            if (ModuleManager.getModuleByClass(AutoMend.class).isEnabled()) {
                 return;
             }
         }

@@ -65,7 +65,7 @@ public class MelonGUIChat extends GuiChat {
 
         if (args.length == 0) return; // Hell naw!
 
-        for (Command c : Kura.getInstance().getCommandManager().getCommands()) {
+        for (Command c : Kura.Companion.getInstance().commandManager.getCommands()) {
             if ((c.getLabel().startsWith(args[0]) && !line.endsWith(" ")) || c.getLabel().equals(args[0])) {
                 options.put(c.getLabel(), c);
             }

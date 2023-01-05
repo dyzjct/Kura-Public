@@ -107,6 +107,9 @@ class Burrow : Module() {
         if (fullNullCheck()) {
             return
         }
+        if (!mc.player.onGround){
+            return
+        }
         oldSlot = mc.player.inventory.currentItem
         if (mc.world.getBlockState(
                 BlockPos(

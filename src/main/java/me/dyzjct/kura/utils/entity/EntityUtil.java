@@ -1,5 +1,3 @@
-//Deobfuscated with https://github.com/PetoPetko/Minecraft-Deobfuscator3000 using mappings "1.12 stable mappings"!
-
 package me.dyzjct.kura.utils.entity;
 
 import com.google.gson.JsonParser;
@@ -26,7 +24,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -65,6 +65,16 @@ public class EntityUtil {
         doubleLegOffsetList = new Vec3d[]{new Vec3d(-1.0, 0.0, 0.0), new Vec3d(1.0, 0.0, 0.0), new Vec3d(0.0, 0.0, -1.0), new Vec3d(0.0, 0.0, 1.0), new Vec3d(-2.0, 0.0, 0.0), new Vec3d(2.0, 0.0, 0.0), new Vec3d(0.0, 0.0, -2.0), new Vec3d(0.0, 0.0, 2.0)};
     }
 
+    public static void attackEntity(Entity entity, boolean packet, boolean swingArm) {
+        if (packet) {
+            EntityUtil.mc.player.connection.sendPacket(new CPacketUseEntity(entity));
+        } else {
+            EntityUtil.mc.playerController.attackEntity(EntityUtil.mc.player, entity);
+        }
+        if (swingArm) {
+            EntityUtil.mc.player.swingArm(EnumHand.MAIN_HAND);
+        }
+    }
     public static float getSpeed() {
         return MathHelper.sqrt(mc.player.motionX * mc.player.motionX + mc.player.motionZ * mc.player.motionZ);
     }
@@ -1385,5 +1395,55 @@ public class EntityUtil {
         final ArrayList<Vec3d> offsets = new ArrayList<>();
         offsets.add(new Vec3d(x, y, z));
         return offsets;
+    }
+
+    public static void autoCenter() {
+        try{
+            BlockPos centerPos = mc.player.getPosition();
+            double y = centerPos.getY();
+            double x = centerPos.getX();
+            double z = centerPos.getZ();
+
+            Vec3d plusPlus = new Vec3d(x + 0.5, y, z + 0.5);
+            Vec3d plusMinus = new Vec3d(x + 0.5, y, z - 0.5);
+            Vec3d minusMinus = new Vec3d(x - 0.5, y, z - 0.5);
+            Vec3d minusPlus = new Vec3d(x - 0.5, y, z + 0.5);
+            if (getDst(plusPlus) < getDst(plusMinus) && getDst(plusPlus) < getDst(minusMinus) && getDst(plusPlus) < getDst(minusPlus)) {
+                x = centerPos.getX() + 0.5;
+                z = centerPos.getZ() + 0.5;
+                centerPlayer(x, y, z);
+            }
+            if (getDst(plusMinus) < getDst(plusPlus) && getDst(plusMinus) < getDst(minusMinus) && getDst(plusMinus) < getDst(minusPlus)) {
+                x = centerPos.getX() + 0.5;
+                z = centerPos.getZ() - 0.5;
+                centerPlayer(x, y, z);
+            }
+            if (getDst(minusMinus) < getDst(plusPlus) && getDst(minusMinus) < getDst(plusMinus) && getDst(minusMinus) < getDst(minusPlus)) {
+                x = centerPos.getX() - 0.5;
+                z = centerPos.getZ() - 0.5;
+                centerPlayer(x, y, z);
+            }
+            if (getDst(minusPlus) < getDst(plusPlus) && getDst(minusPlus) < getDst(plusMinus) && getDst(minusPlus) < getDst(minusMinus)) {
+                x = centerPos.getX() - 0.5;
+                z = centerPos.getZ() + 0.5;
+                centerPlayer(x, y, z);
+            }
+        }catch (Exception e){
+//            SB
+        }
+
+    }
+
+    public static double getDst(Vec3d vec) {
+        return mc.player.getPositionVector().distanceTo(vec);
+    }
+
+    public static void centerPlayer(BlockPos pos) {
+        centerPlayer(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static void centerPlayer(double x, double y, double z) {
+        mc.player.connection.sendPacket(new CPacketPlayer.Position(x, y, z, true));
+        mc.player.setPosition(x, y, z);
     }
 }

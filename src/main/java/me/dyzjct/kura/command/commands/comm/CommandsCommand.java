@@ -16,7 +16,7 @@ public class CommandsCommand
 
     @Override
     public void call(String[] args2) {
-        Kura.getInstance().getCommandManager().getCommands().stream().sorted(Comparator.comparing(Command::getLabel)).forEach(command -> ChatUtil.sendMessage("&f" + Command.getCommandPrefix() + command.getLabel() + "&r ~ &7" + command.getDescription()));
+        Kura.Companion.getInstance().commandManager.getCommands().stream().sorted(Comparator.comparing(Command::getLabel)).forEach(command -> ChatUtil.sendMessage("&f" + Command.getCommandPrefix() + command.getLabel() + "&r ~ &7" + command.getDescription()));
     }
 }
 

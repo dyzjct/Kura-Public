@@ -297,11 +297,6 @@ public class KillAura extends Module {
             l_HealthCheck = !l_Base.isDead && l_Base.getHealth() > 0.0f;
         }
 
-        if (ModuleManager.getModuleByClass(AntiBot.class).isEnabled() && p_Entity instanceof EntityPlayer) {
-            if (AntiBot.INSTANCE.isBot((EntityPlayer) p_Entity)) {
-                return false;
-            }
-        }
 
         return l_HealthCheck && p_Entity.getDistance(p_Entity) <= Distance.getValue();
     }

@@ -167,15 +167,6 @@ public class ComboBox
             this.selectedIndex = i;
         }
     }
-
-    public int getSelectedIndex() {
-        return this.selectedIndex;
-    }
-
-    public void setSelectedIndex(ModeSetting value) {
-        this.selectedIndex = value.getIndexEnum((Enum) value.getValue());
-    }
-
     public void setListener(ValueChangeListener<Integer> listener) {
         this.listener = listener;
     }

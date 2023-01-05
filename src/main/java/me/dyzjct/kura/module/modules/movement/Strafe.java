@@ -39,6 +39,9 @@ public class Strafe extends Module {
         if (fullNullCheck()) {
             return;
         }
+        if (ModuleManager.getModuleByClass(ElytraPlus.class).isEnabled()){
+            return;
+        }
         if (event.getPacket() instanceof SPacketEntityVelocity) {
             if (((SPacketEntityVelocity) event.getPacket()).getEntityID() == mc.player.getEntityId()) {
                 if (ModuleManager.getModuleByClass(Speed.class).isDisabled()) {
@@ -59,6 +62,9 @@ public class Strafe extends Module {
         if (fullNullCheck()) {
             return;
         }
+        if (ModuleManager.getModuleByClass(ElytraPlus.class).isEnabled()){
+            return;
+        }
         if (System.currentTimeMillis() - detectionTime > 3182) {
             lagDetected = false;
         }
@@ -72,6 +78,9 @@ public class Strafe extends Module {
         if (fullNullCheck()) {
             return;
         }
+        if (ModuleManager.getModuleByClass(ElytraPlus.class).isEnabled()){
+            return;
+        }
         if (this.shouldReturn() && !mc.player.isInWater() && !mc.player.isInLava()) {
             event.setCanceled(true);
         }
@@ -80,6 +89,9 @@ public class Strafe extends Module {
     @SubscribeEvent
     public void onMove(MoveEvent event) {
         if (fullNullCheck()) {
+            return;
+        }
+        if (ModuleManager.getModuleByClass(ElytraPlus.class).isEnabled()){
             return;
         }
         final double motionY = 0;

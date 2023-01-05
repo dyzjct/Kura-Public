@@ -7,13 +7,13 @@ import me.dyzjct.kura.event.events.world.WorldEvent;
 import me.dyzjct.kura.manager.FileManager;
 import me.dyzjct.kura.module.ModuleManager;
 import me.dyzjct.kura.utils.Wrapper;
+import kura.events.TickEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.crash.CrashReport;
@@ -155,6 +155,16 @@ public abstract class MixinMinecraft {
     @Redirect(method = {"rightClickMouse"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;getIsHittingBlock()Z", ordinal = 0), require = 1)
     public boolean isHittingBlockHook(PlayerControllerMP playerControllerMP) {
         return (!ModuleManager.getModuleByName("MultiTask").isEnabled() && playerControllerMP.getIsHittingBlock());
+    }
+
+    @Inject(method = "runTick", at = @At("HEAD"))
+    public void runTick$Inject$HEAD(CallbackInfo ci) {
+        MinecraftForge.EVENT_BUS.post(TickEvent.Pre.INSTANCE);
+    }
+
+    @Inject(method = "runTick", at = @At("RETURN"))
+    public void runTick$Inject$RETURN(CallbackInfo ci) {
+        MinecraftForge.EVENT_BUS.post(TickEvent.Post.INSTANCE);
     }
 }
 

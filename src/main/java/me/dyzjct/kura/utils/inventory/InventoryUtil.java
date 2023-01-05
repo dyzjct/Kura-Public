@@ -1,5 +1,6 @@
 package me.dyzjct.kura.utils.inventory;
 
+import me.dyzjct.kura.manager.InvManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiCrafting;
@@ -34,6 +35,41 @@ public class InventoryUtil {
             result = isInstanceOf(stack, clazz);
         }
         return result;
+    }
+
+    public static boolean[] switchItem(final boolean back, final int lastHotbarSlot, final boolean switchedItem, final Switch mode, final Class clazz) {
+        final boolean[] switchedItemSwitched = { switchedItem, false };
+        switch (mode) {
+            case NORMAL: {
+                if (!back && !switchedItem) {
+                    switchToHotbarSlot(findHotbarBlock(clazz), false);
+                    switchedItemSwitched[0] = true;
+                }
+                else if (back && switchedItem) {
+                    switchToHotbarSlot(lastHotbarSlot, false);
+                    switchedItemSwitched[0] = false;
+                }
+                switchedItemSwitched[1] = true;
+                break;
+            }
+            case SILENT: {
+                if (!back && !switchedItem) {
+                    switchToHotbarSlot(findHotbarBlock(clazz), true);
+                    switchedItemSwitched[0] = true;
+                }
+                else if (back && switchedItem) {
+                    switchedItemSwitched[0] = false;
+                    InvManager.recoverSilent(lastHotbarSlot);
+                }
+                switchedItemSwitched[1] = true;
+                break;
+            }
+            case NONE: {
+                switchedItemSwitched[1] = (back || InventoryUtil.mc.player.inventory.currentItem == findHotbarBlock(clazz));
+                break;
+            }
+        }
+        return switchedItemSwitched;
     }
 
     public static void push() {
@@ -331,9 +367,9 @@ public class InventoryUtil {
 
     @SuppressWarnings("Duplicates")
     public static int findHotbarBlock(Block block) {
-        if (ItemUtil.areSame(mc.player.getHeldItemOffhand(), block)) {
-            return -2;
-        }
+            if (ItemUtil.areSame(mc.player.getHeldItemOffhand(), block)) {
+                return -2;
+            }
 
         int result = -1;
         for (int i = 0; i < 9; i++) {
@@ -461,6 +497,9 @@ public class InventoryUtil {
             if (this.slot != -1) {
                 mc.playerController.windowClick(mc.player.inventoryContainer.windowId, this.slot, 0, this.quickClick ? ClickType.QUICK_MOVE : ClickType.PICKUP, mc.player);
             }
+            if (this.slot != -1) {
+                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, this.slot, 0, this.quickClick ? ClickType.QUICK_MOVE : ClickType.PICKUP, mc.player);
+            }
         }
 
         public boolean isSwitching() {
@@ -468,4 +507,10 @@ public class InventoryUtil {
         }
     }
 
+    public enum Switch
+    {
+        NORMAL,
+        SILENT,
+        NONE;
+    }
 }

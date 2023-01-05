@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public class BlockBreakEvent extends Event {
     private final int breakerId;
     private final BlockPos position;
+    private BlockPos secPosition;
     private int progress;
 
     public BlockBreakEvent(int breakerId, BlockPos position, int progress) {
@@ -22,6 +23,14 @@ public class BlockBreakEvent extends Event {
 
     public BlockPos getPosition() {
         return position;
+    }
+
+    public BlockPos getSecPosition() {
+        return secPosition;
+    }
+
+    public void setSecPosition(BlockPos pos) {
+        secPosition = pos;
     }
 
     public int getProgress() {

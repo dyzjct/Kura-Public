@@ -84,7 +84,7 @@ public class PopChams
             }
             Color fillColor = PopChams.newAlpha(fillColorS, fillA);
             if (this.player != null && this.playerModel != null) {
-                MelonTessellator.prepare(7);
+                MelonTessellator.INSTANCE.prepare(7);
                 GL11.glPushAttrib((int)1048575);
                 GL11.glEnable((int)2881);
                 GL11.glEnable((int)2848);

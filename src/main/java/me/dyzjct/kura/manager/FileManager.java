@@ -290,7 +290,7 @@ public class FileManager {
                 BufferedReader loadJson = new BufferedReader(new FileReader(FRIEND_FILE));
                 JsonObject friendJson = (JsonObject) jsonParser.parse(loadJson);
                 loadJson.close();
-                Kura.getInstance().friendManager.friends.clear();
+                Kura.Companion.getInstance().friendManager.friends.clear();
                 for (Map.Entry<String, JsonElement> entry : friendJson.entrySet()) {
                     if (entry.getKey() == null) continue;
                     JsonObject nmsl = (JsonObject) entry.getValue();
@@ -301,7 +301,7 @@ public class FileManager {
                     } catch (Exception e) {
                         Kura.logger.error("Can't set friend value for " + name + ", unfriended!");
                     }
-                    Kura.getInstance().friendManager.friends.add(new Friend(name, isFriend));
+                    Kura.Companion.getInstance().friendManager.friends.add(new Friend(name, isFriend));
                 }
             } catch (IOException e) {
                 Kura.logger.error("Error while loading friends!");

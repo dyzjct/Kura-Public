@@ -3,7 +3,7 @@ package me.dyzjct.kura.module.modules.misc;
 import me.dyzjct.kura.manager.SpeedManager;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;
-import me.dyzjct.kura.module.modules.xddd.Surround;
+import me.dyzjct.kura.module.modules.xddd.SurroundRewrite;
 import me.dyzjct.kura.setting.Setting;
 import me.dyzjct.kura.utils.NTMiku.BlockUtil;
 import me.dyzjct.kura.utils.entity.EntityUtil;
@@ -46,8 +46,8 @@ public class AntiHoleMine
 
     @Override
     public void onEnable() {
-        this.startPos = EntityUtil.getRoundedBlockPos(Surround.mc.player);
-        new Surround();
+        this.startPos = EntityUtil.getRoundedBlockPos(SurroundRewrite.mc.player);
+        new SurroundRewrite();
         this.startPos = EntityUtil.getRoundedBlockPos(AntiHoleMine.mc.player);
         this.isEn = 1;
     }

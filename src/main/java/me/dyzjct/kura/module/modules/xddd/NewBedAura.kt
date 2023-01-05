@@ -9,8 +9,8 @@ import me.dyzjct.kura.manager.HotbarManager.spoofHotbar
 import me.dyzjct.kura.manager.RotationManager
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
-import me.dyzjct.kura.module.modules.xddd.CrystalDamageCalculator.Companion.calcDamage
-import me.dyzjct.kura.module.modules.xddd.CrystalHelper.Companion.PredictionHandlerNew
+import me.dyzjct.kura.module.modules.crystalaura.CrystalHelper.CrystalDamageCalculator.Companion.calcDamage
+import me.dyzjct.kura.module.modules.crystalaura.CrystalHelper.CrystalHelper.Companion.PredictionHandlerNew
 import me.dyzjct.kura.utils.NTMiku.MultiThreading
 import me.dyzjct.kura.utils.NTMiku.TimerUtils
 import me.dyzjct.kura.utils.animations.BlockEasingRender
@@ -170,7 +170,7 @@ class NewBedAura : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (calcMode.value.equals(Mode.Stable)) {
+        if (calcMode.value!!.equals(Mode.Stable)) {
             onCalc()
         }
     }
@@ -180,7 +180,7 @@ class NewBedAura : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (calcMode.value.equals(Mode.Fast)) {
+        if (calcMode.value!!.equals(Mode.Fast)) {
             onCalc()
         }
         oldSlot = mc.player.inventory.currentItem

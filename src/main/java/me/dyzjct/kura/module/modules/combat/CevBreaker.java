@@ -8,12 +8,9 @@ import me.dyzjct.kura.manager.FriendManager;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;
 import me.dyzjct.kura.module.Module.Info;
-import me.dyzjct.kura.module.modules.xddd.CrystalDamageCalculator;
-import me.dyzjct.kura.module.modules.xddd.CrystalHelper;
-import me.dyzjct.kura.setting.BooleanSetting;
-import me.dyzjct.kura.setting.ColorSetting;
-import me.dyzjct.kura.setting.IntegerSetting;
-import me.dyzjct.kura.setting.ModeSetting;
+import me.dyzjct.kura.module.modules.crystalaura.CrystalHelper.CrystalDamageCalculator;
+import me.dyzjct.kura.module.modules.crystalaura.CrystalHelper.CrystalHelper;
+import me.dyzjct.kura.setting.*;
 import me.dyzjct.kura.utils.NTMiku.TimerUtils;
 import me.dyzjct.kura.utils.animations.BlockEasingRender;
 import me.dyzjct.kura.utils.block.BlockUtil;
@@ -132,7 +129,7 @@ public class CevBreaker extends Module {
             return;
         if (this.cobi != null) {
             this.blockRenderSmooth.begin();
-            MelonTessellator.drawBBBox(this.blockRenderSmooth.getFullUpdate(), (Color)this.color.getValue(), ((Integer)this.alpha.getValue()).intValue(), 2.0F, true);
+            MelonTessellator.INSTANCE.drawBBBox(this.blockRenderSmooth.getFullUpdate(), (Color)this.color.getValue(), ((Integer)this.alpha.getValue()).intValue(), 2.0F, true);
         } else {
             this.blockRenderSmooth.resetFade();
             this.blockRenderSmooth.end();

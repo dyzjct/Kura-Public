@@ -4,7 +4,7 @@ import me.dyzjct.kura.event.events.client.PacketEvents;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;
 import me.dyzjct.kura.module.ModuleManager;
-import me.dyzjct.kura.module.modules.combat.HolePushPlus;
+import me.dyzjct.kura.module.modules.combat.HoleKicker2;
 import me.dyzjct.kura.setting.Setting;
 import me.dyzjct.kura.utils.NTMiku.Timer;
 import me.dyzjct.kura.utils.mc.ChatUtil;
@@ -36,7 +36,7 @@ extends Module {
     @Override
     public void onUpdate() {
         if (checkholepush.getValue()){
-            if (!ModuleManager.getModuleByClass(HolePushPlus.class).isEnabled()){
+            if (!ModuleManager.getModuleByClass(HoleKicker2.class).isEnabled()){
                 return;
             }
         }

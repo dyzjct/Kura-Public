@@ -9,7 +9,6 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.TextFormatting
 
 @Module.Info(name = "AutoHoleMine", category = Category.COMBAT)
 class AutoHoleMine : Module() {
@@ -24,7 +23,7 @@ class AutoHoleMine : Module() {
         }
         val feet = BlockPos(target!!.posX, target!!.posY, target!!.posZ)
         if (!detection(target)) {
-            if (InstantMine.getInstance().db.value && getBlock(feet.add(0, 0, 0)).block === Blocks.AIR) {
+            if (InstantMine.instance!!.db.value && getBlock(feet.add(0, 0, 0)).block === Blocks.AIR) {
                 if (getBlock(feet.add(0, 1, 2)).block === Blocks.AIR && getBlock(
                         feet.add(
                             0,
@@ -1014,10 +1013,6 @@ class AutoHoleMine : Module() {
         }
     }
 
-//    fun getHudInfo(): String {
-//        return TextFormatting.AQUA.toString() + "" + target!!.name + ""
-//    }
-
 
     private fun surroundMine(position: BlockPos) {
         if (InstantMine.breakPos2 != null && InstantMine.breakPos2 == position as Any) {
@@ -1045,10 +1040,10 @@ class AutoHoleMine : Module() {
             if (InstantMine.breakPos == BlockPos(mc.player.posX, mc.player.posY - 1.0, mc.player.posZ) as Any) {
                 return
             }
-            if (mc.player.rotationPitch <= 90.0f && mc.player.rotationPitch >= 80.0f) {
+            if (mc.player.rotationPitch in 80.0f..90.0f) {
                 return
             }
-            if (mc.world.getBlockState(InstantMine.breakPos).block === Blocks.WEB) {
+            if (mc.world.getBlockState(InstantMine.breakPos!!).block === Blocks.WEB) {
                 return
             }
         }

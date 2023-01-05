@@ -37,7 +37,8 @@ public class Nametags extends Module {
     public BooleanSetting showItemName = bsetting("ItemName", false);
     public BooleanSetting showGameMode = bsetting("Gamemode", false);
     public BooleanSetting showHealth = bsetting("Health", true);
-    public BooleanSetting showPing = bsetting("Ping", false);
+    public BooleanSetting showPing = bsetting("Ping", true);
+    public BooleanSetting showIQ = bsetting("IQ", false);
     public BooleanSetting showEntityID = bsetting("EntityID", false);
     public IntegerSetting range = isetting("Range", 100, 10, 260);
     public IntegerSetting red = isetting("Red", 255, 0, 255);
@@ -138,6 +139,13 @@ public class Nametags extends Module {
             TextFormatting textFormatting = findHealthColor(health);
 
             name = name + " " + textFormatting + health;
+        }
+
+        if (showIQ.getValue()) {
+            int health = (int) (entityPlayer.getHealth() + entityPlayer.getAbsorptionAmount());
+            TextFormatting textFormatting = findHealthColor(health);
+
+            name = name + " " + textFormatting + health + "IQ";
         }
 
         return name;

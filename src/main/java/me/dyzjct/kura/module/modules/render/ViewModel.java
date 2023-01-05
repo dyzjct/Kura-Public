@@ -39,15 +39,15 @@ public class ViewModel extends Module
     public ViewModel() {
         this.settings = msetting("Settings", Settings.TRANSLATE);
         this.noEatAnimation = bsetting("NoEatAnimation", false).m(settings,Settings.TWEAKS);
-        this.eatX = dsetting("EatX", 1.0, (-2.0), 5.0).m(settings,Settings.TWEAKS);
-        this.eatY = dsetting("EatY", 1.0, (-2.0), 5.0).m(settings,Settings.TWEAKS);
+        this.eatX = dsetting("EatX", 1.0, -2.0, 5.0).m(settings,Settings.TWEAKS);
+        this.eatY = dsetting("EatY", 1.0, -2.0, 5.0).m(settings,Settings.TWEAKS);
         this.doBob = bsetting("ItemBob", true).m(settings,Settings.TWEAKS);
-        this.mainX = dsetting("MainX", 1.2, (-2.0), 4.0).m(settings,Settings.TRANSLATE);
-        this.mainY = dsetting("MainY", (-0.95), (-3.0), 3.0).m(settings,Settings.TRANSLATE);
-        this.mainZ = dsetting("MainZ", (-1.45), (-5.0), 5.0).m(settings,Settings.TRANSLATE);
-        this.offX = dsetting("OffX", 1.2, (-2.0), 4.0).m(settings,Settings.TRANSLATE);
-        this.offY = dsetting("OffY", (-0.95), (-3.0), 3.0).m(settings,Settings.TRANSLATE);
-        this.offZ = dsetting("OffZ", (-1.45), (-5.0), 5.0).m(settings,Settings.TRANSLATE);
+        this.mainX = dsetting("MainX", 1.2, -2.0, 4.0).m(settings,Settings.TRANSLATE);
+        this.mainY = dsetting("MainY", -0.95, -3.0, 3.0).m(settings,Settings.TRANSLATE);
+        this.mainZ = dsetting("MainZ", -1.45, -5.0, 5.0).m(settings,Settings.TRANSLATE);
+        this.offX = dsetting("OffX", 1.2, -2.0, 4.0).m(settings,Settings.TRANSLATE);
+        this.offY = dsetting("OffY", -0.95, -3.0, 3.0).m(settings,Settings.TRANSLATE);
+        this.offZ = dsetting("OffZ", -1.45, -5.0, 5.0).m(settings,Settings.TRANSLATE);
         this.mainRotX = isetting("MainRotationX", 0, (-36), 36).m(settings,Settings.ROTATE);
         this.mainRotY = isetting("MainRotationY", 0, (-36), 36).m(settings,Settings.ROTATE);
         this.mainRotZ = isetting("MainRotationZ", 0, (-36), 36).m(settings,Settings.ROTATE);

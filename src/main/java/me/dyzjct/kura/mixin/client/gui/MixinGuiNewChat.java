@@ -48,7 +48,7 @@ public abstract class MixinGuiNewChat extends Gui
      * @author HuangHanBing
      * @reason L
      */
-//    @Overwrite
+    @Overwrite
     public void drawChat(final int updateCounter) {
         if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN) {
             final int i = this.getLineCount();

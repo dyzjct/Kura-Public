@@ -18,6 +18,10 @@ public final class MathUtil {
         return new Vec3d(entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * time, entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * time, entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * time);
     }
 
+    public static boolean areVec3dsAligned(Vec3d vec3d1, Vec3d vec3d2) {
+        return MathUtil.areVec3dsAlignedRetarded(vec3d1, vec3d2);
+    }
+
     public static double roundDouble(double number, int scale) {
         BigDecimal bd = new BigDecimal(number);
         bd = bd.setScale(scale, RoundingMode.HALF_UP);

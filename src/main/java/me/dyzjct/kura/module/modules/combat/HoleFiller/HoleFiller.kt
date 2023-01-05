@@ -6,7 +6,7 @@ import me.dyzjct.kura.manager.FriendManager
 import me.dyzjct.kura.manager.HotbarManager.spoofHotbar
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
-import me.dyzjct.kura.module.modules.xddd.CrystalHelper
+import me.dyzjct.kura.module.modules.crystalaura.CrystalHelper.CrystalHelper
 import me.dyzjct.kura.setting.Setting
 import me.dyzjct.kura.utils.NTMiku.TimerUtils
 import me.dyzjct.kura.utils.block.BlockUtil
@@ -174,18 +174,23 @@ class HoleFiller : Module() {
 
     private fun findCrystalBlocks(): List<BlockPos> {
         val positions = NonNullList.create<BlockPos>()
-        positions.addAll(
-            CrystalUtil.getSphere(
-                PlayerUtil.getPlayerPos(),
-                placeRange.value.toDouble(),
-                placeRange.value.toDouble(),
-                false,
-                true,
-                0
+        try {
+            positions.addAll(
+                CrystalUtil.getSphere(
+                    PlayerUtil.getPlayerPos(),
+                    placeRange.value.toDouble(),
+                    placeRange.value.toDouble(),
+                    false,
+                    true,
+                    0
+                )
+                    .stream()
+                    .filter { isHole(it) }
+                    .collect(Collectors.toList())
             )
-                .stream()
-                .filter { isHole(it) }
-                .collect(Collectors.toList()))
+        }catch (e:Exception){
+//
+        }
         return positions
     }
 

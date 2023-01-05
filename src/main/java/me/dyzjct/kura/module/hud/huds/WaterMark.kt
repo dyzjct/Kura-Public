@@ -7,16 +7,15 @@ import me.dyzjct.kura.setting.Setting
 import me.dyzjct.kura.utils.color.ColorUtil
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+
+/**
+ * Created by dyzjct on 29/12/2022
+ */
 @HUDModule.Info(name = "WaterMark", x = 20, y = 20, width = 50, height = 20)
 class WaterMark : HUDModule() {
-    var text = ssetting("ViewText", "kura")
-    var colormod = msetting("ColorMod", Welcomer.ColorMode.GuiSync)
-    var color = csetting("Color", Color(255, 255, 255))
-    var saturation: Setting<Float> = fsetting("Saturation", 1.0f, 0f, 1.0f)
-    var brightness: Setting<Float> = fsetting("Brightness", 1.0f, 0f, 1.0f)
-    var alpha: Setting<Int> = isetting("Alpha", 90, 1, 255)
-    var speed = isetting("RainbowSpeed", 1, 0, 1)
-//    var Scala = dsetting("Scala", 1.0, 0.0, 3.0)
+    private var text = ssetting("ViewText", "kura")
+    private var colormod = msetting("ColorMod", Welcomer.ColorMode.GuiSync)
+    private var color = csetting("Color", Color(255, 255, 255))
 
 
     fun generateColor(): Int {

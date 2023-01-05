@@ -41,7 +41,7 @@ public class TotemPopCham
             }
             final Color fillColor = newAlpha(fillColorS, fillA);
             if (this.player != null && this.playerModel != null) {
-                MelonTessellator.prepare(7);
+                MelonTessellator.INSTANCE.prepare(7);
                 GL11.glPushAttrib(1048575);
                 GL11.glEnable(2881);
                 GL11.glEnable(2848);

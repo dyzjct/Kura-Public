@@ -163,7 +163,7 @@ public class StrictPacketMine
         Color color2 = new Color(255, 0, 0);
         if (((Boolean)this.render.getValue()).booleanValue() && currentPos != null && BlockUtil.canBreak(currentPos, true)) {
             this.blockRenderSmooth.begin();
-            MelonTessellator.drawBBBox(this.blockRenderSmooth.getFullUpdate(), this.renderTimerUtils.passed(1800) ? color : color2, (Integer)this.alpha.getValue(), 3.0f, true);
+            MelonTessellator.INSTANCE.drawBBBox(this.blockRenderSmooth.getFullUpdate(), this.renderTimerUtils.passed(1800) ? color : color2, (Integer)this.alpha.getValue(), 3.0f, true);
         } else if (currentPos == null) {
             this.blockRenderSmooth.end();
         }

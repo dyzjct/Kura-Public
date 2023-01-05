@@ -5,7 +5,7 @@ import me.dyzjct.kura.event.events.entity.MotionUpdateEvent
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
 import me.dyzjct.kura.module.ModuleManager
-import me.dyzjct.kura.module.modules.combat.AutoEXP
+import me.dyzjct.kura.module.modules.combat.AutoMend
 import me.dyzjct.kura.setting.BooleanSetting
 import me.dyzjct.kura.setting.FloatSetting
 import me.dyzjct.kura.setting.Setting
@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 @Module.Info(name = "Timer", category = Category.PLAYER, description = "Changes your client tick speed")
 class Timer : Module() {
-    val tickNormal: Setting<Float> = fsetting("Speed", 1.2f, 1f, 10f)
+    private val tickNormal: Setting<Float> = fsetting("Speed", 1.2f, 1f, 10f)
     private val xp: FloatSetting = fsetting("WhileXP", 1.7f, 1f, 2f)
     private val packetControl: BooleanSetting = bsetting("PacketControl", false)
     private val resend: BooleanSetting = bsetting("ResendMixed", true).b(packetControl)
@@ -39,7 +39,7 @@ class Timer : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (ModuleManager.getModuleByClass(AutoEXP::class.java).isEnabled) {
+        if (ModuleManager.getModuleByClass(AutoMend::class.java).isEnabled) {
             return
         }
         if (event.packet is CPacketPlayer.Position && rotationMode == 1) {
@@ -141,7 +141,7 @@ class Timer : Module() {
                 }
             }
         }
-        if (ModuleManager.getModuleByClass(AutoEXP::class.java).isEnabled) {
+        if (ModuleManager.getModuleByClass(AutoMend::class.java).isEnabled) {
             mc.timer.tickLength = 50.0f / xp.value
         } else {
             mc.timer.tickLength = 50.0f / tickNormal.value

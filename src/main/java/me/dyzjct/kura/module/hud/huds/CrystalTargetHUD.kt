@@ -3,7 +3,7 @@ package me.dyzjct.kura.module.hud.huds
 import me.dyzjct.kura.module.HUDModule
 import me.dyzjct.kura.module.ModuleManager
 import me.dyzjct.kura.module.hud.info.Player.Companion.drawEntityOnScreen
-import me.dyzjct.kura.module.modules.sexy.MelonAuraPlus
+import me.dyzjct.kura.module.modules.crystalaura.KuraAura
 import me.dyzjct.kura.setting.IntegerSetting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
@@ -18,12 +18,12 @@ class CrystalTargetHUD : HUDModule() {
     val size:IntegerSetting = isetting("Size", 30,1,100)
     val mc: Minecraft = Minecraft.getMinecraft()
     override fun onRender() {
-        if (ModuleManager.getModuleByClass(MelonAuraPlus::class.java).isEnabled) {
-            if (MelonAuraPlus.renderEnt != null) {
-                val name = StringUtils.stripControlCodes(MelonAuraPlus.renderEnt.name)
+        if (ModuleManager.getModuleByClass(KuraAura::class.java).isEnabled) {
+            if (KuraAura.renderEnt != null) {
+                val name = StringUtils.stripControlCodes(KuraAura.renderEnt!!.name)
                 val renderX = x + 35
                 val renderY = y + 10
-                val healthPercentage: Float = MelonAuraPlus.renderEnt.health / MelonAuraPlus.renderEnt.maxHealth
+                val healthPercentage: Float = KuraAura.renderEnt!!.health / KuraAura.renderEnt!!.maxHealth
                 val maxX = 30.coerceAtLeast(mc.fontRenderer.getStringWidth(name) + 30).toFloat() + size.value
                 Gui.drawRect(
                     renderX,
@@ -35,16 +35,16 @@ class CrystalTargetHUD : HUDModule() {
                     renderY + 50 + size.value,
                     (renderX + maxX * healthPercentage).toInt(),
                     renderY + 75 + size.value,
-                    getHealthColor(MelonAuraPlus.renderEnt)
+                    getHealthColor(KuraAura.renderEnt!!)
                 )
                 mc.fontRenderer.drawStringWithShadow(name, (renderX + 25).toFloat(), renderY + 7f, -1)
                 drawEntityOnScreen(
                     renderX + 12,
                     renderY + 33,
                     15,
-                    MelonAuraPlus.renderEnt.rotationYaw,
-                    MelonAuraPlus.renderEnt.rotationPitch,
-                    MelonAuraPlus.renderEnt
+                    KuraAura.renderEnt!!.rotationYaw,
+                    KuraAura.renderEnt!!.rotationPitch,
+                    KuraAura.renderEnt!!
                 )
             }
         }
