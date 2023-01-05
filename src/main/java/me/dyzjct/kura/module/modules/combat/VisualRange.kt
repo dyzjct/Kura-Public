@@ -1,15 +1,12 @@
 package me.dyzjct.kura.module.modules.combat
 
 import com.mojang.realmsclient.gui.ChatFormatting
-import me.dyzjct.kura.manager.FriendManager
+import me.dyzjct.kura.friend.FriendManager
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
 import me.dyzjct.kura.setting.Setting
 import me.dyzjct.kura.utils.mc.ChatUtil
 import net.minecraft.entity.player.EntityPlayer
-import java.awt.Image
-import java.awt.Toolkit
-import java.awt.TrayIcon
 
 /**
  * Created on 26 October 2019 by hub

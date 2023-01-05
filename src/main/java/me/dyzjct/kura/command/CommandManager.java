@@ -2,7 +2,7 @@ package me.dyzjct.kura.command;
 
 import me.dyzjct.kura.Kura;
 import me.dyzjct.kura.command.commands.CreditsCommand;
-import me.dyzjct.kura.command.commands.FriendCommand;
+import me.dyzjct.kura.friend.FriendCommand;
 import me.dyzjct.kura.command.commands.HelpCommand;
 import me.dyzjct.kura.command.commands.comm.BindCommand;
 import me.dyzjct.kura.command.commands.comm.CommandsCommand;

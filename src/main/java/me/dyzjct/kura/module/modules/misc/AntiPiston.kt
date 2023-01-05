@@ -6,23 +6,18 @@ import me.dyzjct.kura.module.Module
 import me.dyzjct.kura.utils.NTMiku.BlockUtil
 import me.dyzjct.kura.utils.inventory.InventoryUtil
 import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.Entity
-import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.init.Blocks
-import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketHeldItemChange
-import net.minecraft.network.play.client.CPacketUseEntity
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import java.util.stream.Collectors
 
 @Module.Info(name = "AntiPiston", category = Category.MISC)
 class AntiPiston : Module() {
     private val rotate = bsetting("Rotate", false)
-    private val breakpiston = bsetting("BreakPiston",false)
+    private val breakpiston = bsetting("BreakPiston", false)
     private var obsidian = -1
-    private var breakpos :BlockPos? = null
+    private var breakpos: BlockPos? = null
 
     override fun onUpdate() {
         if (fullNullCheck()) return
@@ -33,7 +28,7 @@ class AntiPiston : Module() {
         if (obsidian == -1) {
             return
         }
-        val pos = BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ) ?: return
+        val pos = BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ)
         if (getBlock(pos.add(1, 1, 0)).block === Blocks.PISTON) {
             if (getBlock(pos.add(-1, 0, 0)).block === Blocks.AIR) {
                 perform(pos.add(-1, 0, 0))
@@ -44,7 +39,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
+            if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(1, 1, 0)))
             }
         }
@@ -58,8 +53,11 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
-                mc.playerController.onPlayerDamageBlock(pos.add(-1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0)))
+            if (breakpiston.value) {
+                mc.playerController.onPlayerDamageBlock(
+                    pos.add(-1, 1, 0),
+                    BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0))
+                )
             }
         }
         if (getBlock(pos.add(0, 1, 1)).block === Blocks.PISTON) {
@@ -72,7 +70,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
+            if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil.getRayTraceFacing(pos.add(0, 1, 1)))
             }
         }
@@ -86,8 +84,11 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
-                mc.playerController.onPlayerDamageBlock(pos.add(0, 1, -1), BlockUtil.getRayTraceFacing(pos.add(0, 1, -1)))
+            if (breakpiston.value) {
+                mc.playerController.onPlayerDamageBlock(
+                    pos.add(0, 1, -1),
+                    BlockUtil.getRayTraceFacing(pos.add(0, 1, -1))
+                )
             }
         }
         //        STICKY_PISTON
@@ -101,7 +102,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
+            if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(1, 1, 0)))
             }
         }
@@ -115,8 +116,11 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
-                mc.playerController.onPlayerDamageBlock(pos.add(-1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0)))
+            if (breakpiston.value) {
+                mc.playerController.onPlayerDamageBlock(
+                    pos.add(-1, 1, 0),
+                    BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0))
+                )
             }
         }
         if (getBlock(pos.add(0, 1, 1)).block === Blocks.STICKY_PISTON) {
@@ -129,7 +133,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
+            if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil.getRayTraceFacing(pos.add(0, 1, 1)))
             }
         }
@@ -143,8 +147,11 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value){
-                mc.playerController.onPlayerDamageBlock(pos.add(0, 1, -1), BlockUtil.getRayTraceFacing(pos.add(0, 1, -1)))
+            if (breakpiston.value) {
+                mc.playerController.onPlayerDamageBlock(
+                    pos.add(0, 1, -1),
+                    BlockUtil.getRayTraceFacing(pos.add(0, 1, -1))
+                )
             }
         }
     }
@@ -167,22 +174,6 @@ class AntiPiston : Module() {
         switchToSlot(obsidian)
         BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
         switchToSlot(old)
-    }
-
-    companion object {
-        fun breakcrystal() {
-            if (fullNullCheck()) return
-            for (crystal in mc.world.loadedEntityList.stream()
-                .filter { e: Entity -> e is EntityEnderCrystal && !e.isDead }
-                .sorted(Comparator.comparing { e: Entity? -> java.lang.Float.valueOf(mc.player.getDistance(e)) })
-                .collect(
-                    Collectors.toList()
-                )) {
-                if (crystal !is EntityEnderCrystal || mc.player.getDistance(crystal) > 4.0f) continue
-                mc.player.connection.sendPacket(CPacketUseEntity(crystal))
-                mc.player.connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
-            }
-        }
     }
 
 

@@ -2,7 +2,7 @@ package me.dyzjct.kura.module.modules.combat.HoleFiller
 
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent
 import me.dyzjct.kura.event.events.render.RenderEvent
-import me.dyzjct.kura.manager.FriendManager
+import me.dyzjct.kura.friend.FriendManager
 import me.dyzjct.kura.manager.HotbarManager.spoofHotbar
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module

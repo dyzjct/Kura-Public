@@ -3,6 +3,7 @@ package me.dyzjct.kura
 import me.dyzjct.kura.command.CommandManager
 import me.dyzjct.kura.event.ForgeEventProcessor
 import me.dyzjct.kura.event.events.xin.AutoQueueEvent
+import me.dyzjct.kura.friend.FriendManager
 import me.dyzjct.kura.gui.clickgui.GUIRender
 import me.dyzjct.kura.gui.clickgui.HUDRender
 import me.dyzjct.kura.manager.*

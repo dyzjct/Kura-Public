@@ -4,7 +4,7 @@ import me.dyzjct.kura.event.events.client.PacketEvents
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent.FastTick
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent.Tick
 import me.dyzjct.kura.event.events.render.RenderEvent
-import me.dyzjct.kura.manager.FriendManager
+import me.dyzjct.kura.friend.FriendManager
 import me.dyzjct.kura.manager.HotbarManager.spoofHotbar
 import me.dyzjct.kura.manager.RotationManager
 import me.dyzjct.kura.module.Category

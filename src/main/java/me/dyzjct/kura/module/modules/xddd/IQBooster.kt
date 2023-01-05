@@ -8,8 +8,13 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent
 import org.lwjgl.input.Keyboard
 import java.util.*
 
-@Module.Info(name = "IQBooster", category = Category.XDDD, description = "瞎骂小子")
+@Module.Info(name = "IQBooster", category = Category.XDDD)
 class IQBooster : Module() {
+    private val 足智多谋 = arrayOf("OK兄弟们", "全体目光向我看齐", "看我看我", "我宣布个事", "我是个{AWESOME}！")
+    private val counter = 0
+    private val warnAlready = false
+    var timer = Timer()
+
     override fun enable() {
         ChatUtil.sendMessage("点击键盘P发送消息！请不要按的太快可能导致游戏卡死甚至崩溃！")
     }

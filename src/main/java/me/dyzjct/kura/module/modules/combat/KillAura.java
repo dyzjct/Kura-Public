@@ -3,7 +3,7 @@ package me.dyzjct.kura.module.modules.combat;
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent;
 import me.dyzjct.kura.event.events.render.RenderEvent;
 import me.dyzjct.kura.event.events.render.item.RenderItemAnimationEvent;
-import me.dyzjct.kura.manager.FriendManager;
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.manager.RotationManager;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;

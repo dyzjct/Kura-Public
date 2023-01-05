@@ -3,7 +3,7 @@ package me.dyzjct.kura.module.modules.combat;
 import me.dyzjct.kura.Kura;
 import me.dyzjct.kura.event.events.client.PacketEvents;
 import me.dyzjct.kura.gui.Notification;
-import me.dyzjct.kura.manager.FriendManager;
+import me.dyzjct.kura.friend.FriendManager;
 import me.dyzjct.kura.module.Category;
 import me.dyzjct.kura.module.Module;
 import me.dyzjct.kura.setting.Setting;

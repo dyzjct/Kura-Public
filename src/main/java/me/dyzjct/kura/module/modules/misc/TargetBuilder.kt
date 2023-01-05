@@ -5,7 +5,7 @@ import kura.utils.isReplaceable
 import kura.utils.world
 import me.dyzjct.kura.event.events.block.BlockBreakEvent
 import me.dyzjct.kura.event.events.entity.MotionUpdateEvent
-import me.dyzjct.kura.manager.FriendManager
+import me.dyzjct.kura.friend.FriendManager
 import me.dyzjct.kura.manager.HotbarManager
 import me.dyzjct.kura.manager.SpeedManager
 import me.dyzjct.kura.module.Category

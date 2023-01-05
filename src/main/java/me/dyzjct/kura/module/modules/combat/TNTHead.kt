@@ -1,6 +1,5 @@
 package me.dyzjct.kura.module.modules.combat
 
-import me.dyzjct.kura.manager.FriendManager
 import me.dyzjct.kura.manager.HotbarManager
 import me.dyzjct.kura.module.Category
 import me.dyzjct.kura.module.Module
@@ -12,6 +11,7 @@ import me.dyzjct.kura.utils.player.getTarget
 import kura.utils.isPlaceable
 import kura.utils.world
 import me.dyzjct.kura.event.events.block.BlockBreakEvent
+import me.dyzjct.kura.friend.FriendManager
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
