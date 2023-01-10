@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Desktop.Kura.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Desktop.Kura.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Kura.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Kura.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/me.dyzjct.Kura.main.iml" filepath="$PROJECT_DIR$/.idea/modules/me.dyzjct.Kura.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/me.windyteam.Kura.main.iml" filepath="$PROJECT_DIR$/.idea/modules/me.windyteam.Kura.main.iml" />
     </modules>
   </component>
 </project>

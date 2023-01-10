@@ -1,7 +1,7 @@
 package kura.utils
 
-import me.dyzjct.kura.utils.fuck.vector.Vec2f
-import me.dyzjct.kura.utils.fuck.animations.*
+import me.windyteam.kura.utils.fuck.vector.Vec2f
+import me.windyteam.kura.utils.fuck.animations.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
@@ -41,7 +41,7 @@ object VectorUtils {
     fun Vec2f.toViewVec(): Vec3d {
         val yawRad = this.x.toDouble().toRadian()
         val pitchRag = this.y.toDouble().toRadian()
-        val yaw = -yawRad - me.dyzjct.kura.utils.fuck.animations.PI_FLOAT
+        val yaw = -yawRad - me.windyteam.kura.utils.fuck.animations.PI_FLOAT
         val pitch = -pitchRag
 
         val cosYaw = cos(yaw)

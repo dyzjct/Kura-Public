@@ -1,6 +1,6 @@
 package kura.events
 
-import me.dyzjct.kura.module.modules.crystalaura.CrystalHelper.CrystalDamage
+import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalDamage
 import net.minecraftforge.fml.common.eventhandler.Event
 
 class CrystalSpawnEvent(

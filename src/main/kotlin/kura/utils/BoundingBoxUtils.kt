@@ -1,9 +1,9 @@
 package kura.utils
 
-import me.dyzjct.kura.utils.fuck.vector.Vec2f
-import me.dyzjct.kura.utils.fuck.vector.VectorUtils.plus
-import me.dyzjct.kura.utils.fuck.vector.VectorUtils.times
-import me.dyzjct.kura.utils.fuck.vector.VectorUtils.toVec3d
+import me.windyteam.kura.utils.fuck.vector.Vec2f
+import me.windyteam.kura.utils.fuck.vector.VectorUtils.plus
+import me.windyteam.kura.utils.fuck.vector.VectorUtils.times
+import me.windyteam.kura.utils.fuck.vector.VectorUtils.toVec3d
 import kura.utils.VectorUtils.toViewVec
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB

@@ -1,6 +1,6 @@
 package kura.utils
 
-import me.dyzjct.kura.Kura
+import me.windyteam.kura.Kura
 import kotlinx.coroutines.*
 
 @OptIn(DelicateCoroutinesApi::class)

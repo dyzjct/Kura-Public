@@ -1,12 +1,12 @@
 package kura.utils
 
-import me.dyzjct.kura.manager.HotbarManager.serverSideItem
-import me.dyzjct.kura.manager.HotbarManager.spoofHotbarNew
-import me.dyzjct.kura.manager.RotationManager.addRotations
-import me.dyzjct.kura.utils.animations.sq
-import me.dyzjct.kura.utils.block.BlockInteractionHelper
-import me.dyzjct.kura.utils.inventory.HotbarSlot
-import me.dyzjct.kura.utils.vector.VectorUtils.toVec3dCenter
+import me.windyteam.kura.manager.HotbarManager.serverSideItem
+import me.windyteam.kura.manager.HotbarManager.spoofHotbarNew
+import me.windyteam.kura.manager.RotationManager.addRotations
+import me.windyteam.kura.utils.animations.sq
+import me.windyteam.kura.utils.block.BlockInteractionHelper
+import me.windyteam.kura.utils.inventory.HotbarSlot
+import me.windyteam.kura.utils.vector.VectorUtils.toVec3dCenter
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.init.Blocks

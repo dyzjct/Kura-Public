@@ -1,9 +1,9 @@
 package kura.utils
 
-import me.dyzjct.kura.utils.fuck.animations.fastCeil
-import me.dyzjct.kura.utils.fuck.animations.fastFloor
-import me.dyzjct.kura.utils.fuck.animations.sq
-import me.dyzjct.kura.utils.fuck.vector.VectorUtils.toVec3dCenter
+import me.windyteam.kura.utils.fuck.animations.fastCeil
+import me.windyteam.kura.utils.fuck.animations.fastFloor
+import me.windyteam.kura.utils.fuck.animations.sq
+import me.windyteam.kura.utils.fuck.vector.VectorUtils.toVec3dCenter
 import net.minecraft.entity.Entity
 import net.minecraft.init.Blocks
 import net.minecraft.util.EnumFacing

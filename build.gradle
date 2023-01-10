@@ -56,7 +56,7 @@ minecraft {
         client {
             workingDirectory project.file('run')
 
-            property 'fml.coreMods.load', 'me.dyzjct.kura.mixin.MixinLoaderForge'
+            property 'fml.coreMods.load', 'me.windyteam.kura.mixin.MixinLoaderForge'
             property 'mixin.env.disableRefMap', 'true'
 
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -127,14 +127,14 @@ jar {
     manifest {
         attributes(
                 "FMLCorePluginContainsFMLMod": "true",
-                "FMLCorePlugin": "me.dyzjct.kura.mixin.MixinLoaderForge",
+                "FMLCorePlugin": "me.windyteam.kura.mixin.MixinLoaderForge",
                 'MixinConfigs': 'mixins.melon.json',
                 'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': 0,
                 'ForceLoadAsMod': 'true',
                 'FMLAT': 'melon_at.cfg',
                 'Manifest-Version': '1.0',
-                'Agent-Class': 'me.dyzjct.kura.inject.AgentMain'
+                'Agent-Class': 'me.windyteam.kura.inject.AgentMain'
         )
     }
 
