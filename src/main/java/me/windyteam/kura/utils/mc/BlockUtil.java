@@ -38,6 +38,9 @@ public class BlockUtil {
     public static List<Block> unSolidBlocks = Arrays.asList(Blocks.FLOWING_LAVA, Blocks.FLOWER_POT, Blocks.SNOW, Blocks.CARPET, Blocks.END_ROD, Blocks.SKULL, Blocks.FLOWER_POT, Blocks.TRIPWIRE, Blocks.TRIPWIRE_HOOK, Blocks.WOODEN_BUTTON, Blocks.LEVER, Blocks.STONE_BUTTON, Blocks.LADDER, Blocks.UNPOWERED_COMPARATOR, Blocks.POWERED_COMPARATOR, Blocks.UNPOWERED_REPEATER, Blocks.POWERED_REPEATER, Blocks.UNLIT_REDSTONE_TORCH, Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WIRE, Blocks.AIR, Blocks.PORTAL, Blocks.END_PORTAL, Blocks.WATER, Blocks.FLOWING_WATER, Blocks.LAVA, Blocks.FLOWING_LAVA, Blocks.SAPLING, Blocks.RED_FLOWER, Blocks.YELLOW_FLOWER, Blocks.BROWN_MUSHROOM, Blocks.RED_MUSHROOM, Blocks.WHEAT, Blocks.CARROTS, Blocks.POTATOES, Blocks.BEETROOTS, Blocks.REEDS, Blocks.PUMPKIN_STEM, Blocks.MELON_STEM, Blocks.WATERLILY, Blocks.NETHER_WART, Blocks.COCOA, Blocks.CHORUS_FLOWER, Blocks.CHORUS_PLANT, Blocks.TALLGRASS, Blocks.DEADBUSH, Blocks.VINE, Blocks.FIRE, Blocks.RAIL, Blocks.ACTIVATOR_RAIL, Blocks.DETECTOR_RAIL, Blocks.GOLDEN_RAIL, Blocks.TORCH);
 
 
+    public static BlockPos getFlooredPosition(Entity entity) {
+        return new BlockPos(Math.floor(entity.posX), Math.round(entity.posY), Math.floor(entity.posZ));
+    }
 
     public static BlockPos[] toBlockPos(Vec3d[] vec3ds) {
         BlockPos[] list = new BlockPos[vec3ds.length];
@@ -45,6 +48,54 @@ public class BlockUtil {
             list[i] = new BlockPos(vec3ds[i]);
         }
         return list;
+    }
+    public static boolean placeBlock(final BlockPos pos, final EnumHand hand, final boolean rotate, final boolean packet, final boolean isSneaking) {
+        boolean sneaking = false;
+        final EnumFacing side = getFirstFacing(pos);
+        if (side == null) {
+            return isSneaking;
+        }
+        final BlockPos neighbour = pos.offset(side);
+        final EnumFacing opposite = side.getOpposite();
+        final Vec3d hitVec = new Vec3d((Vec3i)neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
+        final Block neighbourBlock = BlockUtil.mc.world.getBlockState(neighbour).getBlock();
+        if (!BlockUtil.mc.player.isSneaking() && (BlockUtil.blackList.contains(neighbourBlock) || BlockUtil.shulkerList.contains(neighbourBlock))) {
+            BlockUtil.mc.player.connection.sendPacket((Packet)new CPacketEntityAction((Entity)BlockUtil.mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            BlockUtil.mc.player.setSneaking(true);
+            sneaking = true;
+        }
+        if (rotate) {
+            RotationUtil.faceVector(hitVec, true);
+        }
+        rightClickBlock(neighbour, hitVec, hand, opposite, packet);
+        BlockUtil.mc.player.swingArm(EnumHand.MAIN_HAND);
+        BlockUtil.mc.rightClickDelayTimer = 4;
+        return sneaking || isSneaking;
+    }
+
+    public static BlockPos vec3toBlockPos(final Vec3d vec3d) {
+        return new BlockPos(Math.floor(vec3d.x), (double)Math.round(vec3d.y), Math.floor(vec3d.z));
+    }
+
+    public static void placeBlock(final Vec3d vec3d, final EnumHand hand, final boolean rotate, final boolean packet) {
+        final BlockPos pos = vec3toBlockPos(vec3d);
+        final EnumFacing side = BlockUtil.getFirstFacing(pos);
+        if (side == null) {
+            return;
+        }
+        final BlockPos neighbour = pos.offset(side);
+        final EnumFacing opposite = side.getOpposite();
+        final Vec3d hitVec = new Vec3d((Vec3i)neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
+        final Block neighbourBlock = BlockUtil.mc.world.getBlockState(neighbour).getBlock();
+        if (!BlockUtil.mc.player.isSneaking() && (BlockUtil.blackList.contains(neighbourBlock) || BlockUtil.shulkerList.contains(neighbourBlock))) {
+            BlockUtil.mc.player.connection.sendPacket((Packet)new CPacketEntityAction((Entity)BlockUtil.mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            BlockUtil.mc.player.setSneaking(true);
+        }
+        if (rotate) {
+            RotationUtil.faceVector(hitVec, true);
+        }
+        BlockUtil.rightClickBlock(neighbour, hitVec, hand, opposite, packet);
+        BlockUtil.mc.rightClickDelayTimer = 4;
     }
 
     public static EnumFacing getFacing(BlockPos pos) {

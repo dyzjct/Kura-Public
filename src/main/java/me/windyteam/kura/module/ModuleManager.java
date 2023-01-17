@@ -5,12 +5,10 @@ import me.windyteam.kura.event.events.render.RenderEvent;
 import me.windyteam.kura.gui.clickgui.guis.HUDEditorScreen;
 import me.windyteam.kura.module.hud.huds.*;
 import me.windyteam.kura.module.hud.info.*;
-import me.windyteam.kura.module.modules.chat.AutoGG;
-import me.windyteam.kura.module.modules.chat.ChatSuffix;
-import me.windyteam.kura.module.modules.chat.ChatTimeStamps;
+import me.windyteam.kura.module.modules.chat.*;
 import me.windyteam.kura.module.modules.client.*;
 import me.windyteam.kura.module.modules.combat.*;
-import me.windyteam.kura.module.modules.combat.HoleFiller.HoleFiller;
+import me.windyteam.kura.module.modules.combat.holefillers.HoleFiller;
 import me.windyteam.kura.module.modules.crystalaura.KuraAura;
 import me.windyteam.kura.module.modules.crystalaura.LunarAura;
 import me.windyteam.kura.module.modules.misc.*;
@@ -213,13 +211,14 @@ public class ModuleManager {
         registerModule(new ChatSuffix());
         registerModule(new ChatTimeStamps());
         registerModule(new ChatNotifier());
+        registerModule(new AutoCNM());
+        registerModule(new Spammer());
         //Client
         registerModule(new ClickGui());
         registerModule(new Colors());
         registerModule(new CustomFont());
         registerModule(new HUDEditor());
         registerModule(new NullModule());
-//        registerModule(new Overlay());
         //Render
         registerModule(new Animations());
         registerModule(new AntiPlayerSwing());
@@ -244,6 +243,9 @@ public class ModuleManager {
         registerModule(new Notification());
         registerModule(new BreakESP());
         registerModule(new ESP());
+        registerModule(new BurrowESP());
+        registerModule(new CityESP());
+        registerModule(new Aspect());
         //Combat
         registerModule(new Aimbot());
         registerModule(new Anti32kTotem());
@@ -274,6 +276,7 @@ public class ModuleManager {
         registerModule(new SmartBurrow());
         registerModule(new HoleKicker2());
         registerModule(new TNTHead());
+        registerModule(new AutoTopCev());
         //Player
         registerModule(new AntiShulkerBox());
         registerModule(new StrictPacketMine());
@@ -292,10 +295,12 @@ public class ModuleManager {
         registerModule(new Scaffold());
         registerModule(new AntiContainer());
         registerModule(new Timer());
+        registerModule(new Timer2());
         registerModule(new TpsSync());
         registerModule(new Disabler());
         registerModule(new CancelPearl());
         registerModule(new TargetBuilder());
+        registerModule(new Warner());
         //Misc
         registerModule(new AntiAim());
         registerModule(new HeadBlocker());
@@ -340,7 +345,7 @@ public class ModuleManager {
         registerModule(new ReverseStep());
         registerModule(new Flight());
         registerModule(new SafeWalk());
-        registerModule(new PositionBug());
+        registerModule(new Phase());
         //XDDD
         registerModule(new SurroundRewrite());
         registerModule(new Surround());

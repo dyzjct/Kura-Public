@@ -2,16 +2,20 @@ package me.windyteam.kura.module.modules.movement
 
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
+import me.windyteam.kura.module.ModuleManager
+import me.windyteam.kura.module.modules.player.Timer
 import me.windyteam.kura.setting.Setting
 import net.minecraft.network.play.client.CPacketPlayer
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Module.Info(name = "Step", category = Category.MOVEMENT)
 class Step : Module() {
     private val mode = msetting("Mode", Mode.NCP)
     private val reverse: Setting<Boolean> = bsetting("ReverseStep", true)
 
-    val heights: Setting<Double> = dsetting("Height", 2.0, 0.0, 5.0)
-    var stepped = false
+    private val heights: Setting<Double> = dsetting("Height", 2.0, 0.0, 5.0)
+    private var stepped = false
 
     override fun onUpdate() {
         if (mc.world == null || mc.player == null || mc.player.isInWater || mc.player.isInLava || mc.player.isOnLadder || mc.gameSettings.keyBindJump.isKeyDown) {
@@ -158,6 +162,7 @@ class Step : Module() {
     }
 
     companion object {
+        var INSTANCE = Step()
         fun forward(n: Double): DoubleArray {
             var moveForward = mc.player.movementInput.moveForward
             var moveStrafe = mc.player.movementInput.moveStrafe

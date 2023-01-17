@@ -72,6 +72,10 @@ public class EntityUtil {
         return MathHelper.sqrt(d0 * d0 + d2 * d2 + d3 * d3);
     }
 
+    public static int getDamagePercent(ItemStack stack) {
+        return (int) ((stack.getMaxDamage() - stack.getItemDamage()) / Math.max(0.1, stack.getMaxDamage()) * 100.0f);
+    }
+
     public static boolean isCrystalAtFeet(EntityEnderCrystal crystal, double range) {
         for (EntityPlayer player : EntityUtil.mc.world.playerEntities) {
             if (EntityUtil.mc.player.getDistanceSq(player) > range * range || FriendManager.isFriend(player.getName())) continue;

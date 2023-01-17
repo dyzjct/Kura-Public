@@ -3,18 +3,21 @@ package me.windyteam.kura.module.modules.chat;
 import me.windyteam.kura.event.events.client.PacketEvents;
 import me.windyteam.kura.module.Category;
 import me.windyteam.kura.module.Module;
+import me.windyteam.kura.setting.BooleanSetting;
 import me.windyteam.kura.setting.Setting;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Module.Info(name = "ChatSuffix", category = Category.CHAT, description = "Custom Chat Suffix")
 public class ChatSuffix extends Module {
+    private final BooleanSetting wushuang = bsetting("WuShuang",false);
 
-    public static String CHAT_SUFFIX = "⇜ ᴋᴜʀᴀ";
+    public static String CHAT_SUFFIX = " ⲕᴜʀꞅⲁ.ツ";
     public Setting<Boolean> commands = bsetting("Command", false);
 
     @SubscribeEvent
     public void NMSL(PacketEvents.Send event) {
+        if (wushuang.getValue()) CHAT_SUFFIX = " 吴爽Pro";
         if (event.getStage() == 0) {
             if (event.getPacket() instanceof CPacketChatMessage) {
                 String s = ((CPacketChatMessage) event.getPacket()).getMessage();

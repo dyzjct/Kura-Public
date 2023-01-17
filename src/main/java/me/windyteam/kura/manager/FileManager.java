@@ -31,6 +31,7 @@ public class FileManager {
     // Default
     public static final String D = Kura.MOD_NAME;
     public static final String CONFIG_PATH = D + "/config/";
+    public static final String SPAMMER = D + "/Spammer.txt";
     public static final String NOTEBOT_PATH = D + "/notebot/";
     public static final String BACKGROUND_PATH = D + "/background/";
     public static final String ALT_CONFIG = D + "/" + Kura.MOD_NAME + "-Alt.json";

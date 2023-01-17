@@ -1,5 +1,6 @@
 package me.windyteam.kura.module.hud.huds
 
+import me.windyteam.kura.manager.FontManager
 import me.windyteam.kura.module.HUDModule
 import me.windyteam.kura.module.IModule
 import me.windyteam.kura.module.Module
@@ -37,9 +38,8 @@ class XG42ShowArrayList : HUDModule() {
     private var alternate = bsetting("Alternate", true).m(mode, Mode.INFO_OVERLAY)
     private var potion = bsetting("PotionsMove", false)
     private var forgeHax = bsetting("ForgeHax", false)
-    private var fontmod = msetting("FontMod", FontMod.Consantia)
     private var cFontRenderer =
-        CFontRenderer(Font(fontmod(), Font.PLAIN, 18), true, false)
+        CFontRenderer(Font(  "FZLanTYJW_Te", Font.PLAIN, 18), true, false)
     private val timer = Timer().reset()
     override fun onInit() {
         if (INSTANCE == null) {
@@ -47,13 +47,6 @@ class XG42ShowArrayList : HUDModule() {
         }
     }
 
-    fun fontmod():String?{
-        when (fontmod.value){
-            FontMod.Consantia -> return "Consantia"
-            FontMod.ComicSans -> return "Comic Sans MS"
-        }
-        return "Consantia"
-    }
     override fun onRender() {
         val allModule = ModuleManager.getModules().stream()
             .filter { module: IModule? -> module is Module }
@@ -77,7 +70,7 @@ class XG42ShowArrayList : HUDModule() {
         for (i in allModule.indices) {
             if (allModule[i] is Module) {
                 val module = allModule[i] as Module
-                var rgb: Int = when (mode.value) {
+                val rgb: Int = when (mode.value) {
                     Mode.RAINBOW -> Color.HSBtoRGB(
                         hue,
                         ColorUtils.toF(saturationR.value),
@@ -270,10 +263,6 @@ class XG42ShowArrayList : HUDModule() {
 
     enum class Position {
         RIGHT, CENTER, LEFT
-    }
-
-    enum class FontMod {
-        ComicSans, Consantia
     }
 
     companion object {

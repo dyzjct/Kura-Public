@@ -108,6 +108,16 @@ public class RenderUtil {
         Gui.drawRect(x, y, x + w, y + h, color);
     }
 
+    public static void drawText(BlockPos pos, String text) {
+        GlStateManager.pushMatrix();
+        RenderUtil.glBillboardDistanceScaled((float) pos.getX() + 0.5f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.5f, mc.player, 1.0f);
+        GlStateManager.disableDepth();
+        GlStateManager.translate(-((double) getStringWidth(text) / 2.0), 0.0, 0.0);
+        drawStringWithShadow(text, 0.0f, 0.0f, -5592406);
+        GlStateManager.popMatrix();
+    }
+
+
     public static void drawBoundingBoxWithSides(BlockPos blockPos, int width, GSColor color, int sides) {
         drawBoundingBoxWithSides(getBoundingBox(blockPos, 1, 1, 1), width, color, sides);
     }

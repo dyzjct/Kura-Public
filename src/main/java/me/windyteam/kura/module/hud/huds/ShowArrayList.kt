@@ -181,7 +181,7 @@ class ShowArrayList : HUDModule() {
     companion object {
         var fonts = CFontRenderer(
             CFont.CustomFont(
-                "/assets/fonts/Montserrat.ttf",
+                "/assets/fonts/FZLanTYJW_Te.ttf",
                 20f,
                 Font.PLAIN
             ), true, false

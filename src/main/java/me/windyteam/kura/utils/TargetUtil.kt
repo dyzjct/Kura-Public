@@ -10,3 +10,14 @@ fun getTarget(range: Int): EntityPlayer? {
         .filter { e -> mc.player.getDistance(e) <= range }.min(Comparator.comparing { e -> mc.player.getDistance(e) })
         .orElse(null)
 }
+fun getTarget(range: Double): EntityPlayer? {
+    return mc.world.playerEntities.stream().filter { e -> !EntityUtil.isntValid(e, range) }
+        .filter { e -> mc.player.getDistance(e) <= range }.min(Comparator.comparing { e -> mc.player.getDistance(e) })
+        .orElse(null)
+}
+
+fun getTarget(range: Float): EntityPlayer? {
+    return mc.world.playerEntities.stream().filter { e -> !EntityUtil.isntValid(e, range.toDouble()) }
+        .filter { e -> mc.player.getDistance(e) <= range }.min(Comparator.comparing { e -> mc.player.getDistance(e) })
+        .orElse(null)
+}

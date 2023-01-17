@@ -33,7 +33,7 @@ class Welcomer : HUDModule() {
         GL11.glPushMatrix()
         GL11.glTranslated(x.toDouble(), y.toFloat().toDouble(), 0.0)
         val Final = "Welcome " + Minecraft.getMinecraft().player.name + "! Have a nice day :)"
-        FontManager.font2!!.drawString(Final, 0.0, 0.0, generateColor(), false)
+        FontManager.font3!!.drawString(Final, 0.0, 0.0, generateColor(), false)
         GL11.glPopMatrix()
     }
 

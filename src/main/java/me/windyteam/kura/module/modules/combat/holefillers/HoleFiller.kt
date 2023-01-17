@@ -1,4 +1,4 @@
-package me.windyteam.kura.module.modules.combat.HoleFiller
+package me.windyteam.kura.module.modules.combat.holefillers
 
 import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.event.events.render.RenderEvent

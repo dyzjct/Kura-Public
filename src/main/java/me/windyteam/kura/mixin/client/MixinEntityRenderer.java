@@ -1,5 +1,6 @@
 package me.windyteam.kura.mixin.client;
 
+import me.windyteam.kura.event.events.render.PerspectiveEvent;
 import me.windyteam.kura.event.events.render.RenderLiquidVisionEvent;
 import me.windyteam.kura.event.events.render.RenderTotemPopEvent;
 import me.windyteam.kura.module.ModuleManager;
@@ -22,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import org.lwjgl.util.glu.Project;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -56,6 +58,27 @@ public abstract class MixinEntityRenderer {
         RenderTotemPopEvent event = new RenderTotemPopEvent();
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) ci.cancel();
+    }
+
+    @Redirect(method = { "setupCameraTransform" },  at = @At(value = "INVOKE",  target = "Lorg/lwjgl/util/glu/Project;gluPerspective(FFFF)V"))
+    private void onSetupCameraTransform(final float f,  final float f2,  final float f3,  final float f4) {
+        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(this.mc.displayWidth / (float)this.mc.displayHeight);
+        MinecraftForge.EVENT_BUS.post(perspectiveEvent);
+        Project.gluPerspective(f,  perspectiveEvent.getAspect(),  f3,  f4);
+    }
+
+    @Redirect(method = { "renderWorldPass" },  at = @At(value = "INVOKE",  target = "Lorg/lwjgl/util/glu/Project;gluPerspective(FFFF)V"))
+    private void onRenderWorldPass(final float f,  final float f2,  final float f3,  final float f4) {
+        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(this.mc.displayWidth / (float)this.mc.displayHeight);
+        MinecraftForge.EVENT_BUS.post(perspectiveEvent);
+        Project.gluPerspective(f,  perspectiveEvent.getAspect(),  f3,  f4);
+    }
+
+    @Redirect(method = { "renderCloudsCheck" },  at = @At(value = "INVOKE",  target = "Lorg/lwjgl/util/glu/Project;gluPerspective(FFFF)V"))
+    private void onRenderCloudsCheck(final float f,  final float f2,  final float f3,  final float f4) {
+        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(this.mc.displayWidth / (float)this.mc.displayHeight);
+        MinecraftForge.EVENT_BUS.post(perspectiveEvent);
+        Project.gluPerspective(f,  perspectiveEvent.getAspect(),  f3,  f4);
     }
 
     @Inject(method = "renderItemActivation", at = @At(value = "HEAD"), cancellable = true)

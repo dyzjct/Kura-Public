@@ -32,6 +32,9 @@ class HeadBlocker : Module() {
     private val rotate = bsetting("Rotate", false)
     private val delay = isetting("Delay", 0, 0, 300)
     private val cdelay = isetting("CrystalDelay", 0, 0, 300)
+    private val anticity = bsetting("AntiCity",true)
+    private val anticev = bsetting("AntiCev",true)
+    private val antiweb = bsetting("AntiWeb",true)
     private val antiFriend = bsetting("AntiFriend", false)
     private val antiSelf = bsetting("AntiSelf", false)
     private val antifaceplace = bsetting("AntiFacePlace",false)
@@ -48,7 +51,7 @@ class HeadBlocker : Module() {
             return
         }
         val pos = BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ)
-        if (InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD) != -1) {
+        if (InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD) != -1 && antiweb.value) {
             if (getBlock(pos.add(0, -1, 0)).block == Blocks.WEB && pos.add(0, -1, 0) != breakpos) {
                 Module.mc.playerController.onPlayerDamageBlock(
                     pos.add(0, -1, 0),
@@ -68,7 +71,7 @@ class HeadBlocker : Module() {
             return
         }
         val a: Vec3d = mc.player.positionVector
-        if (minepos != null) {
+        if (minepos != null && anticity.value) {
 //          AntiCity's:
 //          Alpha
 //            +x
@@ -303,48 +306,6 @@ class HeadBlocker : Module() {
                 }
             }
 //          EPSILON
-//            val antiList = ArrayList<Int>()
-//            val antiList2 = ArrayList<Int>()
-//            val antiList3 = ArrayList<Int>()
-//            antiList.add(-2)
-//            antiList.add(2)
-//            antiList.add(-1)
-//            antiList.add(1)
-//            antiList2.add(-1)
-//            antiList2.add(1)
-//            antiList2.add(-2)
-//            antiList2.add(2)
-//            antiList3.add(-3)
-//            antiList3.add(3)
-//            antiList.forEach(){ a ->
-//                antiList2.forEach(){ b ->
-//                    antiList3.forEach() { c ->
-//                        if (pos.add(a,0,0) == minepos){
-//                            if (getBlock(pos.add(b,0,0)).block == Blocks.AIR || getBlock(pos.add(b,0,0)).block == Blocks.AIR && pos.add(b,0,0) == minepos){
-//                                if (getBlock(pos.add(a,0,b)).block == Blocks.AIR){
-//                                    perform(pos.add(a,0,b),a,0,b)
-//                                }
-//                                if (getBlock(pos.add(c,0,0)).block == Blocks.AIR){
-//                                    perform(pos.add(c,0,0),c,0,0)
-//                                }
-//                                if (getBlock(pos.add(c,1,0)).block == Blocks.AIR){
-//                                    perform(pos.add(c,1,0),c,1,0)
-//                                }
-//                                if (getBlock(pos.add(a,1,0)).block == Blocks.AIR){
-//                                    perform(pos.add(a,1,0),a,1,0)
-//                                }
-//                                if (getBlock(pos.add(b,1,0)).block == Blocks.AIR){
-//                                    perform(pos.add(b,1,0),b,1,0)
-//                                }
-//                            } else {
-//                                if (getBlock(pos.add(b,0,b)).block == Blocks.AIR){
-//                                    perform(pos.add(b,0,b),b,0,0)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
 //            +x
             if (pos.add(2, 0, 0) == minepos) {
                 if (getBlock(pos.add(1, 0, 0)).block == Blocks.AIR) {
@@ -456,25 +417,26 @@ class HeadBlocker : Module() {
                 antiList.add(-1)
                 antiList.add(1)
 
-                antiList.forEach { x ->
-                    antiList.forEach { z ->
+                for (x in antiList) {
+                    for (z in antiList) {
                         if (checkCrystal(a, EntityUtil.getVarOffsets(x, 1, 0)) != null && getBlock(pos.add(x, 0, 0)).block != Blocks.BEDROCK) {
                             if (getBlock(pos.add(x, 1, 0)).block == Blocks.AIR) {
-                                EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(x, 1, 0)), true)
                                 facePlace(pos.add(x, 1, 0), x, 1, 0)
+                                break
                             }
                         }
                         if (checkCrystal(a, EntityUtil.getVarOffsets(0, 1, z)) != null  && getBlock(pos.add(0, 0, z)).block != Blocks.BEDROCK) {
                             if (getBlock(pos.add(0, 1, z)).block == Blocks.AIR) {
-                                EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0, 1, z)), true)
                                 facePlace(pos.add(0, 1, z), 0, 1, z)
+                                break
                             }
                         }
                     }
                 }
             }
-
-//          AntiCev's
+        }
+        if (minepos != null && anticev.value){
+            //          AntiCev's
             val a: Vec3d = mc.player.positionVector
 //            y
             if (pos.add(0, 2, 0) == minepos) {

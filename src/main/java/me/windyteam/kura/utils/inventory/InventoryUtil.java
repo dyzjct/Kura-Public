@@ -38,6 +38,10 @@ public class InventoryUtil {
         return result;
     }
 
+    public static int getSlot() {
+        return InventoryUtil.mc.player.inventory.currentItem;
+    }
+
     public static boolean[] switchItem(final boolean back, final int lastHotbarSlot, final boolean switchedItem, final Switch mode, final Class clazz) {
         final boolean[] switchedItemSwitched = { switchedItem, false };
         switch (mode) {

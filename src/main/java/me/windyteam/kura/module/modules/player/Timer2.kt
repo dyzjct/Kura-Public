@@ -18,8 +18,8 @@ import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-@Module.Info(name = "Timer", category = Category.PLAYER, description = "Changes your client tick speed")
-class Timer : Module() {
+@Module.Info(name = "Timer2", category = Category.PLAYER, description = "Changes your client tick speed")
+class Timer2 : Module() {
     private val tickNormal: Setting<Float> = fsetting("Speed", 1.2f, 1f, 10f)
     private val xp: FloatSetting = fsetting("WhileXP", 1.7f, 1f, 2f)
     private val packetControl: BooleanSetting = bsetting("PacketControl", false)
@@ -33,7 +33,7 @@ class Timer : Module() {
     private var lastYaw = 0f
 
     companion object {
-        var INSTANCE: Timer = Timer()
+        var INSTANCE: Timer2 = Timer2()
     }
 
     @SubscribeEvent

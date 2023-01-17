@@ -7,6 +7,7 @@ import java.awt.Font
 object FontManager {
     var fonts: CFontRenderer? = null
     var font2: CFontRenderer? =null
+    var font3: CFontRenderer? =null
 
     fun onInit() {
         fonts = CFontRenderer(
@@ -19,6 +20,13 @@ object FontManager {
         font2 = CFontRenderer(
             CFont.CustomFont(
                 "/assets/fonts/Comfortaa.ttf",
+                20f,
+                Font.BOLD
+            ), true, false
+        )
+        font3 = CFontRenderer(
+            CFont.CustomFont(
+                "/assets/fonts/FZLanTYJW_Te.ttf",
                 20f,
                 Font.BOLD
             ), true, false

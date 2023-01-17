@@ -3,13 +3,16 @@ package me.windyteam.kura.module.modules.combat
 import me.windyteam.kura.event.events.client.PacketEvents
 import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.event.events.entity.MoveEvent
+import me.windyteam.kura.manager.SpeedManager
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.ModuleManager
+import me.windyteam.kura.module.modules.movement.Phase
 import me.windyteam.kura.module.modules.movement.Speed
 import me.windyteam.kura.module.modules.movement.Step
 import me.windyteam.kura.module.modules.player.Blink
 import me.windyteam.kura.module.modules.player.Timer
+import me.windyteam.kura.module.modules.player.Timer2
 import me.windyteam.kura.setting.BooleanSetting
 import me.windyteam.kura.setting.FloatSetting
 import me.windyteam.kura.setting.IntegerSetting
@@ -20,6 +23,7 @@ import me.windyteam.kura.utils.combat.SurroundUtils.betterPosition
 import me.windyteam.kura.utils.combat.SurroundUtils.checkHole
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.entity.HoleUtil
+import me.windyteam.kura.utils.getTarget
 import me.windyteam.kura.utils.math.RandomUtil
 import me.windyteam.kura.utils.vector.Vec2f
 import me.windyteam.kura.utils.vector.VectorUtils
@@ -42,15 +46,17 @@ import kotlin.math.*
 
 @Module.Info(name = "HoleSnap", category = Category.COMBAT)
 class HoleSnap : Module() {
-    private var range: IntegerSetting = isetting("Range", 5, 1, 50)
-    private var timer: FloatSetting = fsetting("TimerVal", 3.4f, 1f, 25f)
-    private var blink: BooleanSetting = bsetting("BlinkSnap", false)
-    private var timeoutTicks: IntegerSetting = isetting("TimeOutTicks", 60, 0, 1000)
-    private var toggleStep: BooleanSetting = bsetting("EnableStep", true)
-    private var toggleTimer: BooleanSetting = bsetting("ToggleTimer", true)
-    private var disableStrafe: BooleanSetting = bsetting("DisableSpeed", false)
-    private var antiAim: BooleanSetting = bsetting("AntiAim", true)
-    private var packetListReset: TimerUtils = TimerUtils()
+    private var range = isetting("Range", 5, 1, 50)
+    private var playerfirst = bsetting("PlayerFirst",false)
+    private var playeronlyhole = bsetting("PlayerOnlyHole",false).b(playerfirst)
+    private var timer = fsetting("TimerVal", 3.4f, 1f, 25f)
+    private var blink = bsetting("BlinkSnap", false)
+    private var timeoutTicks = isetting("TimeOutTicks", 60, 0, 1000)
+    private var toggleStep = bsetting("EnableStep", true)
+    private var toggleTimer = bsetting("ToggleTimer", true)
+    private var disableStrafe = bsetting("DisableSpeed", false)
+    private var antiAim = bsetting("AntiAim", true)
+    private var packetListReset = TimerUtils()
     private var holePos: BlockPos? = null
     private var timerBypassing = false
     private var normalLookPos = 0
@@ -61,7 +67,8 @@ class HoleSnap : Module() {
     private var lastYaw = 0f
     private var normalPos = 0
     private var ranTicks = 0
-    var hole: HoleUtil.HoleInfo? = null; private set
+    private var target:EntityPlayer? = null
+
 
     override fun onEnable() {
         if (fullNullCheck()) {
@@ -84,11 +91,20 @@ class HoleSnap : Module() {
         timerBypassing = false
         packetListReset.reset()
         mc.timer.tickLength = 50f
+        if (disableStrafe.value && ModuleManager.getModuleByClass(Speed::class.java).isDisabled) {
+            ModuleManager.getModuleByClass(Speed::class.java).enable()
+        }
         if (toggleStep.value && ModuleManager.getModuleByClass(Step::class.java).isEnabled) {
             ModuleManager.getModuleByClass(Step::class.java).disable()
         }
         if (toggleTimer.value && ModuleManager.getModuleByClass(Timer::class.java).isEnabled) {
             ModuleManager.getModuleByClass(Timer::class.java).disable()
+        }
+        if (disableStrafe.value && ModuleManager.getModuleByClass(Speed::class.java).isEnabled) {
+            ModuleManager.getModuleByClass(Speed::class.java).disable()
+        }
+        if (toggleTimer.value && ModuleManager.getModuleByClass(Timer2::class.java).isEnabled) {
+            ModuleManager.getModuleByClass(Timer2::class.java).disable()
         }
         if (blink.value && ModuleManager.getModuleByClass(Blink::class.java).isEnabled) {
             ModuleManager.getModuleByClass(Blink::class.java).disable()
@@ -214,10 +230,6 @@ class HoleSnap : Module() {
         }
         getHole()?.let {
             mc.timer.tickLength = 50f / timer.value
-            if (disableStrafe.value && ModuleManager.getModuleByClass(
-                    Speed::class.java).isEnabled) {
-                ModuleManager.getModuleByClass(Speed::class.java).disable()
-            }
             if (toggleStep.value && ModuleManager.getModuleByClass(Step::class.java).isDisabled) {
                 ModuleManager.getModuleByClass(Step::class.java).enable()
             }
@@ -308,6 +320,19 @@ class HoleSnap : Module() {
     else holePos ?: findHole()
 
     private fun findHole(): BlockPos? {
+        if (mc.player != null && mc.world != null && playerfirst.value){
+            target = getTarget(range.value)
+            if (target!= null){
+                val playerPos = BlockPos(target!!.posX,target!!.posY,target!!.posZ)
+                if (playeronlyhole.value){
+                    if (HoleUtil.isInHole(target)){
+                        return playerPos
+                    }
+                } else if (SpeedManager.getPlayerSpeed(target)<6){
+                    return playerPos
+                }
+            }
+        }
         var closestHole = Pair(69.69, BlockPos.ORIGIN)
         val playerPos = mc.player.betterPosition
         val ceilRange = range.value
@@ -335,19 +360,4 @@ class HoleSnap : Module() {
         return if (closestHole.second != BlockPos.ORIGIN) closestHole.second.also { holePos = it }
         else null
     }
-
-    /*
-    private fun findHole(): HoleInfo? {
-        val playerPos = mc.player.betterPosition
-        val hRangeSq = 8f * 8f
-
-        return HoleManager.holeInfos.asSequence()
-            .filterNot { it.isTrapped }
-            .filter { playerPos.y > it.origin.y }
-            .filter { playerPos.y - it.origin.y <= 5f }
-            .filter { distanceSq(mc.player.posX, mc.player.posZ, it.center.x, it.center.z) <= hRangeSq }
-            .filter { it.canEnter(mc.world, playerPos) }
-            .minByOrNull { distanceSq(mc.player.posX, mc.player.posZ, it.center.x, it.center.z) }
-    }
-     */
 }

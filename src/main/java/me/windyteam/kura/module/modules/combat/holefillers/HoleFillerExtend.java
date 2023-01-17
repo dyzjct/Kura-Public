@@ -1,8 +1,5 @@
-package me.windyteam.kura.module.modules.combat.HoleFiller;
+package me.windyteam.kura.module.modules.combat.holefillers;
 
-import me.windyteam.kura.module.Category;
-import me.windyteam.kura.module.Module;
-import me.windyteam.kura.utils.entity.EntityUtil;
 import me.windyteam.kura.utils.entity.EntityUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -10,14 +7,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 
-@Module.Info(name = "FeetMiner",category = Category.COMBAT)
 public class HoleFillerExtend {
     public static EntityPlayer target;
     private static Minecraft mc = Minecraft.getMinecraft();
     public static Boolean AntiFuck = true;
 
 
-    public void HoleFillerExtend() {
+    public HoleFillerExtend() {
         target = this.getTarget(6);
         if (target == null) {
             return;

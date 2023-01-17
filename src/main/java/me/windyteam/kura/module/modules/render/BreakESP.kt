@@ -234,74 +234,81 @@ class BreakESP : Module() {
             }
 
             //SecondPos Render
-            if (secPacketPos != null && renderDoublePos.value && mc.world.getEntityByID(it.key)!!.getDistanceSq(secPacketPos!!) < 36) {
-                if (!mc.world.isAirBlock(secPacketPos!!) && mc.world.getEntityByID(it.key) != null) {
-                    if (secPacketPos!!.getDistance(
-                            mc.player.posX.toInt(),
-                            mc.player.posY.toInt(),
-                            mc.player.posZ.toInt()
-                        ) <= range.value
-                    ) {
-                        MelonTessellator.boxESP(
-                            secPacketPos!!,
-                            if (FriendManager.isFriend(mc.world.getEntityByID(it.key))) {
-                                dfcolor
-                            } else {
-                                dcolor
-                            },
-                            alpha.value,
-                            lineWidth.value.toFloat(),
-                            0f,
-                            renderMode.value
-                        )
-                        if (drawID.value) {
-                            if (mc.world.getEntityByID(it.key) is EntityPlayer) {
+            try {
+                if (secPacketPos != null && renderDoublePos.value && mc.world.getEntityByID(it.key)!!.getDistanceSq(secPacketPos!!) < 36 && mc.world.getEntityByID(it.key) != null && mc.world.getBlockState(secPacketPos!!).block != Blocks.AIR) {
+                    if (MathHelper.clamp(100.0 - ((it.value.finalProgress / it.value.calcMineTime) * 100.0), 0.0, 100.0) != 100.0){
+                        val progress = MathHelper.clamp(((it.value.finalProgress / it.value.calcMineTime) * 100.0 / 100.0), 0.0, 100.0).toFloat()
+                        if (!mc.world.isAirBlock(secPacketPos!!)) {
+                            if (secPacketPos!!.getDistance(
+                                    mc.player.posX.toInt(),
+                                    mc.player.posY.toInt(),
+                                    mc.player.posZ.toInt()
+                                ) <= range.value
+                            ) {
+                                MelonTessellator.boxESP(
+                                    secPacketPos!!,
+                                    if (FriendManager.isFriend(mc.world.getEntityByID(it.key))) {
+                                        dfcolor
+                                    } else {
+                                        dcolor
+                                    },
+                                    alpha.value,
+                                    lineWidth.value.toFloat(),
+                                    progress,
+                                    renderMode.value
+                                )
+                                if (drawID.value) {
+                                    if (mc.world.getEntityByID(it.key) is EntityPlayer) {
+                                        GlStateManager.pushMatrix()
+                                        MelonTessellator.glBillboardDistanceScaled(
+                                            secPacketPos!!.getX().toFloat() + 0.5f,
+                                            secPacketPos!!.getY().toFloat() + 0.65f,
+                                            secPacketPos!!.getZ().toFloat() + 0.5f,
+                                            mc.player,
+                                            0.5f
+                                        )
+                                        GlStateManager.disableDepth()
+                                        GlStateManager.translate(
+                                            -(mc.fontRenderer.getStringWidth((mc.world.getEntityByID(it.key) as EntityPlayer).name) / 2.0),
+                                            0.0,
+                                            0.0
+                                        )
+                                        mc.fontRenderer.drawStringWithShadow(
+                                            ((mc.world.getEntityByID(it.key) as EntityPlayer).name),
+                                            0f,
+                                            0f,
+                                            Color(255, 255, 255).rgb
+                                        )
+                                        GlStateManager.popMatrix()
+                                    }
+                                }
                                 GlStateManager.pushMatrix()
                                 MelonTessellator.glBillboardDistanceScaled(
                                     secPacketPos!!.getX().toFloat() + 0.5f,
-                                    secPacketPos!!.getY().toFloat() + 0.65f,
+                                    secPacketPos!!.getY().toFloat() + 0.4f,
                                     secPacketPos!!.getZ().toFloat() + 0.5f,
                                     mc.player,
                                     0.5f
                                 )
                                 GlStateManager.disableDepth()
                                 GlStateManager.translate(
-                                    -(mc.fontRenderer.getStringWidth((mc.world.getEntityByID(it.key) as EntityPlayer).name) / 2.0),
+                                    -(mc.fontRenderer.getStringWidth("Double") / 2.0),
                                     0.0,
                                     0.0
                                 )
                                 mc.fontRenderer.drawStringWithShadow(
-                                    ((mc.world.getEntityByID(it.key) as EntityPlayer).name),
+                                    "Double",
                                     0f,
                                     0f,
-                                    Color(255, 255, 255).rgb
+                                    Color(255, 165, 0).rgb
                                 )
                                 GlStateManager.popMatrix()
                             }
                         }
-                        GlStateManager.pushMatrix()
-                        MelonTessellator.glBillboardDistanceScaled(
-                            secPacketPos!!.getX().toFloat() + 0.5f,
-                            secPacketPos!!.getY().toFloat() + 0.4f,
-                            secPacketPos!!.getZ().toFloat() + 0.5f,
-                            mc.player,
-                            0.5f
-                        )
-                        GlStateManager.disableDepth()
-                        GlStateManager.translate(
-                            -(mc.fontRenderer.getStringWidth("Double") / 2.0),
-                            0.0,
-                            0.0
-                        )
-                        mc.fontRenderer.drawStringWithShadow(
-                            "Double",
-                            0f,
-                            0f,
-                            Color(255, 165, 0).rgb
-                        )
-                        GlStateManager.popMatrix()
                     }
                 }
+            } catch (e:Exception){
+//                Java.lang.HeYuePingSkidException
             }
         }
     }

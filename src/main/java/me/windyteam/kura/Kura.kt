@@ -29,18 +29,18 @@ import java.io.IOException
 
 @Mod(modid = Kura.MOD_ID, name = Kura.MOD_NAME, version = Kura.VERSION)
 class Kura {
-    var moduleManager: ModuleManager? = null
+    private var moduleManager: ModuleManager? = null
 
     @JvmField
     var friendManager: FriendManager? = null
 
     @JvmField
     var commandManager:CommandManager? = null
-    var rotationManager: RotationManager? = null
-    var configManager: FileManager? = null
-    var guiRender: GUIRender? = null
-    var hudEditor: HUDRender? = null
-    var guiManager: GuiManager? = null
+    private var rotationManager: RotationManager? = null
+    private var configManager: FileManager? = null
+    private var guiRender: GUIRender? = null
+    private var hudEditor: HUDRender? = null
+    private var guiManager: GuiManager? = null
 
     @Mod.EventHandler
     fun preinit(event: FMLPreInitializationEvent?) {
@@ -97,8 +97,8 @@ class Kura {
     companion object {
         const val MOD_ID = "kura"
         const val MOD_NAME = "Kura"
-        const val VERSION = "2.3"
-        const val DISPLAY_NAME = Kura.Companion.MOD_NAME + " " + Kura.Companion.VERSION
+        const val VERSION = "2.4"
+        private const val DISPLAY_NAME = Kura.Companion.MOD_NAME + " " + Kura.Companion.VERSION
         const val KANJI = "Kura"
         const val ALT_Encrypt_Key = "Kura"
 
@@ -117,7 +117,7 @@ class Kura {
             Kura.Companion.setIcon()
         }
 
-        fun setIcon() {
+        private fun setIcon() {
             val OS = Util.getOSType()
             if (OS != EnumOS.OSX) {
                 try {
