@@ -7,7 +7,6 @@ import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.Module.Info
-import me.windyteam.kura.module.modules.misc.InstantMine
 import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.getTarget
 import me.windyteam.kura.utils.inventory.InventoryUtil
@@ -26,6 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 @Info(name = "HoleKickerRewrite", category = Category.COMBAT)
 class HoleKickerRewrite : Module(){
     private val range = isetting("Range",6,0,12)
+    private val autotoggle = bsetting("AutoToggle",true)
 
     private var target :EntityPlayer? = null
     private var pistonList = mutableListOf<BlockPos>()
@@ -50,23 +50,29 @@ class HoleKickerRewrite : Module(){
         }
         loadList()
         for (i in 1..4){
-            if (getBlock(pistonList[i]).block == Blocks.PISTON) break
-            if (!mc.world.isPlaceable(pistonList[i])) continue
-            if (pistonList[i] == breakPos || InstantMine.breakPos == breakPos) continue
-            mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
-            blockPiston(pistonList[i])
-            if (redStoneList[i] == Blocks.REDSTONE_BLOCK || redStoneList2[i] == Blocks.REDSTONE_BLOCK) continue
-            if (redStoneList2[i] == Blocks.AIR){
+            if (pistonList[i] == breakPos || getBlock(pistonList[i]).block != Blocks.AIR && getBlock(pistonList[i]).block != Blocks.PISTON) continue
+            if (getBlock(redStoneList2[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList2[i])){
                 blockRedStone(redStoneList2[i])
-                continue
+                doPistonPlace(pistonList[i],rotateList[i])
             } else{
+                if (mc.world.isPlaceable(pistonList[i])){
+                    if (pistonList[i] == breakPos) continue
+                    mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
+                    doPistonPlace(pistonList[i],rotateList[i])
+                }
                 blockRedStone(redStoneList[i])
             }
             break
         }
-        toggle()
+        if (autotoggle.value) toggle()
     }
 
+    private fun doPistonPlace(pos: BlockPos,rotate:Float){
+        if (mc.world.isPlaceable(pos)){
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotate, 0f, true) as Packet<*>)
+            blockPiston(pos)
+        }
+    }
     private fun loadList(){
         target = getTarget(range.value)
         if (target == null) return
