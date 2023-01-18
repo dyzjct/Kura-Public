@@ -9,7 +9,6 @@ import me.windyteam.kura.manager.HotbarManager
 import me.windyteam.kura.manager.SpeedManager
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.module.modules.crystalaura.KuraAura
 import me.windyteam.kura.utils.Timer
 import me.windyteam.kura.utils.block.BlockUtil2
 import me.windyteam.kura.utils.entity.EntityUtil
@@ -31,17 +30,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 class HeadBlocker : Module() {
     private val rotate = bsetting("Rotate", false)
     private val delay = isetting("Delay", 0, 0, 300)
-    private val cdelay = isetting("CrystalDelay", 0, 0, 300)
-    private val anticity = bsetting("AntiCity",true)
-    private val anticev = bsetting("AntiCev",true)
-    private val antiweb = bsetting("AntiWeb",true)
+    private val cDelay = isetting("CrystalDelay", 0, 0, 300)
+    private val antiCity = bsetting("AntiCity",true)
+    private val antiCev = bsetting("AntiCev",true)
+    private val antiWeb = bsetting("AntiWeb",true)
     private val antiFriend = bsetting("AntiFriend", false)
     private val antiSelf = bsetting("AntiSelf", false)
-    private val antifaceplace = bsetting("AntiFacePlace",false)
+    private val antiFacePlace = bsetting("AntiFacePlace",false)
     private val jump = bsetting("Jump",false)
     private var obsidian = -1
-    private var minepos: BlockPos? = null
-    private var breakpos: BlockPos? = null
+    private var minePos: BlockPos? = null
+    private var breakPos: BlockPos? = null
     private val timer = Timer()
     private var mc = Minecraft.getMinecraft()
 
@@ -51,15 +50,15 @@ class HeadBlocker : Module() {
             return
         }
         val pos = BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ)
-        if (InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD) != -1 && antiweb.value) {
-            if (getBlock(pos.add(0, -1, 0)).block == Blocks.WEB && pos.add(0, -1, 0) != breakpos) {
+        if (InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD) != -1 && antiWeb.value) {
+            if (getBlock(pos.add(0, -1, 0)).block == Blocks.WEB && pos.add(0, -1, 0) != breakPos) {
                 Module.mc.playerController.onPlayerDamageBlock(
                     pos.add(0, -1, 0),
                     BlockUtil2.getRayTraceFacing(pos.add(0, -1, 0))
                 )
-            } else if (getBlock(pos.add(0, 0, 0)).block == Blocks.WEB && pos.add(0, 0, 0) != breakpos) {
+            } else if (getBlock(pos.add(0, 0, 0)).block == Blocks.WEB && pos.add(0, 0, 0) != breakPos) {
                 Module.mc.playerController.onPlayerDamageBlock(pos.add(0, 0, 0), BlockUtil2.getRayTraceFacing(pos.add(0, 0, 0)))
-            } else if (getBlock(pos.add(0, 1, 0)).block == Blocks.WEB && pos.add(0, 1, 0) != breakpos) {
+            } else if (getBlock(pos.add(0, 1, 0)).block == Blocks.WEB && pos.add(0, 1, 0) != breakPos) {
                 Module.mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 0), BlockUtil2.getRayTraceFacing(pos.add(0, 1, 0)))
             }
         }
@@ -71,11 +70,11 @@ class HeadBlocker : Module() {
             return
         }
         val a: Vec3d = mc.player.positionVector
-        if (minepos != null && anticity.value) {
+        if (minePos != null && antiCity.value) {
 //          AntiCity's:
 //          Alpha
 //            +x
-            if (pos.add(1, 0, 0) == minepos) {
+            if (pos.add(1, 0, 0) == minePos) {
                 if (getBlock(pos.add(1, 0, 0)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(1, 0, 1)).block == Blocks.AIR) {
                         perform(pos.add(1, 0, 1), 1, 0, 1)
@@ -98,7 +97,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            -x
-            if (pos.add(-1, 0, 0) == minepos) {
+            if (pos.add(-1, 0, 0) == minePos) {
                 if (getBlock(pos.add(-1, 0, 0)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(-1, 0, 1)).block == Blocks.AIR) {
                         perform(pos.add(-1, 0, 1), -1, 0, 1)
@@ -121,7 +120,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            +z
-            if (pos.add(0, 0, 1) == minepos) {
+            if (pos.add(0, 0, 1) == minePos) {
                 if (getBlock(pos.add(0, 0, 1)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(1, 0, 1)).block == Blocks.AIR) {
                         perform(pos.add(1, 0, 1), 1, 0, 1)
@@ -144,7 +143,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            -z
-            if (pos.add(0, 0, -1) == minepos) {
+            if (pos.add(0, 0, -1) == minePos) {
                 if (getBlock(pos.add(0, 0, -1)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(1, 0, -1)).block == Blocks.AIR) {
                         perform(pos.add(1, 0, -1), 1, 0, -1)
@@ -168,7 +167,7 @@ class HeadBlocker : Module() {
             }
 //          BETA
 //            +x
-            if (pos.add(1, 1, 0) == minepos) {
+            if (pos.add(1, 1, 0) == minePos) {
                 if (getBlock(pos.add(1, 0, 0)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(1, 0, 0)).block == Blocks.AIR) {
                         perform(pos.add(1, 0, 0), 1, 0, 0)
@@ -176,7 +175,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            -x
-            if (pos.add(-1, 1, 0) == minepos) {
+            if (pos.add(-1, 1, 0) == minePos) {
                 if (getBlock(pos.add(-1, 0, 0)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(-1, 0, 0)).block == Blocks.AIR) {
                         perform(pos.add(-1, 0, 0), -1, 0, 0)
@@ -184,7 +183,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            +z
-            if (pos.add(0, 1, 1) == minepos) {
+            if (pos.add(0, 1, 1) == minePos) {
                 if (getBlock(pos.add(0, 0, 1)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(0, 0, 1)).block == Blocks.AIR) {
                         perform(pos.add(0, 0, 1), 0, 0, 1)
@@ -192,7 +191,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            -z
-            if (pos.add(0, 1, -1) == minepos) {
+            if (pos.add(0, 1, -1) == minePos) {
                 if (getBlock(pos.add(0, 0, -1)).block != Blocks.BEDROCK) {
                     if (getBlock(pos.add(0, 0, -1)).block == Blocks.AIR) {
                         perform(pos.add(0, 0, -1), 0, 0, -1)
@@ -201,7 +200,7 @@ class HeadBlocker : Module() {
             }
 //          GAMMA
 //            +x-z
-            if (pos.add(1, 0, -1) == minepos) {
+            if (pos.add(1, 0, -1) == minePos) {
                 if (getBlock(pos.add(1, 0, 0)).block == Blocks.AIR) {
                     if (getBlock(pos.add(1, 0, -1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(2, 0, -1)).block == Blocks.AIR) {
@@ -217,7 +216,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            +x+z
-            if (pos.add(1, 0, 1) == minepos) {
+            if (pos.add(1, 0, 1) == minePos) {
                 if (getBlock(pos.add(1, 0, 0)).block == Blocks.AIR) {
                     if (getBlock(pos.add(1, 0, 1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(2, 0, 1)).block == Blocks.AIR) {
@@ -233,7 +232,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            +z-x
-            if (pos.add(-1, 0, 1) == minepos) {
+            if (pos.add(-1, 0, 1) == minePos) {
                 if (getBlock(pos.add(0, 0, 1)).block == Blocks.AIR) {
                     if (getBlock(pos.add(-1, 0, 1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(-1, 0, 2)).block == Blocks.AIR) {
@@ -249,7 +248,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            -z-x
-            if (pos.add(-1, 0, -1) == minepos) {
+            if (pos.add(-1, 0, -1) == minePos) {
                 if (getBlock(pos.add(0, 0, -1)).block == Blocks.AIR) {
                     if (getBlock(pos.add(-1, 0, -1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(-1, 0, -2)).block == Blocks.AIR) {
@@ -266,7 +265,7 @@ class HeadBlocker : Module() {
             }
 //          DELTA
 //            +x-z
-            if (pos.add(1, 1, -1) == minepos) {
+            if (pos.add(1, 1, -1) == minePos) {
                 if (getBlock(pos.add(1, 1, 0)).block == Blocks.AIR) {
                     if (getBlock(pos.add(1, 0, -1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(1, 0, -1)).block == Blocks.AIR) {
@@ -276,7 +275,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            +x+z
-            if (pos.add(1, 1, 1) == minepos) {
+            if (pos.add(1, 1, 1) == minePos) {
                 if (getBlock(pos.add(1, 0, 0)).block == Blocks.AIR) {
                     if (getBlock(pos.add(1, 0, 1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(1, 0, 1)).block == Blocks.AIR) {
@@ -286,7 +285,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            +z-x
-            if (pos.add(-1, 1, 1) == minepos) {
+            if (pos.add(-1, 1, 1) == minePos) {
                 if (getBlock(pos.add(0, 0, 1)).block == Blocks.AIR) {
                     if (getBlock(pos.add(-1, 0, 1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(-1, 0, 1)).block == Blocks.AIR) {
@@ -296,7 +295,7 @@ class HeadBlocker : Module() {
                 }
             }
 //            -z-x
-            if (pos.add(-1, 1, -1) == minepos) {
+            if (pos.add(-1, 1, -1) == minePos) {
                 if (getBlock(pos.add(0, 0, -1)).block == Blocks.AIR) {
                     if (getBlock(pos.add(-1, 0, -1)).block != Blocks.BEDROCK) {
                         if (getBlock(pos.add(-1, 0, -1)).block == Blocks.AIR) {
@@ -307,9 +306,9 @@ class HeadBlocker : Module() {
             }
 //          EPSILON
 //            +x
-            if (pos.add(2, 0, 0) == minepos) {
+            if (pos.add(2, 0, 0) == minePos) {
                 if (getBlock(pos.add(1, 0, 0)).block == Blocks.AIR) {
-                    if (pos.add(1, 0, 0) == minepos) {
+                    if (pos.add(1, 0, 0) == minePos) {
                         if (getBlock(pos.add(2, 0, -1)).block == Blocks.AIR) {
                             perform(pos.add(2, 0, -1), 2, 0, -1)
                         }
@@ -333,9 +332,9 @@ class HeadBlocker : Module() {
                 }
             }
 //            -x
-            if (pos.add(-2, 0, 0) == minepos) {
+            if (pos.add(-2, 0, 0) == minePos) {
                 if (getBlock(pos.add(-1, 0, 0)).block == Blocks.AIR) {
-                    if (pos.add(-1, 0, 0) == minepos) {
+                    if (pos.add(-1, 0, 0) == minePos) {
                         if (getBlock(pos.add(-2, 0, -1)).block == Blocks.AIR) {
                             perform(pos.add(-2, 0, -1), -2, 0, -1)
                         }
@@ -359,9 +358,9 @@ class HeadBlocker : Module() {
                 }
             }
 //            +z
-            if (pos.add(0, 0, 2) == minepos) {
+            if (pos.add(0, 0, 2) == minePos) {
                 if (getBlock(pos.add(0, 0, 1)).block == Blocks.AIR) {
-                    if (pos.add(0, 0, 1) == minepos) {
+                    if (pos.add(0, 0, 1) == minePos) {
                         if (getBlock(pos.add(-1, 0, 2)).block == Blocks.AIR) {
                             perform(pos.add(-1, 0, 2), -1, 0, 2)
                         }
@@ -385,9 +384,9 @@ class HeadBlocker : Module() {
                 }
             }
 //            -z
-            if (pos.add(0, 0, -2) == minepos) {
+            if (pos.add(0, 0, -2) == minePos) {
                 if (getBlock(pos.add(0, 0, -1)).block == Blocks.AIR) {
-                    if (pos.add(0, 0, -1) == minepos) {
+                    if (pos.add(0, 0, -1) == minePos) {
                         if (getBlock(pos.add(-1, 0, -2)).block == Blocks.AIR) {
                             perform(pos.add(-1, 0, -2), -1, 0, -2)
                         }
@@ -412,7 +411,7 @@ class HeadBlocker : Module() {
             }
 
 //          AntiFacePlaceCrystal
-            if (SpeedManager.getPlayerSpeed(mc.player)<=6 && antifaceplace.value && this.timer.passedMs(this.cdelay.value.toLong())){
+            if (SpeedManager.getPlayerSpeed(mc.player)<=6 && antiFacePlace.value && this.timer.passedMs(this.cDelay.value.toLong())){
                 val antiList = ArrayList<Int>()
                 antiList.add(-1)
                 antiList.add(1)
@@ -435,17 +434,17 @@ class HeadBlocker : Module() {
                 }
             }
         }
-        if (minepos != null && anticev.value){
+        if (minePos != null && antiCev.value){
             //          AntiCev's
             val a: Vec3d = mc.player.positionVector
 //            y
-            if (pos.add(0, 2, 0) == minepos) {
+            if (pos.add(0, 2, 0) == minePos) {
                 if (getBlock(pos.add(0, 3, 0)).block == Blocks.AIR) {
                     if (checkCrystal(a, EntityUtil.getVarOffsets(0,3,0)) != null){
                         if (jump.value){
                             mc.player.jump()
                         }
-                        if (checkCrystal(a, EntityUtil.getVarOffsets(0,3,0)) != null && this.timer.passedMs(this.cdelay.value.toLong())){
+                        if (checkCrystal(a, EntityUtil.getVarOffsets(0,3,0)) != null && this.timer.passedMs(this.cDelay.value.toLong())){
                             EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0,3,0)), true)
                         }
                     }
@@ -453,13 +452,13 @@ class HeadBlocker : Module() {
                 }
             }
 //            y2
-            if (pos.add(0, 3, 0) == minepos) {
+            if (pos.add(0, 3, 0) == minePos) {
                 if (getBlock(pos.add(0, 4, 0)).block == Blocks.AIR) {
                     if (checkCrystal(a, EntityUtil.getVarOffsets(0,4,0)) != null){
                         if (jump.value && getBlock(pos.add(0,2,0)).block != Blocks.AIR){
                             mc.player.jump()
                         }
-                        if (checkCrystal(a, EntityUtil.getVarOffsets(0,4,0)) != null && this.timer.passedMs(this.cdelay.value.toLong())){
+                        if (checkCrystal(a, EntityUtil.getVarOffsets(0,4,0)) != null && this.timer.passedMs(this.cDelay.value.toLong())){
                             EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0,4,0)), true)
                         }
                     }
@@ -467,13 +466,13 @@ class HeadBlocker : Module() {
                 }
             }
 //            y3
-            if (pos.add(0, 4, 0) == minepos) {
+            if (pos.add(0, 4, 0) == minePos) {
                 if (getBlock(pos.add(0, 5, 0)).block == Blocks.AIR) {
                     if (checkCrystal(a, EntityUtil.getVarOffsets(0,5,0)) != null){
                         if (jump.value && getBlock(pos.add(0,2,0)).block != Blocks.AIR){
                             mc.player.jump()
                         }
-                        if (checkCrystal(a, EntityUtil.getVarOffsets(0,5,0)) != null && this.timer.passedMs(this.cdelay.value.toLong())){
+                        if (checkCrystal(a, EntityUtil.getVarOffsets(0,5,0)) != null && this.timer.passedMs(this.cDelay.value.toLong())){
                             EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0,5,0)), true)
                         }
                     }
@@ -481,8 +480,8 @@ class HeadBlocker : Module() {
                 }
             }
 //            +x
-            if (pos.add(1, 1, 0) == minepos) {
-                if (this.timer.passedMs(this.cdelay.value.toLong())){
+            if (pos.add(1, 1, 0) == minePos) {
+                if (this.timer.passedMs(this.cDelay.value.toLong())){
                     if (checkCrystal(a, EntityUtil.getVarOffsets(1,2,0)) != null){
                         EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(1,2,0)), true)
                     }
@@ -491,8 +490,8 @@ class HeadBlocker : Module() {
                     facePlace(pos.add(1, 2, 0), 1, 2, 0)
                 }
             }
-            if (pos.add(1, 2, 0) == minepos) {
-                if (this.timer.passedMs(this.cdelay.value.toLong())){
+            if (pos.add(1, 2, 0) == minePos) {
+                if (this.timer.passedMs(this.cDelay.value.toLong())){
                     if (checkCrystal(a, EntityUtil.getVarOffsets(1,3,0)) != null){
                         EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(1,3,0)), true)
                     }
@@ -502,8 +501,8 @@ class HeadBlocker : Module() {
                 }
             }
 //            -x
-            if (pos.add(-1, 1, 0) == minepos) {
-                if (this.timer.passedMs(this.cdelay.value.toLong())){
+            if (pos.add(-1, 1, 0) == minePos) {
+                if (this.timer.passedMs(this.cDelay.value.toLong())){
                     if (checkCrystal(a, EntityUtil.getVarOffsets(-1,2,0)) != null){
                         EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(-1,2,0)), true)
                     }
@@ -512,8 +511,8 @@ class HeadBlocker : Module() {
                     facePlace(pos.add(-1, 2, 0), -1, 2, 0)
                 }
             }
-            if (pos.add(-1, 2, 0) == minepos) {
-                if (this.timer.passedMs(this.cdelay.value.toLong())){
+            if (pos.add(-1, 2, 0) == minePos) {
+                if (this.timer.passedMs(this.cDelay.value.toLong())){
                     if (checkCrystal(a, EntityUtil.getVarOffsets(-1,3,0)) != null){
                         EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(-1,3,0)), true)
                     }
@@ -523,8 +522,8 @@ class HeadBlocker : Module() {
                 }
             }
 //            +z
-            if (pos.add(0, 1, 1) == minepos) {
-                if (this.timer.passedMs(this.cdelay.value.toLong())){
+            if (pos.add(0, 1, 1) == minePos) {
+                if (this.timer.passedMs(this.cDelay.value.toLong())){
                     if (checkCrystal(a, EntityUtil.getVarOffsets(0,2,1)) != null){
                         EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0,2,1)), true)
                     }
@@ -533,9 +532,9 @@ class HeadBlocker : Module() {
                     facePlace(pos.add(0, 2, 1), 0, 2, 1)
                 }
             }
-            if (pos.add(0, 2, 1) == minepos) {
+            if (pos.add(0, 2, 1) == minePos) {
                 if (getBlock(pos.add(0, 3, 1)).block == Blocks.AIR) {
-                    if (this.timer.passedMs(this.cdelay.value.toLong())){
+                    if (this.timer.passedMs(this.cDelay.value.toLong())){
                         if (checkCrystal(a, EntityUtil.getVarOffsets(0,3,1)) != null){
                             EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0,3,1)), true)
                         }
@@ -544,9 +543,9 @@ class HeadBlocker : Module() {
                 }
             }
 //            -z
-            if (pos.add(0, 1, -1) == minepos) {
+            if (pos.add(0, 1, -1) == minePos) {
                 if (getBlock(pos.add(0, 2, -1)).block == Blocks.AIR) {
-                    if (this.timer.passedMs(this.cdelay.value.toLong())){
+                    if (this.timer.passedMs(this.cDelay.value.toLong())){
                         if (checkCrystal(a, EntityUtil.getVarOffsets(0,2,-1)) != null){
                             EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0,2,-1)), true)
                         }
@@ -554,9 +553,9 @@ class HeadBlocker : Module() {
                     facePlace(pos.add(0, 2, -1), 0, 2, -1)
                 }
             }
-            if (pos.add(0, 2, -1) == minepos) {
+            if (pos.add(0, 2, -1) == minePos) {
                 if (getBlock(pos.add(0, 3, -1)).block == Blocks.AIR) {
-                    if (this.timer.passedMs(this.cdelay.value.toLong())){
+                    if (this.timer.passedMs(this.cDelay.value.toLong())){
                         if (checkCrystal(a, EntityUtil.getVarOffsets(0,3,-1)) != null){
                             EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(0,3,-1)), true)
                         }
@@ -573,7 +572,7 @@ class HeadBlocker : Module() {
             return
         }
         if (event.position != null) {
-            breakpos = event.position
+            breakPos = event.position
         }
         if (!antiSelf.value && event.breakerId == mc.player.entityId) {
             return
@@ -582,7 +581,7 @@ class HeadBlocker : Module() {
             return
         }
         if (event.position != null) {
-            minepos = event.position
+            minePos = event.position
         }
     }
 
@@ -593,11 +592,11 @@ class HeadBlocker : Module() {
     private fun perform(pos: BlockPos, x: Int, y: Int, z: Int) {
         if (fullNullCheck()) return
         if (getBlock(pos).block != Blocks.AIR) return
-        if (pos == breakpos) return
+        if (pos == breakPos) return
         if (pos == InstantMine.breakPos) return
         if (!this.timer.passedMs(this.delay.value.toLong())) return
         val a: Vec3d = mc.player.positionVector
-        if (checkCrystal(a, EntityUtil.getVarOffsets(x,y,z)) != null && this.timer.passedMs(this.cdelay.value.toLong())){
+        if (checkCrystal(a, EntityUtil.getVarOffsets(x,y,z)) != null && this.timer.passedMs(this.cDelay.value.toLong())){
             EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(x, y, z)), true)
         }
         if (!world.isPlaceable(pos)) {
@@ -610,7 +609,7 @@ class HeadBlocker : Module() {
     }
     private fun facePlace(pos: BlockPos, x: Int, y: Int, z: Int) {
         if (fullNullCheck()) return
-        if (pos == breakpos) return
+        if (pos == breakPos) return
         if (pos == InstantMine.breakPos) return
         if (!this.timer.passedMs(this.delay.value.toLong())) return
         val a: Vec3d = mc.player.positionVector
