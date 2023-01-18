@@ -7,6 +7,7 @@ import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.Module.Info
+import me.windyteam.kura.module.modules.misc.InstantMine
 import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.getTarget
 import me.windyteam.kura.utils.inventory.InventoryUtil
@@ -28,23 +29,42 @@ class HoleKickerRewrite : Module(){
 
     private var target :EntityPlayer? = null
     private var pistonList = mutableListOf<BlockPos>()
+    private var redStoneList = mutableListOf<BlockPos>()
+    private var redStoneList2 = mutableListOf<BlockPos>()
     private var breakPos:BlockPos? = null
     private var rotateList = mutableListOf<Float>()
 
     @SubscribeEvent
     fun onTick(event: MotionUpdateEvent){
         if (fullNullCheck()) return
+        if (mc.player == null || mc.world == null) return
         target = getTarget(range.value)
         if (target == null) return
+        if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1) {
+            disable()
+            return
+        }
+        if (InventoryUtil.findHotbarBlock(Blocks.PISTON) == -1) {
+            disable()
+            return
+        }
         loadList()
         for (i in 1..4){
             if (getBlock(pistonList[i]).block == Blocks.PISTON) break
             if (!mc.world.isPlaceable(pistonList[i])) continue
-            if (pistonList[i] == breakPos) continue
+            if (pistonList[i] == breakPos || InstantMine.breakPos == breakPos) continue
             mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
-            perform(pistonList[i])
+            blockPiston(pistonList[i])
+            if (redStoneList[i] == Blocks.REDSTONE_BLOCK || redStoneList2[i] == Blocks.REDSTONE_BLOCK) continue
+            if (redStoneList2[i] == Blocks.AIR){
+                blockRedStone(redStoneList2[i])
+                continue
+            } else{
+                blockRedStone(redStoneList[i])
+            }
             break
         }
+        toggle()
     }
 
     private fun loadList(){
@@ -55,16 +75,35 @@ class HoleKickerRewrite : Module(){
         pistonList.add(playerPos.add(-1,1,0))
         pistonList.add(playerPos.add(0,1,1))
         pistonList.add(playerPos.add(0,1,-1))
+        redStoneList.add(playerPos.add(1,2,0))
+        redStoneList.add(playerPos.add(-1,2,0))
+        redStoneList.add(playerPos.add(0,2,1))
+        redStoneList.add(playerPos.add(0,2,-1))
+        redStoneList2.add(playerPos.add(1,0,0))
+        redStoneList2.add(playerPos.add(-1,0,0))
+        redStoneList2.add(playerPos.add(0,0,1))
+        redStoneList2.add(playerPos.add(0,0,-1))
         rotateList.add(270.0f)
         rotateList.add(90.0f)
         rotateList.add(0.0f)
         rotateList.add(180.0f)
     }
 
-    private fun perform(pos: BlockPos) {
+    private fun blockPiston(pos: BlockPos) {
         val old: Int = mc.player.inventory.currentItem
         if (mc.world.getBlockState(pos).block === Blocks.AIR) {
-            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock( BlockPistonBase::class.java)
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(BlockPistonBase::class.java)
+            mc.playerController.updateController()
+            BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, false, true, false)
+            mc.player.inventory.currentItem = old
+            mc.playerController.updateController()
+        }
+    }
+
+    private fun blockRedStone(pos: BlockPos) {
+        val old: Int = mc.player.inventory.currentItem
+        if (mc.world.getBlockState(pos).block === Blocks.AIR) {
+            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
             mc.playerController.updateController()
             BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, false, true, false)
             mc.player.inventory.currentItem = old

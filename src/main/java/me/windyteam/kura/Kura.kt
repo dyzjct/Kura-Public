@@ -51,7 +51,7 @@ class Kura {
             throw Crasher("FUCK BITCH AB HACK SKID USER")
         }
         if (Package.getPackage("me.moon") != null) {
-            throw Crasher("java.lang.HouYuePingException")
+            throw Crasher("java.lang.HouYuePingSkidException")
         }
         if (Package.getPackage("me.muffin.han.client") != null) {
             throw Crasher("java.lang.ChenBoHanException")
