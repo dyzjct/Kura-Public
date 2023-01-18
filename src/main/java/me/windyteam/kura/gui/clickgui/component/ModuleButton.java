@@ -4,6 +4,7 @@ import me.windyteam.kura.gui.clickgui.Panel;
 import me.windyteam.kura.manager.GuiManager;
 import me.windyteam.kura.module.HUDModule;
 import me.windyteam.kura.module.IModule;
+import me.windyteam.kura.module.modules.client.ClickGui;
 import me.windyteam.kura.module.modules.client.Colors;
 import me.windyteam.kura.setting.*;
 import me.windyteam.kura.utils.TimerUtils;
@@ -87,7 +88,8 @@ extends Component {
             newColor = new Color(n2, n3, n4, n).getRGB();
         } else {
             this.fade = 0;
-            newColor = new Color(0, 0, 0, 255).getRGB();
+//            newColor = new Color(0, 0, 0, 255).getRGB();
+            newColor = ClickGui.INSTANCE.color.getValue().getRGB();
         }
         Gui.drawRect((int)this.x, (int)(this.y - 1), (int)(this.x + this.width), (int)(this.y + this.height + 1), (int)newColor);
         int finalColor = color;

@@ -10,29 +10,20 @@ import me.windyteam.kura.module.Category;
 import me.windyteam.kura.module.HUDModule;
 import me.windyteam.kura.module.IModule;
 import me.windyteam.kura.module.ModuleManager;
+import me.windyteam.kura.module.modules.client.ClickGui;
 import me.windyteam.kura.utils.TimerUtils;
 import me.windyteam.kura.utils.Wrapper;
 import me.windyteam.kura.utils.font.CFontRenderer;
 import me.windyteam.kura.utils.font.FontUtils;
 import me.windyteam.kura.utils.render.RenderUtils;
-import java.awt.Color;
+import net.minecraft.client.gui.Gui;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import me.windyteam.kura.gui.clickgui.component.Component;
-import me.windyteam.kura.gui.clickgui.component.ModuleButton;
-import me.windyteam.kura.gui.clickgui.component.SettingButton;
-import me.windyteam.kura.gui.clickgui.guis.HUDEditorScreen;
-import me.windyteam.kura.gui.clickgui.util.SpecialRender;
-import me.windyteam.kura.manager.GuiManager;
-import me.windyteam.kura.module.IModule;
-import me.windyteam.kura.module.ModuleManager;
-import me.windyteam.kura.utils.font.CFontRenderer;
-import me.windyteam.kura.utils.font.FontUtils;
-import net.minecraft.client.gui.Gui;
 
 public class Panel {
     public int x;
@@ -42,7 +33,7 @@ public class Panel {
     public Category category;
     public boolean extended;
     public String categoryName;
-    public List<ModuleButton> Elements = new ArrayList<ModuleButton>();
+    public List<ModuleButton> Elements = new ArrayList<>();
     boolean dragging;
     boolean isHUD;
     int x2;
@@ -125,7 +116,7 @@ public class Panel {
                 hud.onRender();
             }
         }
-        Color color = new Color(0, 0, 0, 255);
+        Color color = ClickGui.INSTANCE.topColor.getValue();
         RenderUtils.drawHalfRoundedRectangle(this.x, (float)this.y + 2.0f, this.width, this.height, 5.0, RenderUtils.HalfRoundedDirection.Top, color);
         RenderUtils.drawHalfRoundedRectangle(this.x, (float)startY - 1.5f - (float)(this.extended ? 0 : 2), this.width, this.height, 5.0, RenderUtils.HalfRoundedDirection.Bottom, color);
         this.font.drawString(this.categoryName, (float)this.x + ((float)this.width / 2.0f - (float)this.font.getStringWidth(this.categoryName) / 2.0f), (float)this.y + (float)this.height / 2.0f - (float)this.font.getHeight() / 2.0f, -1052689);

@@ -5,15 +5,18 @@ import me.windyteam.kura.gui.clickgui.guis.ClickGuiScreen;
 import me.windyteam.kura.manager.FileManager;
 import me.windyteam.kura.module.Category;
 import me.windyteam.kura.module.Module;
-import me.windyteam.kura.module.modules.render.Wireframe;
-import me.windyteam.kura.gui.clickgui.GUIRender;
-import me.windyteam.kura.gui.clickgui.guis.ClickGuiScreen;
-import me.windyteam.kura.manager.FileManager;
+import me.windyteam.kura.setting.ColorSetting;
+import me.windyteam.kura.setting.IntegerSetting;
+
+import java.awt.*;
 
 @Module.Info(name = "ClickGUI", category = Category.CLIENT, keyCode = 22, visible = false)
 public class ClickGui
         extends Module {
     public static ClickGui INSTANCE;
+    public final IntegerSetting alpha = isetting("Alpha",255,0,255);
+    public final ColorSetting topColor = csetting("TopColor",new Color(0,0,0,alpha.getValue()));
+    public final ColorSetting color = csetting("Color",new Color(0,0,0,alpha.getValue()));
     ClickGuiScreen screen;
 
 // NULL
