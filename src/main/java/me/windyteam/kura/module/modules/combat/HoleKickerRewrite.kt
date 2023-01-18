@@ -14,6 +14,8 @@ import net.minecraft.block.BlockPistonBase
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
+import net.minecraft.network.Packet
+import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
@@ -27,22 +29,25 @@ class HoleKickerRewrite : Module(){
     private var target :EntityPlayer? = null
     private var pistonList = mutableListOf<BlockPos>()
     private var breakPos:BlockPos? = null
+    private var rotateList = mutableListOf<Float>()
 
     @SubscribeEvent
     fun onTick(event: MotionUpdateEvent){
         if (fullNullCheck()) return
         target = getTarget(range.value)
         if (target == null) return
-        loadPistonList()
-        for (i in pistonList){
-            if (getBlock(i).block == Blocks.PISTON) break
-            if (!mc.world.isPlaceable(i)) continue
-            perform(i)
+        loadList()
+        for (i in 1..4){
+            if (getBlock(pistonList[i]).block == Blocks.PISTON) break
+            if (!mc.world.isPlaceable(pistonList[i])) continue
+            if (pistonList[i] == breakPos) continue
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
+            perform(pistonList[i])
             break
         }
     }
 
-    private fun loadPistonList(){
+    private fun loadList(){
         target = getTarget(range.value)
         if (target == null) return
         val playerPos = BlockPos(target!!.posX,target!!.posY,target!!.posZ)
@@ -50,6 +55,10 @@ class HoleKickerRewrite : Module(){
         pistonList.add(playerPos.add(-1,1,0))
         pistonList.add(playerPos.add(0,1,1))
         pistonList.add(playerPos.add(0,1,-1))
+        rotateList.add(270.0f)
+        rotateList.add(90.0f)
+        rotateList.add(0.0f)
+        rotateList.add(180.0f)
     }
 
     private fun perform(pos: BlockPos) {
