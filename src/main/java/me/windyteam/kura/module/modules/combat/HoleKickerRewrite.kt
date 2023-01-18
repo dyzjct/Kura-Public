@@ -64,31 +64,31 @@ class HoleKickerRewrite : Module(){
         loadList()
         for (i in 1..4){
             if (pistonList[i] == breakPos || getBlock(pistonList[i]).block != Blocks.AIR && getBlock(pistonList[i]).block != Blocks.PISTON) continue
-            doRedStone = getBlock(redStoneList[i]) != Blocks.REDSTONE_BLOCK && getBlock(redStoneList2[i]) != Blocks.REDSTONE_BLOCK && getBlock(redStoneList3[i]) != Blocks.REDSTONE_BLOCK && getBlock(redStoneList4[i]) != Blocks.REDSTONE_BLOCK
-            if (getBlock(redStoneList2[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList2[i])){
-                if (doRedStone) blockRedStone(redStoneList2[i])
+            doRedStone = !(getBlock(redStoneList[i]) == Blocks.REDSTONE_BLOCK || getBlock(redStoneList2[i]) == Blocks.REDSTONE_BLOCK || getBlock(redStoneList3[i]) == Blocks.REDSTONE_BLOCK || getBlock(redStoneList4[i]) == Blocks.REDSTONE_BLOCK)
+            if (getBlock(redStoneList2[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList2[i]) && doRedStone){
+                blockRedStone(redStoneList2[i])
                 if (mc.world.isPlaceable(pistonList[i])) doPistonPlace(pistonList[i],rotateList[i])
-            } else if (mc.world.isPlaceable(redStoneList[i])){
+            } else if (mc.world.isPlaceable(redStoneList[i]) && doRedStone){
                 if (mc.world.isPlaceable(pistonList[i])){
                     if (pistonList[i] == breakPos) continue
                     mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
                     doPistonPlace(pistonList[i],rotateList[i])
                 }
-                if (doRedStone) blockRedStone(redStoneList[i])
-            } else if (mc.world.isPlaceable(redStoneList3[i])){
+                blockRedStone(redStoneList[i])
+            } else if (mc.world.isPlaceable(redStoneList3[i]) && doRedStone){
                 if (mc.world.isPlaceable(pistonList[i])){
                     if (pistonList[i] == breakPos) continue
                     mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
                     doPistonPlace(pistonList[i],rotateList[i])
                 }
-                if (doRedStone) blockRedStone(redStoneList3[i])
-            } else if (mc.world.isPlaceable(redStoneList4[i])){
+                blockRedStone(redStoneList3[i])
+            } else if (mc.world.isPlaceable(redStoneList4[i]) && doRedStone){
                 if (mc.world.isPlaceable(pistonList[i])){
                     if (pistonList[i] == breakPos) continue
                     mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
                     doPistonPlace(pistonList[i],rotateList[i])
                 }
-                if (doRedStone) blockRedStone(redStoneList4[i])
+                blockRedStone(redStoneList4[i])
             }
             if (getBlock(pushList[i]).block != Blocks.AIR){
                 canBreakRedStone(redStoneList[i])
