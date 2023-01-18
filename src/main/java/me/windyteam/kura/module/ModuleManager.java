@@ -277,6 +277,7 @@ public class ModuleManager {
         registerModule(new HoleKicker2());
         registerModule(new TNTHead());
         registerModule(new AutoTopCev());
+        registerModule(new HoleKickerRewrite());
         //Player
         registerModule(new AntiShulkerBox());
         registerModule(new StrictPacketMine());
