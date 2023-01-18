@@ -43,8 +43,9 @@ class HoleKickerRewrite : Module(){
     private var doRedStone = false
 
     private val timer = Timer()
+
     @SubscribeEvent
-    fun onTick(event: MotionUpdateEvent){
+    fun onTick(event: MotionUpdateEvent.FastTick){
         if (fullNullCheck()) return
         if (mc.player == null || mc.world == null) return
         target = getTarget(range.value)
