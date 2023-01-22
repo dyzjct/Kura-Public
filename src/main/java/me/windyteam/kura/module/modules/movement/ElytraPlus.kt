@@ -36,7 +36,7 @@ class ElytraPlus : Module() {
     private val instantFly = bsetting("FastBoost", true)
     private val onEnableEquipElytra = bsetting("AutoEnableWhileElytra", false)
     private val pitchSpoof = bsetting("PitchSpoof", false)
-    private val fastenable = bsetting("FastFly",false)
+    private val fastEnable = bsetting("FastFly",false)
     private val accelerationTimer = TimerUtils()
     private val accelerationResetTimer = TimerUtils()
     private val instantFlyTimer = TimerUtils()
@@ -50,7 +50,7 @@ class ElytraPlus : Module() {
         }
         if (event.getPacket<Packet<*>>() is CPacketPlayer && pitchSpoof.value) {
             if (!mc.player.isElytraFlying) {
-                if (fastenable.value){
+                if (fastEnable.value){
                     mc.player.setFlag(7, true)
                 }
                 return

@@ -23,6 +23,19 @@ public class ColorUtil {
         return new Color(red, green, blue);
     }
 
+    public static Color getGradientOffset(final Color color, final Color color2, double d) {
+        if (d > 1.0) {
+            final double d2 = d % 1.0;
+            final int n = (int)d;
+            d = ((n % 2 == 0) ? d2 : (1.0 - d2));
+        }
+        final double d2 = 1.0 - d;
+        final int n = (int)(color.getRed() * d2 + color2.getRed() * d);
+        final int n2 = (int)(color.getGreen() * d2 + color2.getGreen() * d);
+        final int n3 = (int)(color.getBlue() * d2 + color2.getBlue() * d);
+        return new Color(n, n2, n3);
+    }
+
     private ArrayList<ColorName> initColorList() {
         ArrayList<ColorName> colorList = new ArrayList<>();
         colorList.add(new ColorName("AliceBlue", 240, 248, 255));

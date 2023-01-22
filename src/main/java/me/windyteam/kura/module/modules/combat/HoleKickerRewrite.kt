@@ -12,7 +12,6 @@ import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.block.BlockUtil2
 import me.windyteam.kura.utils.getTarget
 import me.windyteam.kura.utils.inventory.InventoryUtil
-import me.windyteam.kura.utils.mc.ChatUtil
 import net.minecraft.block.BlockPistonBase
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
@@ -53,13 +52,11 @@ class HoleKickerRewrite : Module(){
         if (target == null) return
         val playerPos = BlockPos(target!!.posX,target!!.posY,target!!.posZ)
         if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1) {
-            ChatUtil.sendMessage("not found Blocks")
-            disable()
+            if (autoToggle.value) disable()
             return
         }
         if (InventoryUtil.findHotbarBlock(Blocks.PISTON) == -1) {
-            ChatUtil.sendMessage("not found Pistons")
-            disable()
+            if (autoToggle.value) disable()
             return
         }
         if (!mc.player.onGround) return
@@ -103,7 +100,7 @@ class HoleKickerRewrite : Module(){
             break
         }
         clearList()
-        if (autoToggle.value && isPlace == 5) toggle()
+        if (autoToggle.value && isPlace==4) toggle()
     }
 
     private fun canBreakRedStone(pos: BlockPos){
@@ -129,30 +126,26 @@ class HoleKickerRewrite : Module(){
         target = getTarget(range.value)
         if (target == null) return
         val playerPos = BlockPos(target!!.posX,target!!.posY,target!!.posZ)
-        //Piston Target place
         pistonList.add(playerPos.add(1,1,0))
         pistonList.add(playerPos.add(-1,1,0))
         pistonList.add(playerPos.add(0,1,1))
         pistonList.add(playerPos.add(0,1,-1))
-        //block Target place
         redStoneList.add(playerPos.add(1,2,0))
         redStoneList.add(playerPos.add(-1,2,0))
         redStoneList.add(playerPos.add(0,2,1))
         redStoneList.add(playerPos.add(0,2,-1))
-        //block Helper place
+        redStoneList2.add(playerPos.add(1,0,0))
+        redStoneList2.add(playerPos.add(-1,0,0))
+        redStoneList2.add(playerPos.add(0,0,1))
+        redStoneList2.add(playerPos.add(0,0,-1))
         redStoneList3.add(playerPos.add(1,1,1))
         redStoneList3.add(playerPos.add(-1,1,1))
         redStoneList3.add(playerPos.add(1,1,1))
         redStoneList3.add(playerPos.add(1,1,-1))
         redStoneList4.add(playerPos.add(1,1,-1))
-        //redStoneList2.add(playerPos.add(1,0,0))
-        //redStoneList2.add(playerPos.add(-1,0,0))
-        //redStoneList2.add(playerPos.add(0,0,1))
-        //redStoneList2.add(playerPos.add(0,0,-1))
         redStoneList4.add(playerPos.add(-1,1,-1))
         redStoneList4.add(playerPos.add(-1,1,1))
         redStoneList4.add(playerPos.add(-1,1,-1))
-        //Target finder
         pushList.add(playerPos.add(-1,1,0))
         pushList.add(playerPos.add(1,1,0))
         pushList.add(playerPos.add(0,1,-1))
@@ -174,6 +167,7 @@ class HoleKickerRewrite : Module(){
             isPlace++
         }
     }
+
     private fun blockRedStone(pos: BlockPos) {
         val old: Int = mc.player.inventory.currentItem
         if (mc.world.getBlockState(pos).block === Blocks.AIR) {
@@ -185,7 +179,6 @@ class HoleKickerRewrite : Module(){
             isPlace++
         }
     }
-
 
     fun World.isPlaceable(pos: BlockPos, ignoreSelfCollide: Boolean = false) =
         this.getBlockState(pos).isReplaceable && this.checkNoEntityCollision(

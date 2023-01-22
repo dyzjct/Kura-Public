@@ -246,6 +246,7 @@ public class ModuleManager {
         registerModule(new BurrowESP());
         registerModule(new CityESP());
         registerModule(new Aspect());
+        registerModule(new ChinaHat());
         //Combat
         registerModule(new Aimbot());
         registerModule(new Anti32kTotem());
@@ -324,6 +325,7 @@ public class ModuleManager {
         registerModule(new NoRotate());
         registerModule(new EasyKitsCrasher());
         registerModule(new InstantMine());
+        registerModule(new AntiHoleKicker());
         //Movement
         registerModule(new Velocity());
         registerModule(new Anchor());

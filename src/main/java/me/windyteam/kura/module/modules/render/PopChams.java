@@ -10,7 +10,6 @@ import me.windyteam.kura.setting.IntegerSetting;
 import me.windyteam.kura.setting.Setting;
 import me.windyteam.kura.utils.gl.MelonTessellator;
 import me.windyteam.kura.utils.render.TotemPopCham;
-import me.windyteam.kura.utils.gl.MelonTessellator;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelPlayer;
@@ -45,31 +44,34 @@ public class PopChams
     }
 
     public static void glColor(Color color) {
-        GL11.glColor4f((float)((float)color.getRed() / 255.0f), (float)((float)color.getGreen() / 255.0f), (float)((float)color.getBlue() / 255.0f), (float)((float)color.getAlpha() / 255.0f));
+        GL11.glColor4f((float)color.getRed() / 255.0f, (float)color.getGreen() / 255.0f, (float)color.getBlue() / 255.0f, (float)color.getAlpha() / 255.0f);
     }
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvents.Receive event) {
         SPacketEntityStatus packet;
-        if (event.getPacket() instanceof SPacketEntityStatus && (packet = (SPacketEntityStatus)event.getPacket()).getOpCode() == 35 && packet.getEntity((World)PopChams.mc.world) != null && (((Boolean)this.self.getValue()).booleanValue() || packet.getEntity((World)PopChams.mc.world).getEntityId() != PopChams.mc.player.getEntityId())) {
-            GameProfile profile = new GameProfile(PopChams.mc.player.getUniqueID(), "");
-            this.player = new EntityOtherPlayerMP((World)PopChams.mc.world, profile);
-            this.player.copyLocationAndAnglesFrom(packet.getEntity((World)PopChams.mc.world));
-            this.playerModel = new ModelPlayer(0.0f, false);
-            this.startTime = System.currentTimeMillis();
-            this.playerModel.bipedHead.showModel = false;
-            this.playerModel.bipedBody.showModel = false;
-            this.playerModel.bipedLeftArmwear.showModel = false;
-            this.playerModel.bipedLeftLegwear.showModel = false;
-            this.playerModel.bipedRightArmwear.showModel = false;
-            this.playerModel.bipedRightLegwear.showModel = false;
-            this.alphaFill = ((Integer)this.aF.getValue()).intValue();
+        if (event.getPacket() instanceof SPacketEntityStatus && (packet = event.getPacket()).getOpCode() == 35) {
+            packet.getEntity((World) PopChams.mc.world);
+            if ((Boolean) this.self.getValue() || packet.getEntity(PopChams.mc.world).getEntityId() != PopChams.mc.player.getEntityId()) {
+                GameProfile profile = new GameProfile(PopChams.mc.player.getUniqueID(), "");
+                this.player = new EntityOtherPlayerMP(PopChams.mc.world, profile);
+                this.player.copyLocationAndAnglesFrom(packet.getEntity((World) PopChams.mc.world));
+                this.playerModel = new ModelPlayer(0.0f, false);
+                this.startTime = System.currentTimeMillis();
+                this.playerModel.bipedHead.showModel = false;
+                this.playerModel.bipedBody.showModel = false;
+                this.playerModel.bipedLeftArmwear.showModel = false;
+                this.playerModel.bipedLeftLegwear.showModel = false;
+                this.playerModel.bipedRightArmwear.showModel = false;
+                this.playerModel.bipedRightLegwear.showModel = false;
+                this.alphaFill = this.aF.getValue();
+            }
         }
     }
 
     @Override
     public void onWorldRender(RenderEvent event) {
-        if (((Boolean)this.onlyOneEsp.getValue()).booleanValue()) {
+        if (this.onlyOneEsp.getValue()) {
             if (this.player == null || PopChams.mc.world == null || PopChams.mc.player == null) {
                 return;
             }

@@ -98,7 +98,7 @@ class Kura {
         const val MOD_ID = "kura"
         const val MOD_NAME = "Kura"
         const val VERSION = "2.4"
-        private const val DISPLAY_NAME = Kura.Companion.MOD_NAME + " " + Kura.Companion.VERSION
+        private const val DISPLAY_NAME = MOD_NAME + " " + VERSION
         const val KANJI = "Kura"
         const val ALT_Encrypt_Key = "Kura"
 
@@ -113,8 +113,12 @@ class Kura {
         @JvmField
         var fontRenderer: CFontRenderer? = null
         fun setTitleAndIcon() {
-            Display.setTitle(Kura.Companion.DISPLAY_NAME)
-            Kura.Companion.setIcon()
+            Display.setTitle(DISPLAY_NAME)
+//            try {
+//                setIcon()
+//            }catch (e:Exception){
+////              HeMingZhu
+//            }
         }
 
         private fun setIcon() {
@@ -125,7 +129,7 @@ class Kura {
                     if (inputstream != null) {
                         Display.setIcon(arrayOf(Utils.readImageToBuffer(inputstream)))
                     }
-                } catch (e: IOException) {
+                } catch (e: Exception) {
                     e.stackTrace
                 }
             }
