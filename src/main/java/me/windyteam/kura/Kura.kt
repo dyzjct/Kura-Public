@@ -97,8 +97,8 @@ class Kura {
     companion object {
         const val MOD_ID = "kura"
         const val MOD_NAME = "Kura"
-        const val VERSION = "2.4"
-        private const val DISPLAY_NAME = MOD_NAME + " " + VERSION
+        const val VERSION = "2.5"
+        private const val DISPLAY_NAME = "$MOD_NAME $VERSION"
         const val KANJI = "Kura"
         const val ALT_Encrypt_Key = "Kura"
 

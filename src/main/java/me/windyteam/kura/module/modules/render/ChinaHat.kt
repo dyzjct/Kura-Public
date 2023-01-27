@@ -1,6 +1,7 @@
 package me.windyteam.kura.module.modules.render
 
 import me.windyteam.kura.event.events.render.Render3DEvent
+import me.windyteam.kura.event.events.render.RenderEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.setting.Setting
@@ -17,8 +18,7 @@ class ChinaHat : Module() {
     private var points: Setting<Int> = isetting("Points", 12, 4, 64)
     private var firstPerson: Setting<Boolean> = bsetting("FirstPerson", false)
 
-    @SubscribeEvent
-    fun onRender3D(event: Render3DEvent) {
+    override fun onWorldRender(event: RenderEvent?)  {
         var f: Float
         if (mc.gameSettings.thirdPersonView != 0 || firstPerson.value) {
             for (i in 0..399) {
@@ -33,7 +33,7 @@ class ChinaHat : Module() {
                     RenderUtil.drawHat(
                         mc.player,
                         0.009 + i * 0.0014,
-                        event.partialTicks,
+                        event!!.partialTicks,
                         points.value,
                         2.0f,
                         1.1f - i * 7.85E-4f - if (mc.player.isSneaking) 0.07f else 0.03f,
@@ -43,7 +43,7 @@ class ChinaHat : Module() {
                     RenderUtil.drawHat(
                         mc.player,
                         0.009 + i * 0.0014,
-                        event.partialTicks,
+                        event!!.partialTicks,
                         points.value,
                         2.0f,
                         1.1f - i * 7.85E-4f - if (mc.player.isSneaking) 0.07f else 0.03f,
@@ -53,7 +53,7 @@ class ChinaHat : Module() {
                     RenderUtil.drawHat(
                         mc.player,
                         0.009 + i * 0.0014,
-                        event.partialTicks,
+                        event!!.partialTicks,
                         points.value,
                         2.0f,
                         2.2f - i * 7.85E-4f - if (mc.player.isSneaking) 0.07f else 0.03f,

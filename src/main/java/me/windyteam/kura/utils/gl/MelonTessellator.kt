@@ -1,5 +1,6 @@
 package me.windyteam.kura.utils.gl
 
+import me.windyteam.kura.module.IModule
 import me.windyteam.kura.utils.Rainbow
 import me.windyteam.kura.utils.Wrapper
 import me.windyteam.kura.utils.animations.sq
@@ -1605,6 +1606,29 @@ object MelonTessellator : Tessellator(2097152) {
     fun drawFullBox(pos: Vec3d?, width: Float, red: Int, green: Int, blue: Int, alpha: Int) {
         drawBoundingFullBox(getBoundingFromPos(pos), red, green, blue, alpha)
         drawBoundingBox(getBoundingFromPos(pos), width, red.toFloat(), green.toFloat(), blue.toFloat(), 255f)
+    }
+
+    fun drawCircle(entity: Entity, partialTicks: Float, rad: Double, height: Float,red: Int,green: Int,blue: Int,alpha: Int,width: Float) {
+        prepare(GL11.GL_QUADS)
+        GL11.glDisable(GL11.GL_TEXTURE_2D)
+        GL11.glDisable(GL11.GL_DEPTH_TEST)
+        GL11.glEnable(GL11.GL_LINE_SMOOTH)
+        GL11.glDepthMask(false)
+        GL11.glLineWidth(width)
+        GL11.glBegin(GL11.GL_LINE_STRIP)
+        val x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks - IModule.mc.getRenderManager().viewerPosX
+        val y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks - IModule.mc.getRenderManager().viewerPosY
+        val z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks - IModule.mc.getRenderManager().viewerPosZ
+        val pix2 = Math.PI * 2.0
+        GlStateManager.color(red / 255f, green / 255f, blue / 255f, alpha / 255f)
+        for (i in 0..180) {
+            GL11.glVertex3d(x + rad * cos(i * pix2 / 45), y + height, z + rad * sin(i * pix2 / 45))
+        }
+        GL11.glEnd()
+        GL11.glDepthMask(true)
+        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        GL11.glEnable(GL11.GL_TEXTURE_2D)
+        release()
     }
 
     fun drawFullBox(bb: AxisAlignedBB, width: Float, argb: Int) {

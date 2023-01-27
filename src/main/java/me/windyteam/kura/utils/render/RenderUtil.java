@@ -1,15 +1,5 @@
-//Deobfuscated with https://github.com/PetoPetko/Minecraft-Deobfuscator3000 using mappings "1.12 stable mappings"!
-
 package me.windyteam.kura.utils.render;
 
-import me.windyteam.kura.utils.GeometryMasks;
-import me.windyteam.kura.utils.Wrapper;
-import me.windyteam.kura.utils.color.ColorUtil;
-import me.windyteam.kura.utils.color.Colors;
-import me.windyteam.kura.utils.color.GSColor;
-import me.windyteam.kura.utils.entity.EntityUtil;
-import me.windyteam.kura.utils.gl.XG42Tessellator;
-import me.windyteam.kura.utils.math.deneb.LagCompensator;
 import me.windyteam.kura.utils.GeometryMasks;
 import me.windyteam.kura.utils.Wrapper;
 import me.windyteam.kura.utils.color.ColorUtil;
@@ -1923,6 +1913,45 @@ public class RenderUtil {
 
     public static void drawCircle(float x, float y, float radius, int start, int end, int segments) {
         drawArc(x, y, radius, start, end, segments);
+    }
+
+    public static void drawCircle(final float x, final float y, final float z, final float radius, final Color color) {
+        final BlockPos pos = new BlockPos((double)x, (double)y, (double)z);
+        final AxisAlignedBB bb = new AxisAlignedBB(pos.getX() - RenderUtil.mc.getRenderManager().viewerPosX, pos.getY() - RenderUtil.mc.getRenderManager().viewerPosY, pos.getZ() - RenderUtil.mc.getRenderManager().viewerPosZ, pos.getX() + 1 - RenderUtil.mc.getRenderManager().viewerPosX, pos.getY() + 1 - RenderUtil.mc.getRenderManager().viewerPosY, pos.getZ() + 1 - RenderUtil.mc.getRenderManager().viewerPosZ);
+        RenderUtil.camera.setPosition(Objects.requireNonNull(RenderUtil.mc.getRenderViewEntity()).posX, RenderUtil.mc.getRenderViewEntity().posY, RenderUtil.mc.getRenderViewEntity().posZ);
+        if (RenderUtil.camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtil.mc.getRenderManager().viewerPosX, bb.minY + RenderUtil.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtil.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtil.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtil.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtil.mc.getRenderManager().viewerPosZ))) {
+            drawCircleVertices(bb, radius, color);
+        }
+    }
+
+    public static void drawCircleVertices(final AxisAlignedBB bb, final float radius, final Color color) {
+        final float r = color.getRed() / 255.0f;
+        final float g = color.getGreen() / 255.0f;
+        final float b = color.getBlue() / 255.0f;
+        final float a = color.getAlpha() / 255.0f;
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder buffer = tessellator.getBuffer();
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableDepth();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
+        GlStateManager.disableTexture2D();
+        GlStateManager.depthMask(false);
+        GL11.glEnable(2848);
+        GL11.glHint(3154, 4354);
+        GL11.glLineWidth(1.0f);
+        for (int i = 0; i < 360; ++i) {
+            buffer.begin(3, DefaultVertexFormats.POSITION_COLOR);
+            buffer.pos(bb.getCenter().x + Math.sin(i * 3.1415926 / 180.0) * radius, bb.minY, bb.getCenter().z + Math.cos(i * 3.1415926 / 180.0) * radius).color(r, g, b, a).endVertex();
+            buffer.pos(bb.getCenter().x + Math.sin((i + 1) * 3.1415926 / 180.0) * radius, bb.minY, bb.getCenter().z + Math.cos((i + 1) * 3.1415926 / 180.0) * radius).color(r, g, b, a).endVertex();
+            tessellator.draw();
+        }
+        GL11.glDisable(2848);
+        GlStateManager.depthMask(true);
+        GlStateManager.enableDepth();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
     }
 
     public static void drawOutlinedRoundedRectangle(int x, int y, int width, int height, float radius, float dR, float dG, float dB, float dA, float outlineWidth) {

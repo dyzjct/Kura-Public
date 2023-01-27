@@ -997,8 +997,7 @@ class KuraAura : Module() {
                     XG42Tessellator.release()
                 }
                 if (renderMode.value == RenderModes.Normal && renderBreak.value) {
-                    val attackingCrystal = lastCrystal
-                    val attackingCrystalPosition = attackingCrystal!!.position.down()
+                    val attackingCrystalPosition = lastCrystal!!.position.down()
                     if (!attackingCrystalPosition.isFullBox) return
                     if (fullNullCheck()) {
                         return

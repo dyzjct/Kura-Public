@@ -146,14 +146,14 @@ task copy(type: Copy) {
     doLast {
 
     }
-    if (file("E:/Kura/.minecraft/mods/Kura*.jar").exists()) {
+    if (file("D:/Kura/.minecraft/mods/Kura*.jar").exists()) {
         delete fileTree("E:/Kura/.minecraft/mods").matching {
             include "Kura*.jar"
         }
     }
     from file("build/libs/")
     include 'Kura*.jar'
-    into file("E:/Kura/.minecraft/mods")
+    into file("D:/Kura/.minecraft/mods")
 }
 
 task AutoBuild (dependsOn: [build, copy]){

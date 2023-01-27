@@ -24,6 +24,17 @@ public class RenderEvent
         this.renderBlockPos = renderPos;
     }
 
+    private float partialTicks;
+
+    public RenderEvent(float partialTicks) {
+        this.partialTicks = partialTicks;
+    }
+
+    public float getPartialTicks() {
+        return this.partialTicks;
+    }
+
+
     public Tessellator getTessellator() {
         return this.tessellator;
     }
