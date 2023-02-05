@@ -4,12 +4,15 @@ import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.FastRayTrace.Companion.rayTraceVisible
 import me.windyteam.kura.utils.animations.fastFloor
 import me.windyteam.kura.utils.animations.sq
+import me.windyteam.kura.utils.fuck.vector.VectorUtils
 import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityEnderCrystal
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
+import net.minecraft.util.NonNullList
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d

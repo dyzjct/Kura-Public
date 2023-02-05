@@ -120,6 +120,10 @@ public class RotationUtil {
         this.lookAtVec3d(vec3d);
     }
 
+    public static void lookToVec3d(Vec3d vec3d) {
+        lookToVec3d(vec3d);
+    }
+
     public static void lookAtEntity(Entity entity) {
         float[] angle = MathUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), entity.getPositionEyes(mc.getRenderPartialTicks()));
         setPlayerRotations(angle[0], angle[1]);

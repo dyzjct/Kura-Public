@@ -270,6 +270,37 @@ public class BlockUtil {
         return block.getBlockHardness(blockState, BlockUtil.mc.world, pos) != -1.0f;
     }
 
+    public static boolean canBreak(BlockPos pos, boolean air) {
+        IBlockState blockState = mc.world.getBlockState(pos);
+        Block block = blockState.getBlock();
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.AIR) {
+            return air;
+        }
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.BEDROCK) {
+            return false;
+        }
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.END_PORTAL_FRAME) {
+            return false;
+        }
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.END_PORTAL) {
+            return false;
+        }
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.WATER) {
+            return false;
+        }
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.FLOWING_WATER) {
+            return false;
+        }
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.LAVA) {
+            return false;
+        }
+        if (mc.world.getBlockState(pos).getBlock() == Blocks.FLOWING_LAVA) {
+            return false;
+        }
+        return block.getBlockHardness(blockState, mc.world, pos) != -1.0f;
+    }
+
+
     public static EnumFacing getPlaceableSide(BlockPos pos) {
         for (EnumFacing side : EnumFacing.values()) {
             IBlockState blockState;

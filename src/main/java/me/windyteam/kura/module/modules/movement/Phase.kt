@@ -8,6 +8,7 @@ import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.util.math.MathHelper
 import kotlin.math.floor
 
+//Thanks For asphyxia1337(Alpha432)
 @Module.Info(
     name = "Phase", category = Category.MOVEMENT, description = "Phases into blocks nearby to prevent crystal damage."
 )

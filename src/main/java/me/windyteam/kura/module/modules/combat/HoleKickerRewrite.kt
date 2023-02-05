@@ -32,15 +32,12 @@ class HoleKickerRewrite : Module(){
 
     private var target :EntityPlayer? = null
     private var pistonList = mutableListOf<BlockPos>()
-    private var redStoneList = mutableListOf<BlockPos>()
     private var redStoneList2 = mutableListOf<BlockPos>()
     private var redStoneList3 = mutableListOf<BlockPos>()
-    private var redStoneList4 = mutableListOf<BlockPos>()
     private var breakPos:BlockPos? = null
     private var rotateList = mutableListOf<Float>()
     private var isPlace = 0
     private var pushList = mutableListOf<BlockPos>()
-    private var doRedStone = false
 
     private val timer = Timer()
 
@@ -61,41 +58,20 @@ class HoleKickerRewrite : Module(){
         }
         if (!mc.player.onGround) return
         if (getBlock(playerPos.add(0,2,0)).block != Blocks.AIR) return
-        if (!this.timer.passedMs(this.delay.value.toLong())) return
         loadList()
         for (i in 1..4){
+            if (!this.timer.passedMs(this.delay.value.toLong())) continue
             if (pistonList[i] == breakPos || getBlock(pistonList[i]).block != Blocks.AIR && getBlock(pistonList[i]).block != Blocks.PISTON) continue
-            doRedStone = !(getBlock(redStoneList[i]) == Blocks.REDSTONE_BLOCK || getBlock(redStoneList2[i]) == Blocks.REDSTONE_BLOCK || getBlock(redStoneList3[i]) == Blocks.REDSTONE_BLOCK || getBlock(redStoneList4[i]) == Blocks.REDSTONE_BLOCK)
-            if (getBlock(redStoneList2[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList2[i]) && doRedStone){
+            if (getBlock(redStoneList2[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList2[i])){
                 blockRedStone(redStoneList2[i])
                 if (mc.world.isPlaceable(pistonList[i])) doPistonPlace(pistonList[i],rotateList[i])
-            } else if (mc.world.isPlaceable(redStoneList[i]) && doRedStone){
-                if (mc.world.isPlaceable(pistonList[i])){
-                    if (pistonList[i] == breakPos) continue
-                    mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
-                    doPistonPlace(pistonList[i],rotateList[i])
-                }
-                blockRedStone(redStoneList[i])
-            } else if (mc.world.isPlaceable(redStoneList3[i]) && doRedStone){
-                if (mc.world.isPlaceable(pistonList[i])){
-                    if (pistonList[i] == breakPos) continue
-                    mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
-                    doPistonPlace(pistonList[i],rotateList[i])
-                }
+            } else if (getBlock(redStoneList3[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList3[i])){
                 blockRedStone(redStoneList3[i])
-            } else if (mc.world.isPlaceable(redStoneList4[i]) && doRedStone){
-                if (mc.world.isPlaceable(pistonList[i])){
-                    if (pistonList[i] == breakPos) continue
-                    mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotateList[i], 0f, true) as Packet<*>)
-                    doPistonPlace(pistonList[i],rotateList[i])
-                }
-                blockRedStone(redStoneList4[i])
+                if (mc.world.isPlaceable(pistonList[i])) doPistonPlace(pistonList[i],rotateList[i])
             }
             if (getBlock(pushList[i]).block != Blocks.AIR){
-                canBreakRedStone(redStoneList[i])
                 canBreakRedStone(redStoneList2[i])
                 canBreakRedStone(redStoneList3[i])
-                canBreakRedStone(redStoneList4[i])
             }
             break
         }
@@ -117,7 +93,6 @@ class HoleKickerRewrite : Module(){
     private fun clearList(){
         pistonList.clear()
         rotateList.clear()
-        redStoneList.clear()
         redStoneList2.clear()
         redStoneList3.clear()
         pushList.clear()
@@ -130,10 +105,6 @@ class HoleKickerRewrite : Module(){
         pistonList.add(playerPos.add(-1,1,0))
         pistonList.add(playerPos.add(0,1,1))
         pistonList.add(playerPos.add(0,1,-1))
-        redStoneList.add(playerPos.add(1,2,0))
-        redStoneList.add(playerPos.add(-1,2,0))
-        redStoneList.add(playerPos.add(0,2,1))
-        redStoneList.add(playerPos.add(0,2,-1))
         redStoneList2.add(playerPos.add(1,0,0))
         redStoneList2.add(playerPos.add(-1,0,0))
         redStoneList2.add(playerPos.add(0,0,1))
@@ -142,10 +113,6 @@ class HoleKickerRewrite : Module(){
         redStoneList3.add(playerPos.add(-1,1,1))
         redStoneList3.add(playerPos.add(1,1,1))
         redStoneList3.add(playerPos.add(1,1,-1))
-        redStoneList4.add(playerPos.add(1,1,-1))
-        redStoneList4.add(playerPos.add(-1,1,-1))
-        redStoneList4.add(playerPos.add(-1,1,1))
-        redStoneList4.add(playerPos.add(-1,1,-1))
         pushList.add(playerPos.add(-1,1,0))
         pushList.add(playerPos.add(1,1,0))
         pushList.add(playerPos.add(0,1,-1))

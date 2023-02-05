@@ -12,6 +12,7 @@ import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.ModuleManager
 import me.windyteam.kura.module.modules.chat.AutoGG
 import me.windyteam.kura.module.modules.combat.AutoMend
+import me.windyteam.kura.module.modules.combat.KnifeBot
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalChainPop
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalDamageCalculator.Companion.calcDamage
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalHelper.Companion.PredictionHandlerNew
@@ -24,6 +25,7 @@ import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalHelper.C
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalHelper.Companion.totalHealth
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalTarget
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.FastRayTrace.Companion.rayTraceVisible
+import me.windyteam.kura.module.modules.misc.InstantMine
 import me.windyteam.kura.utils.TimerUtils
 import me.windyteam.kura.utils.animations.BlockEasingRender
 import me.windyteam.kura.utils.animations.sq
@@ -31,12 +33,16 @@ import me.windyteam.kura.utils.block.BlockInteractionHelper
 import me.windyteam.kura.utils.entity.CrystalUtil
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.font.FontUtils
+import me.windyteam.kura.utils.getMiningSide
 import me.windyteam.kura.utils.gl.MelonTessellator
 import me.windyteam.kura.utils.gl.XG42Tessellator
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.math.GeometryMasks
 import me.windyteam.kura.utils.math.MathUtil
+import me.windyteam.kura.utils.math.RotationUtil
+import me.windyteam.kura.utils.mc.BlockUtil
 import me.windyteam.kura.utils.mc.ChatUtil
+import me.windyteam.kura.utils.render.RenderUtil
 import me.windyteam.kura.utils.render.sexy.BlockRenderSmooth
 import me.windyteam.kura.utils.render.sexy.FadeUtils
 import net.minecraft.block.Block
@@ -58,6 +64,7 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.item.ItemAppleGold
 import net.minecraft.item.ItemStack
 import net.minecraft.network.Packet
+import net.minecraft.network.play.client.CPacketPlayerDigging
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.network.play.client.CPacketUseEntity
 import net.minecraft.network.play.server.*
@@ -71,6 +78,7 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.text.TextFormatting
+import net.minecraft.world.World
 import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent
@@ -78,7 +86,6 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Consumer
 import java.util.stream.Collectors
@@ -89,13 +96,13 @@ import kotlin.math.floor
  * Created by dyzjct on 07/12/2022.
  * Updated by dyzjct on 24/12/2022.
  */
-@Module.Info(name = "KuraAura", category = Category.XDDD , description = "AutoCrystal")
+@Module.Info(name = "KuraAura", category = Category.XDDD, description = "AutoCrystal")
 class KuraAura : Module() {
     var p = msetting("Page", Page.GENERAL)
 
     //Page GENERAL
-    private var crystalmod = msetting("CrystalMod", CrystalMod.PlaceBreak).m(p, Page.GENERAL)
-    private var switchmode = msetting("SwitchMode", Switch.GhostHand).m(p, Page.GENERAL)
+    private var crystalMod = msetting("CrystalMod", CrystalMod.PlaceBreak).m(p, Page.GENERAL)
+    private var switchMode = msetting("SwitchMode", Switch.GhostHand).m(p, Page.GENERAL)
     private var antiWeakness = msetting("AntiWeakness", AntiWeaknessMode.Spoof).m(p, Page.GENERAL)
     private var swingMode = msetting("Swing", SwingMode.Auto).m(p, Page.GENERAL)
     private var rotate = bsetting("Rotate", false).m(p, Page.GENERAL)
@@ -105,12 +112,13 @@ class KuraAura : Module() {
 
     //Page Place
     private var packetPlaceMode = msetting("PacketMode", PacketPlaceMode.Off).m(p, Page.PLACE)
-    private var endcrystal = bsetting("1.13Place", false).m(p, Page.PLACE)
+    private var endCrystal = bsetting("1.13Place", false).m(p, Page.PLACE)
     private var placeSwing = bsetting("PlaceSwing", false).m(p, Page.PLACE)
     private var placeSpeed = isetting("PlaceSpeed", 34, 1, 40).m(p, Page.PLACE)
     private var placeRange = isetting("PlaceRange", 6, 0, 6).m(p, Page.PLACE)
     private var minDamage = isetting("PlaceMinDmg", 4, 0, 36).m(p, Page.PLACE)
     private var placeMaxSelf = isetting("PlaceMaxSelfDmg", 10, 0, 36).m(p, Page.PLACE)
+    private var strictDirection = bsetting("StrictDirection", false).m(p, Page.PLACE)
 
     //Page Break
     private var packetExplode = bsetting("PacketExplode", true).m(p, Page.BREAK)
@@ -149,23 +157,25 @@ class KuraAura : Module() {
     private var chainPopFactor = isetting("ChainPopFactor", 3, 1, 8).b(chainPop).m(p, Page.LETHAL)
     private var chainPopDamage = dsetting("ChainPopDamage", 0.5, 0.1, 20.0).b(chainPop).m(p, Page.LETHAL)
     private var chainPopTime = isetting("ChainPopTime", 350, 1, 1000).b(chainPop).m(p, Page.LETHAL)
+    private var antiSurround = bsetting("AntiSurround", true).m(p, Page.LETHAL)
 
     //Page Render
     private var targetHUD = bsetting("TargetHUD", false).m(p, Page.RENDER)
-    private var hudinfomod = msetting("HudInfo", Mode.Target).m(p, Page.RENDER)
+    private var targetHudMod = msetting("TargetHudMod", RenderTargetMod.Normal).m(p, Page.RENDER).b(targetHUD)
+    private var hudInfoMod = msetting("HudInfo", Mode.Target).m(p, Page.RENDER)
     private var outline = bsetting("Outline", true).m(p, Page.RENDER)
-    private var rendertext = bsetting("RenderText", true).m(p, Page.RENDER)
-    private var customfont = bsetting("CustomFont",false).b(rendertext).m(p, Page.RENDER)
-    private var textMode = msetting("TextMode",TextMode.Damage).b(rendertext).m(p, Page.RENDER)
-    private var textcolor = csetting("TextColor", Color(255, 225, 255)).m(p, Page.RENDER).b(rendertext)
-    private var textscalex = isetting("TextScaleX", 1, 0, 5).b(rendertext).m(p, Page.RENDER)
-    private var textscaley = isetting("TextScaleY", 1, 0, 5).b(rendertext).m(p, Page.RENDER)
-    private var textscalez = isetting("TextScaleZ", 1, 0, 5).b(rendertext).m(p, Page.RENDER)
+    private var renderText = bsetting("RenderText", true).m(p, Page.RENDER)
+    private var customFont = bsetting("CustomFont", false).b(renderText).m(p, Page.RENDER)
+    private var textMode = msetting("TextMode", TextMode.Damage).b(renderText).m(p, Page.RENDER)
+    private var textcolor = csetting("TextColor", Color(255, 225, 255)).m(p, Page.RENDER).b(renderText)
+    private var textscalex = isetting("TextScaleX", 1, 0, 5).b(renderText).m(p, Page.RENDER)
+    private var textscaley = isetting("TextScaleY", 1, 0, 5).b(renderText).m(p, Page.RENDER)
+    private var textscalez = isetting("TextScaleZ", 1, 0, 5).b(renderText).m(p, Page.RENDER)
     private var renderBreak = bsetting("RenderBreak", true).m(p, Page.RENDER)
     private var xg42OutLineMod = bsetting("XG42OutLineMod", true).m(p, Page.RENDER)
     private var color = csetting("Color", Color(20, 225, 219)).m(p, Page.RENDER)
     private var alpha = isetting("Alpha", 70, 0, 255).m(p, Page.RENDER)
-    private var breakalpha = isetting("BreakAlpha", 70, 0, 255).m(p, Page.RENDER)
+    private var breakAlpha = isetting("BreakAlpha", 70, 0, 255).m(p, Page.RENDER)
     private var rainbow = bsetting("Rainbow", false).m(p, Page.RENDER)
     private var rgbSpeed = fsetting("RGBSpeed", 8f, 0f, 255f).b(rainbow).m(p, Page.RENDER)
     private var saturation = fsetting("Saturation", 0.5f, 0f, 1f).b(rainbow).m(p, Page.RENDER)
@@ -174,8 +184,7 @@ class KuraAura : Module() {
     private var movingLength = fsetting("MovingLength", 350f, 1f, 1000f).m(p, Page.RENDER)
     private var renderMode = msetting("RenderMode", RenderModes.Glide).m(p, Page.RENDER)
     private var blockRenderSmooth = BlockEasingRender(BlockPos(0, 0, 0), 650f, 400f)
-    private var blockRenderSmooths =
-        BlockRenderSmooth(BlockPos(0, 0, 0), 550L)
+    private var blockRenderSmooths = BlockRenderSmooth(BlockPos(0, 0, 0), 550L)
 
     @Transient
     var lastEntityID = AtomicInteger(-1)
@@ -201,7 +210,7 @@ class KuraAura : Module() {
     private var cSlot = -1
     private var damageCa = 0
     private var popTicks = 0
-    private var breaked : Boolean = false
+    private var breaked: Boolean = false
     private var selfDamageCA = 0.0
     private var popList = ConcurrentHashMap<CrystalChainPop, Long>()
     private var damageCA = 0.0
@@ -212,11 +221,23 @@ class KuraAura : Module() {
     private var shouldInfoLastBreak = false
     private var lastBreakTime = 0L
     private var infoBreakTime = 0L
+    private var offsetFacing = arrayOf(EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.EAST)
 
     @SubscribeEvent
     fun onClientDisconnect(event: ClientDisconnectionFromServerEvent?) {
         if (predictHitFactor.value != 0) {
             toggle()
+        }
+    }
+
+    @SubscribeEvent
+    fun onPacketSend(event: PacketEvents.Send) {
+        if (fullNullCheck()) return
+        if (event.getPacket<Packet<*>>() is CPacketPlayerDigging) {
+            val action = event.getPacket<CPacketPlayerDigging>().action
+            if (action == CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK || action == CPacketPlayerDigging.Action.START_DESTROY_BLOCK) {
+                doAntiSurround(event.getPacket<CPacketPlayerDigging>().position)
+            }
         }
     }
 
@@ -281,9 +302,7 @@ class KuraAura : Module() {
                     if (entity is EntityLivingBase) {
                         if (render != null && chainPop.value) {
                             popList[CrystalChainPop(
-                                entity,
-                                render!!,
-                                damageCA
+                                entity, render!!, damageCA
                             )] = System.currentTimeMillis()
                         }
                     }
@@ -302,12 +321,18 @@ class KuraAura : Module() {
         --yawTicksPassed
         --pitchTicksPassed
         crystalTarget = calc()
-        if (crystalmod.value == CrystalMod.PlaceBreak) {
+        for (target in mc.world.playerEntities) {
+            if (EntityUtil.isntValid(target, placeRange.value.toDouble())) continue
+            if (ModuleManager.getModuleByClass(InstantMine::class.java).isEnabled && InstantMine.breakPos != null) {
+                if (EntityUtil.isInHole(target)) doAntiSurround(InstantMine.breakPos)
+            }
+        }
+        if (crystalMod.value == CrystalMod.PlaceBreak) {
             breaked = false
             place(event, null)
             explode(event)
             breaked = true
-        } else if (crystalmod.value == CrystalMod.BreakPlace){
+        } else if (crystalMod.value == CrystalMod.BreakPlace) {
             breaked = true
             explode(event)
             place(event, null)
@@ -360,6 +385,14 @@ class KuraAura : Module() {
         }
     }
 
+    private fun getPlaceSide(pos: BlockPos): EnumFacing {
+        return if (strictDirection.value) {
+            getMiningSide(pos) ?: EnumFacing.UP
+        } else {
+            EnumFacing.UP
+        }
+    }
+
     private fun place(event: MotionUpdateEvent.Tick?, pos: BlockPos?) {
         try {
             var crystalSlot =
@@ -378,14 +411,17 @@ class KuraAura : Module() {
             } else if (crystalSlot == -1) {
                 return
             }
-            if (pos != null && pos !== render) {
+
+            if (pos == null) {
+                if (crystalTarget != null) {
+                    renderEnt = crystalTarget!!.target
+                    render = crystalTarget!!.blockPos
+                }
+            } else {
                 render = pos
             }
-            if (crystalTarget != null) {
-                renderEnt = crystalTarget!!.target
-                render = crystalTarget!!.blockPos
-            }
-            if (renderEnt == null || render == null) {
+
+            if ((renderEnt == null && pos == null) || render == null) {
                 shouldShadeRender = true
                 blockRenderSmooth.end()
                 renderEnt = null
@@ -398,7 +434,7 @@ class KuraAura : Module() {
                 shouldShadeRender = false
             }
             if (render != null) {
-                if (switchmode.value == Switch.GhostHand && mc.connection != null && cSlot != -1) {
+                if (switchMode.value == Switch.GhostHand && mc.connection != null && cSlot != -1) {
                     spoofHotbar(cSlot, true)
                 }
                 if (rotate.value) {
@@ -419,8 +455,7 @@ class KuraAura : Module() {
                         } else {
                             val f2 = MathHelper.wrapDegrees(rotations[1] - mc.player.lastReportedPitch)
                             if (abs(f2) > 90.0f * yawAngle.value) {
-                                rotations[1] =
-                                    mc.player.lastReportedPitch + f2 * (90.0f * yawAngle.value / abs(f2))
+                                rotations[1] = mc.player.lastReportedPitch + f2 * (90.0f * yawAngle.value / abs(f2))
                                 pitchTicksPassed = yawTicks.value
                             }
                         }
@@ -428,7 +463,7 @@ class KuraAura : Module() {
                     event?.setRotation(rotations[0], rotations[1])
                 }
                 if (!offhand && mc.player.inventory.currentItem != crystalSlot) {
-                    if (switchmode.value == Switch.AutoSwitch) {
+                    if (switchMode.value == Switch.AutoSwitch) {
                         if (mc.player.heldItemMainhand.getItem() is ItemAppleGold && mc.player.isHandActive) {
                             return
                         }
@@ -443,7 +478,7 @@ class KuraAura : Module() {
                 }
                 if (slowFP.value && isFacePlacing && renderEnt != null) {
                     if (!fPDelay.passed(fpDelay.value)) {
-                        if (switchmode.value == Switch.GhostHand) {
+                        if (switchMode.value == Switch.GhostHand) {
                             spoofHotbar(newSlot, true)
                         }
                         return
@@ -455,7 +490,7 @@ class KuraAura : Module() {
                         mc.player.connection.sendPacket(
                             CPacketPlayerTryUseItemOnBlock(
                                 render!!,
-                                EnumFacing.UP,
+                                getPlaceSide(render!!),
                                 if (mc.player.heldItemOffhand.getItem() == Items.END_CRYSTAL) EnumHand.OFF_HAND else EnumHand.MAIN_HAND,
                                 0.5f,
                                 1f,
@@ -472,7 +507,7 @@ class KuraAura : Module() {
                                         lastCrystal!!.positionVector
                                     )
                                 ) {
-                                    if (switchmode.value == Switch.GhostHand) {
+                                    if (switchMode.value == Switch.GhostHand) {
                                         spoofHotbar(newSlot, true)
                                     }
                                     placeTimerUtils.reset()
@@ -492,7 +527,7 @@ class KuraAura : Module() {
                         placeTimerUtils.reset()
                     }
                 }
-                if (switchmode.value == Switch.GhostHand) {
+                if (switchMode.value == Switch.GhostHand) {
                     spoofHotbar(newSlot, true)
                 }
             }
@@ -548,24 +583,18 @@ class KuraAura : Module() {
                                         if (damage > chainPopDamage.value) continue
                                         if (it.key.target.getDistanceSq(pos) >= enemyRange.value.sq) continue
                                         if (mc.player.getDistance(
-                                                pos.x.toDouble(),
-                                                pos.y.toDouble(),
-                                                pos.z.toDouble()
+                                                pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble()
                                             ) > chainPopRange.value
                                         ) continue
                                         if (entity2.entityBoundingBox.intersects(getCrystalPlacingBB(pos))) continue
                                         if (getCrystalPlacingBB(pos).intersects(
-                                                entity2.positionVector.add(predictionTarget!!),
-                                                Vec3d(pos)
+                                                entity2.positionVector.add(predictionTarget!!), Vec3d(pos)
                                             )
                                         ) continue
                                         popList.remove(it.key, it.value)
                                         ChatUtil.sendMessage("Trying To ChainPop")
                                         return CrystalTarget(
-                                            pos,
-                                            it.key.target,
-                                            selfDamageCA,
-                                            d
+                                            pos, it.key.target, selfDamageCA, d
                                         )
                                     }
                                 }
@@ -612,18 +641,13 @@ class KuraAura : Module() {
                     if (forcePop.value && totemCount > 1) {
                         if (entity2.health <= targetDamage && entity2.getDistance(mc.player) <= 2 && (mc.player.heldItemOffhand.getItem() == Items.TOTEM_OF_UNDYING || mc.player.heldItemMainhand.getItem() == Items.TOTEM_OF_UNDYING)) {
                             if (mc.player.position.getDistance(
-                                    blockPos.up().getX(),
-                                    blockPos.up().getY(),
-                                    blockPos.up().getZ()
+                                    blockPos.up().getX(), blockPos.up().getY(), blockPos.up().getZ()
                                 ) < 3
                             ) {
                                 ChatUtil.NoSpam.sendMessage("ForcePopping")
-                                if (rendertext.value) renderBlockDmg[blockPos] = targetDamage
+                                if (renderText.value) renderBlockDmg[blockPos] = targetDamage
                                 return CrystalTarget(
-                                    blockPos,
-                                    target,
-                                    self,
-                                    targetDamage
+                                    blockPos, target, self, targetDamage
                                 )
                             }
                         }
@@ -656,18 +680,18 @@ class KuraAura : Module() {
                             if (self < crystalTarget!!.selfDamage) {
                                 //crystalTarget.update(blockPos, entity2, selfDamage, d);
                                 if (ModuleManager.getModuleByClass(
-                                        AutoGG::class.java).isEnabled) {
+                                        AutoGG::class.java
+                                    ).isEnabled
+                                ) {
                                     (ModuleManager.getModuleByClass(
-                                        AutoGG::class.java) as AutoGG).addTargetedPlayer(
+                                        AutoGG::class.java
+                                    ) as AutoGG).addTargetedPlayer(
                                         entity2.name
                                     )
                                 }
-                                if (rendertext.value) renderBlockDmg[blockPos] = d
+                                if (renderText.value) renderBlockDmg[blockPos] = d
                                 return CrystalTarget(
-                                    blockPos,
-                                    entity2,
-                                    self,
-                                    d
+                                    blockPos, entity2, self, d
                                 )
                             }
                         }
@@ -678,7 +702,7 @@ class KuraAura : Module() {
                     if (ModuleManager.getModuleByClass(AutoGG::class.java).isEnabled) {
                         (ModuleManager.getModuleByClass(AutoGG::class.java) as AutoGG).addTargetedPlayer(target.name)
                     }
-                    if (rendertext.value) renderBlockDmg[tempBlock] = damage
+                    if (renderText.value) renderBlockDmg[tempBlock] = damage
                 }
                 if (target != null) {
                     break
@@ -686,10 +710,7 @@ class KuraAura : Module() {
             }
         }
         return CrystalTarget(
-            tempBlock,
-            target,
-            selfDamage,
-            damage
+            tempBlock, target, selfDamage, damage
         )
     }
 
@@ -910,7 +931,7 @@ class KuraAura : Module() {
         val positions = NonNullList.create<BlockPos>()
         positions.addAll(
             CrystalUtil.getSphere(EntityUtil.getPlayerPos(), range, range, false, true, 0).stream()
-                .filter { v: BlockPos -> canPlaceCrystal(v, endcrystal.value) }.collect(Collectors.toList())
+                .filter { v: BlockPos -> canPlaceCrystal(v, endCrystal.value) }.collect(Collectors.toList())
         )
         return positions
     }
@@ -939,20 +960,41 @@ class KuraAura : Module() {
         return true
     }
 
-    private val targetList: Sequence<EntityLivingBase>
-        get() {
-            val entities = CopyOnWriteArrayList(mc.world.playerEntities).stream()
-                .filter { !FriendManager.isFriend(it.name) }
-                .filter { mc.player.getDistance(it!!) < enemyRange.value }
-                .collect(Collectors.toList())
-            for (ite2 in ArrayList(entities)) {
-                if (mc.player.getDistance(ite2) > enemyRange.value) entities.remove(ite2)
-                if (ite2 === mc.player) entities.remove(ite2)
+    private fun doAntiSurround(pos: BlockPos?) {
+        if (antiSurround.value) {
+            if (pos == null) return
+            for (target in mc.world.playerEntities) {
+                if (EntityUtil.isntValid(target, placeRange.value.toDouble())) continue
+                if (target.positionVector.y != pos.getY().toDouble()) continue
+                val burrowPos = target.position
+                val finalPos = if (BlockUtil.canBreak(burrowPos, false)) {
+                    burrowPos
+                } else {
+                    pos
+                }
+                val isBurrowPos = finalPos == burrowPos
+                for (facing in offsetFacing) {
+                    if (!EntityUtil.isInHole(target) && !isBurrowPos) continue
+                    val placePos = finalPos.offset(facing)
+                    if (getAntiSurroundPos(placePos)) {
+                        if (!mc.world.noCollision(placePos)) continue
+                        render = placePos.down()
+                        place(MotionUpdateEvent.Tick.INSTANCETick, placePos.down())
+                        render = placePos.down()
+                        break
+                    }
+                }
             }
-            entities.sortWith(Comparator.comparing { mc.player.getDistance(it!!) })
-            return entities.asSequence()
-                .take(maxTargets.value)
         }
+    }
+
+    private fun getAntiSurroundPos(posOffset: BlockPos): Boolean {
+        return mc.world.isAirBlock(posOffset) && mc.world.isAirBlock(posOffset.up()) && canPlaceCrystal(
+            posOffset.down(), endCrystal.value
+        )
+    }
+
+    fun World.noCollision(pos: BlockPos) = this.checkNoEntityCollision(AxisAlignedBB(pos), mc.player)
 
     override fun onWorldRender(event: RenderEvent) {
         if (fullNullCheck()) {
@@ -996,7 +1038,7 @@ class KuraAura : Module() {
                     )
                     XG42Tessellator.release()
                 }
-                if (renderMode.value == RenderModes.Normal && renderBreak.value) {
+                if (renderBreak.value) {
                     val attackingCrystalPosition = lastCrystal!!.position.down()
                     if (!attackingCrystalPosition.isFullBox) return
                     if (fullNullCheck()) {
@@ -1012,11 +1054,11 @@ class KuraAura : Module() {
                         if (rainbow.value) r else color.value.red,
                         if (rainbow.value) g else color.value.green,
                         if (rainbow.value) b else color.value.blue,
-                        breakalpha.value
+                        breakAlpha.value
                     )
                     XG42Tessellator.release()
                 }
-                if (renderMode.value == RenderModes.OldGlide){
+                if (renderMode.value == RenderModes.OldGlide) {
                     if (render != null) {
                         offsetPos = BlockPos(render!!)
                         shouldOffFadeReset = true
@@ -1029,7 +1071,7 @@ class KuraAura : Module() {
                             AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(blockRenderSmooths.renderPos)
                         pos = pos.offset(-interpolateEntity.x, -interpolateEntity.y, -interpolateEntity.z)
                         renderESP(pos, fadeBlockSize.easeOutQuad().toFloat())
-                        if (rendertext.value) {
+                        if (renderText.value) {
                             if (LunarAura.renderBlockDmg.containsKey(render)) {
                                 GlStateManager.pushMatrix()
                                 val blockPos: Vec3d = blockRenderSmooths.renderPos
@@ -1043,14 +1085,11 @@ class KuraAura : Module() {
                                 )
                                 val damage = LunarAura.renderBlockDmg[render]!!
                                 val damageText = (if (floor(damage) == damage) damage else String.format(
-                                    "%.1f",
-                                    damage
+                                    "%.1f", damage
                                 )).toString() + ""
                                 GlStateManager.disableDepth()
                                 GlStateManager.translate(
-                                    -(FontUtils.Comfortaa.getStringWidth(damageText) / 2.0),
-                                    0.0,
-                                    0.0
+                                    -(FontUtils.Comfortaa.getStringWidth(damageText) / 2.0), 0.0, 0.0
                                 )
                                 GlStateManager.scale(1f, 1f, 1f)
                                 FontUtils.Comfortaa.drawStringWithShadow(damageText, 1.0, 1.0, -1)
@@ -1075,8 +1114,8 @@ class KuraAura : Module() {
                         }
                     }
                 }
-                if (rendertext.value) {
-                    if (textMode.value == TextMode.Damage){
+                if (renderText.value) {
+                    if (textMode.value == TextMode.Damage) {
                         if (renderBlockDmg.containsKey(render) && renderMode.value == RenderModes.Glide) {
                             if (renderBlockDmg.containsKey(render)) {
                                 GlStateManager.pushMatrix()
@@ -1097,14 +1136,14 @@ class KuraAura : Module() {
                                 GlStateManager.scale(
                                     textscalex.value.toFloat(), textscaley.value.toFloat(), textscalez.value.toFloat()
                                 )
-                                if (!customfont.value){
+                                if (!customFont.value) {
                                     fontRenderer.drawString(
                                         damageText,
                                         0,
                                         0,
                                         Color(textcolor.value.red, textcolor.value.green, textcolor.value.blue).rgb
                                     )
-                                } else{
+                                } else {
                                     FontManager.font2!!.drawString(
                                         damageText,
                                         0F,
@@ -1124,7 +1163,10 @@ class KuraAura : Module() {
                                 1f
                             )
                             val damage = CrystalUtil.calculateDamage(
-                                render!!.getX() + 0.5, (render!!.getY() + 1).toDouble(), render!!.getZ() + 0.5, renderEnt
+                                render!!.getX() + 0.5,
+                                (render!!.getY() + 1).toDouble(),
+                                render!!.getZ() + 0.5,
+                                renderEnt
                             )
                             val damageText =
                                 (if (floor(damage.toDouble()) == damage.toDouble()) damage else String.format(
@@ -1132,14 +1174,14 @@ class KuraAura : Module() {
                                 )).toString() + ""
                             GlStateManager.disableDepth()
                             GlStateManager.translate(-(fonts.getStringWidth(damageText) / 2.0), 0.0, 0.0)
-                            if (!customfont.value){
+                            if (!customFont.value) {
                                 fontRenderer.drawString(
                                     damageText,
                                     0,
                                     0,
                                     Color(textcolor.value.red, textcolor.value.green, textcolor.value.blue).rgb
                                 )
-                            } else{
+                            } else {
                                 FontManager.font2!!.drawString(
                                     damageText,
                                     0F,
@@ -1149,7 +1191,7 @@ class KuraAura : Module() {
                             }
                             GlStateManager.popMatrix()
                         }
-                    } else{
+                    } else {
                         if (renderBlockDmg.containsKey(render) && renderMode.value == RenderModes.Glide) {
                             if (renderBlockDmg.containsKey(render)) {
                                 GlStateManager.pushMatrix()
@@ -1167,14 +1209,14 @@ class KuraAura : Module() {
                                 GlStateManager.scale(
                                     textscalex.value.toFloat(), textscaley.value.toFloat(), textscalez.value.toFloat()
                                 )
-                                if (!customfont.value){
+                                if (!customFont.value) {
                                     fontRenderer.drawString(
                                         targetname,
                                         0,
                                         0,
                                         Color(textcolor.value.red, textcolor.value.green, textcolor.value.blue).rgb
                                     )
-                                } else{
+                                } else {
                                     FontManager.font2!!.drawString(
                                         targetname,
                                         0F,
@@ -1196,14 +1238,14 @@ class KuraAura : Module() {
                             val targetname = renderEnt!!.name
                             GlStateManager.disableDepth()
                             GlStateManager.translate(-(fonts.getStringWidth(targetname) / 2.0), 0.0, 0.0)
-                            if (!customfont.value){
+                            if (!customFont.value) {
                                 fontRenderer.drawString(
                                     targetname,
                                     0,
                                     0,
                                     Color(textcolor.value.red, textcolor.value.green, textcolor.value.blue).rgb
                                 )
-                            } else{
+                            } else {
                                 FontManager.font2!!.drawString(
                                     targetname,
                                     0F,
@@ -1220,16 +1262,25 @@ class KuraAura : Module() {
                 blockRenderSmooth.end()
             }
             if (renderEnt != null && targetHUD.value) {
-                MelonTessellator.drawBBBox(
-                    AxisAlignedBB(
-                        renderEnt!!.entityBoundingBox.minX,
-                        renderEnt!!.entityBoundingBox.minY,
-                        renderEnt!!.entityBoundingBox.minZ,
-                        renderEnt!!.entityBoundingBox.minX + renderEnt!!.width / 1.5f,
-                        renderEnt!!.entityBoundingBox.minY + renderEnt!!.height / 2f,
-                        renderEnt!!.entityBoundingBox.minZ + renderEnt!!.width / 1.5f
-                    ), GuiManager.getINSTANCE().color, alpha.value, 1.0f, outline.value
-                )
+                if (targetHudMod.value == RenderTargetMod.Normal) {
+                    MelonTessellator.drawBBBox(
+                        AxisAlignedBB(
+                            renderEnt!!.entityBoundingBox.minX,
+                            renderEnt!!.entityBoundingBox.minY,
+                            renderEnt!!.entityBoundingBox.minZ,
+                            renderEnt!!.entityBoundingBox.minX + renderEnt!!.width / 1.5f,
+                            renderEnt!!.entityBoundingBox.minY + renderEnt!!.height / 2f,
+                            renderEnt!!.entityBoundingBox.minZ + renderEnt!!.width / 1.5f
+                        ), GuiManager.getINSTANCE().color, alpha.value, 1.0f, outline.value
+                    )
+                } else if (targetHudMod.value == RenderTargetMod.New) {
+                    val color = Color(
+                        if (rainbow.value) r else color.value.red,
+                        if (rainbow.value) g else color.value.green,
+                        if (rainbow.value) b else color.value.blue
+                    )
+                    RenderUtil.drawFade(renderEnt, color)
+                }
             }
         } catch (ignored: Exception) {
         }
@@ -1271,9 +1322,7 @@ class KuraAura : Module() {
 
     private fun renderESP(axisAlignedBB: AxisAlignedBB, size: Float) {
         val hsBtoRGB = Color.HSBtoRGB(
-            System.currentTimeMillis() % 11520L / 11520.0f * rgbSpeed.value,
-            saturation.value,
-            brightness.value
+            System.currentTimeMillis() % 11520L / 11520.0f * rgbSpeed.value, saturation.value, brightness.value
         )
         val r = hsBtoRGB shr 16 and 0xFF
         val g = hsBtoRGB shr 8 and 0xFF
@@ -1304,20 +1353,21 @@ class KuraAura : Module() {
             GeometryMasks.Quad.ALL
         )
     }
+
     override fun getHudInfo(): String {
         if (shouldInfoLastBreak && lastBreakTime !== 0L) {
             infoBreakTime = System.currentTimeMillis() - lastBreakTime
             lastBreakTime = 0L
             shouldInfoLastBreak = false
         }
-        if (renderEnt != null && hudinfomod.value == Mode.Target) {
+        if (renderEnt != null && hudInfoMod.value == Mode.Target) {
             return TextFormatting.AQUA.toString() + "" + renderEnt!!.name + ""
         }
-        if (hudinfomod.value == Mode.BreakPlace && breaked && renderEnt != null) {
+        if (hudInfoMod.value == Mode.BreakPlace && breaked && renderEnt != null) {
             return TextFormatting.AQUA.toString() + "" + "Breaking" + ""
-        } else if (hudinfomod.value == Mode.BreakPlace && !breaked && renderEnt != null) {
-            return  TextFormatting.AQUA.toString() + "" + "Placing" + ""
-        } else if (infoBreakTime !== 0L && hudinfomod.value == Mode.BreakTime && renderEnt != null) {
+        } else if (hudInfoMod.value == Mode.BreakPlace && !breaked && renderEnt != null) {
+            return TextFormatting.AQUA.toString() + "" + "Placing" + ""
+        } else if (infoBreakTime !== 0L && hudInfoMod.value == Mode.BreakTime && renderEnt != null) {
             val nmsl = 100.0
             val cnm = 2
             return TextFormatting.YELLOW.toString() + "[ " + TextFormatting.AQUA + TextFormatting.OBFUSCATED + String.format(
@@ -1349,7 +1399,7 @@ class KuraAura : Module() {
     }
 
     enum class RenderModes {
-        Glide, Normal ,OldGlide
+        Glide, Normal, OldGlide
     }
 
     enum class Mode {
@@ -1359,6 +1409,11 @@ class KuraAura : Module() {
     enum class TextMode {
         Target, Damage
     }
+
+    enum class RenderTargetMod {
+        Normal, New
+    }
+
     enum class CrystalMod {
         PlaceBreak, BreakPlace
     }
@@ -1369,38 +1424,12 @@ class KuraAura : Module() {
         var renderEnt: EntityLivingBase? = null
     }
 
-    fun calcCollidingCrystalDamage(
-        placeBox: AxisAlignedBB
-    ): Float {
-        var max = 0.0f
-        if (mc.world.loadedEntityList.isNotEmpty()) {
-            for (c in mc.world.loadedEntityList) {
-                if (c == null) continue
-                if (c !is EntityEnderCrystal) continue
-                if (mc.player.getDistance(c) > 12) continue
-                if (!placeBox.intersects(c.entityBoundingBox)) continue
-                val cDamage = calcDamage(
-                    mc.player,
-                    mc.player.positionVector,
-                    mc.player.entityBoundingBox,
-                    c.posX + 0.5f,
-                    c.posY + 1f,
-                    c.posZ + 0.5f,
-                    BlockPos.MutableBlockPos()
-                )
-
-                if (cDamage > max) {
-                    max = cDamage
-                }
-            }
-        }
-        return max
-    }
-
     val BlockPos.state: IBlockState get() = mc.world.getBlockState(this)
-    private val BlockPos.collisionBox: AxisAlignedBB get() = this.state.getCollisionBoundingBox(mc.world, this) ?: AxisAlignedBB(this)
-    private val BlockPos.isFullBox: Boolean get() = mc.world?.let {
-        collisionBox
-    } == Block.FULL_BLOCK_AABB
+    private val BlockPos.collisionBox: AxisAlignedBB
+        get() = this.state.getCollisionBoundingBox(mc.world, this) ?: AxisAlignedBB(this)
+    private val BlockPos.isFullBox: Boolean
+        get() = mc.world?.let {
+            collisionBox
+        } == Block.FULL_BLOCK_AABB
 
 }

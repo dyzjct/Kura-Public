@@ -153,7 +153,7 @@ task copy(type: Copy) {
     }
     from file("build/libs/")
     include 'Kura*.jar'
-    into file("D:/Kura/.minecraft/mods")
+    into file("E:/Kura/.minecraft/mods")
 }
 
 task AutoBuild (dependsOn: [build, copy]){

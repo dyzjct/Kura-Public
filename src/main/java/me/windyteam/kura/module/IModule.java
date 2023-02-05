@@ -84,6 +84,7 @@ public abstract class IModule {
         return value;
     }
 
+
     public IntegerSetting isetting(String name, int defaultValue, int minValue, int maxValue) {
         IntegerSetting value = new IntegerSetting(name, this, defaultValue, minValue, maxValue);
         this.getSettingList().add(value);
@@ -122,6 +123,56 @@ public abstract class IModule {
 
     public ColorSetting csetting(String name, Color defaultValue) {
         ColorSetting value = new ColorSetting(name, this, defaultValue);
+        this.getSettingList().add(value);
+        return value;
+    }
+
+//
+
+    public BindSetting settings(String name, int keyboard) {
+        BindSetting value = new BindSetting(name, this, keyboard);
+        this.getSettingList().add(value);
+        return value;
+    }
+
+    public IntegerSetting settings(String name, int defaultValue, int minValue, int maxValue) {
+        IntegerSetting value = new IntegerSetting(name, this, defaultValue, minValue, maxValue);
+        this.getSettingList().add(value);
+        return value;
+    }
+
+    public FloatSetting settings(String name, float defaultValue, float minValue, float maxValue) {
+        FloatSetting value = new FloatSetting(name, this, Float.valueOf(defaultValue), Float.valueOf(minValue), Float.valueOf(maxValue));
+        this.getSettingList().add(value);
+        return value;
+    }
+
+    public DoubleSetting settings(String name, double defaultValue, double minValue, double maxValue) {
+        DoubleSetting value = new DoubleSetting(name, this, defaultValue, minValue, maxValue);
+        this.getSettingList().add(value);
+        return value;
+    }
+
+    public ModeSetting settings(String name, Enum modes) {
+        ModeSetting value = new ModeSetting(name, this, modes);
+        this.getSettingList().add(value);
+        return value;
+    }
+
+    public ColorSetting settings(String name, Color defaultValue) {
+        ColorSetting value = new ColorSetting(name, this, defaultValue);
+        this.getSettingList().add(value);
+        return value;
+    }
+
+    public StringSetting settings(String name, String defaultValue) {
+        StringSetting value = new StringSetting(name, this, defaultValue);
+        this.getSettingList().add(value);
+        return value;
+    }
+
+    public BooleanSetting settings(String name, boolean defaultValue) {
+        BooleanSetting value = new BooleanSetting(name, this, defaultValue);
         this.getSettingList().add(value);
         return value;
     }

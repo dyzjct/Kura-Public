@@ -30,6 +30,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ModuleManager {
@@ -175,7 +176,7 @@ public class ModuleManager {
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GlStateManager.disableDepth();
         GlStateManager.glLineWidth(1.0f);
-        Vec3d renderPos = getInterpolatedPos(Minecraft.getMinecraft().getRenderViewEntity(), event.getPartialTicks());
+        Vec3d renderPos = getInterpolatedPos(Objects.requireNonNull(Minecraft.getMinecraft().getRenderViewEntity()), event.getPartialTicks());
         RenderEvent e = new RenderEvent(XG42Tessellator.INSTANCE, renderPos);
         e.resetTranslation();
         Minecraft.getMinecraft().profiler.endSection();
@@ -265,7 +266,6 @@ public class ModuleManager {
         registerModule(new DispenserMeta());
         registerModule(new Fastuse());
         registerModule(new HoleSnap());
-        registerModule(new KillAura());
         registerModule(new PistonCrystal());
         registerModule(new Pull32k());
         registerModule(new Quiver());
@@ -279,7 +279,8 @@ public class ModuleManager {
         registerModule(new HoleKicker2());
         registerModule(new TNTHead());
         registerModule(new AutoTopCev());
-        registerModule(new HoleKickerRewrite());
+        registerModule(new HoleKicker());
+        registerModule(new KnifeBot());
         //Player
         registerModule(new AntiShulkerBox());
         registerModule(new StrictPacketMine());
