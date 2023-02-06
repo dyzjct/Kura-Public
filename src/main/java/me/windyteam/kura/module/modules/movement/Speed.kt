@@ -204,7 +204,7 @@ class Speed : Module() {
                         event.y = 0.4
                     }
                     moveSpeed *= if (bbtt.value) {
-                        1.433
+                        1.548
                     } else {
                         if (!mc.player.isSneaking) {
                             1.7103
