@@ -439,7 +439,7 @@ class KuraAura : Module() {
                 }
                 if (rotate.value) {
                     rotations = BlockInteractionHelper.getLegitRotations(Vec3d(render!!).add(0.5, 1.0, 0.5))
-                    //Rotations = AimUtil.getNeededFacing(new Vec3d(render).add(0.5, 0, 0.5), render.getY() < mc.player.posY);
+//                    Rotations = AimUtil.getNeededFacing(new Vec3d(render).add(0.5, 0, 0.5), render.getY() < mc.player.posY);
                     if (yawStep.value) {
                         if (yawTicksPassed > 0) {
                             rotations[0] = mc.player.lastReportedYaw

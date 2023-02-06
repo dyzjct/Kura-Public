@@ -127,14 +127,18 @@ public class DispenserMeta extends Module {
             return;
         }
 
-        if (mc.objectMouseOver == null) {
-            if (debugMessages.getValue()) {
-                ChatUtil.NoSpam.sendMessage("[Dispenser32k] Not a valid place target, disabling.");
+        try {
+            if (mc.objectMouseOver == null) {
+                if (debugMessages.getValue()) {
+                    ChatUtil.NoSpam.sendMessage("[Dispenser32k] Not a valid place target, disabling.");
+                }
+                this.disable();
+                return;
+            } else {
+                mc.objectMouseOver.getBlockPos().up();
             }
-            this.disable();
-            return;
-        } else {
-            mc.objectMouseOver.getBlockPos().up();
+        } catch (Exception e){
+//
         }
 
         placeTarget = mc.objectMouseOver.getBlockPos().up();
