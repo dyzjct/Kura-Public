@@ -382,6 +382,62 @@ public class RenderUtil {
         GL11.glPopMatrix();
     }
 
+    public static void drawEntFade(Entity target,Color color){
+        final double everyTime = 1500.0;
+        final double drawTime = System.currentTimeMillis() % everyTime;
+        final boolean drawMode = drawTime > everyTime / 2.0;
+        double drawPercent = drawTime / (everyTime / 2.0);
+        if (!drawMode) {
+            drawPercent = 1.0 - drawPercent;
+        }
+        else {
+            --drawPercent;
+        }
+        drawPercent = easeInOutQuad(drawPercent);
+        mc.entityRenderer.disableLightmap();
+        GL11.glPushMatrix();
+        GL11.glDisable(3553);
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(2848);
+        GL11.glEnable(3042);
+        GL11.glDisable(2929);
+        GL11.glDisable(2884);
+        GL11.glShadeModel(7425);
+        mc.entityRenderer.disableLightmap();
+        final double radius = target.width;
+        final double height = target.height + 0.1;
+        final double x = target.lastTickPosX + (target.posX - target.lastTickPosX) * mc.getRenderPartialTicks() - mc.renderManager.viewerPosX;
+        final double y = target.lastTickPosY + (target.posY - target.lastTickPosY) * mc.getRenderPartialTicks() - mc.renderManager.viewerPosY + height * drawPercent;
+        final double z = target.lastTickPosZ + (target.posZ - target.lastTickPosZ) * mc.getRenderPartialTicks() - mc.renderManager.viewerPosZ;
+        final double eased = height / 3.0 * ((drawPercent > 0.5) ? (1.0 - drawPercent) : drawPercent) * (drawMode ? -1 : 1);
+        for (int segments = 0; segments < 360; segments += 5) {
+            final double x2 = x - Math.sin(segments * 3.141592653589793 / 180.0) * radius;
+            final double z2 = z + Math.cos(segments * 3.141592653589793 / 180.0) * radius;
+            final double x3 = x - Math.sin((segments - 5) * 3.141592653589793 / 180.0) * radius;
+            final double z3 = z + Math.cos((segments - 5) * 3.141592653589793 / 180.0) * radius;
+            GL11.glBegin(7);
+            GL11.glColor4f(ColorUtil.pulseColor(color, 200, 1).getRed() / 255.0f, ColorUtil.pulseColor(color, 200, 1).getGreen() / 255.0f, ColorUtil.pulseColor(color, 200, 1).getBlue() / 255.0f, 0.0f);
+            GL11.glVertex3d(x2, y + eased, z2);
+            GL11.glVertex3d(x3, y + eased, z3);
+            GL11.glColor4f(ColorUtil.pulseColor(color, 200, 1).getRed() / 255.0f, ColorUtil.pulseColor(color, 200, 1).getGreen() / 255.0f, ColorUtil.pulseColor(color, 200, 1).getBlue() / 255.0f, 200.0f);
+            GL11.glVertex3d(x3, y, z3);
+            GL11.glVertex3d(x2, y, z2);
+            GL11.glEnd();
+            GL11.glBegin(2);
+            GL11.glVertex3d(x3, y, z3);
+            GL11.glVertex3d(x2, y, z2);
+            GL11.glEnd();
+        }
+        GL11.glEnable(2884);
+        GL11.glShadeModel(7424);
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GL11.glEnable(2929);
+        GL11.glDisable(2848);
+        GL11.glDisable(3042);
+        GL11.glEnable(3553);
+        GL11.glPopMatrix();
+    }
+
     private static double easeInOutQuad(final double x) {
         return (x < 0.5) ? (2.0 * x * x) : (1.0 - Math.pow(-2.0 * x + 2.0, 2.0) / 2.0);
     }

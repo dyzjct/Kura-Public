@@ -12,7 +12,6 @@ import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.ModuleManager
 import me.windyteam.kura.module.modules.chat.AutoGG
 import me.windyteam.kura.module.modules.combat.AutoMend
-import me.windyteam.kura.module.modules.combat.KnifeBot
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalChainPop
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalDamageCalculator.Companion.calcDamage
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalHelper.Companion.PredictionHandlerNew
@@ -32,19 +31,13 @@ import me.windyteam.kura.utils.animations.sq
 import me.windyteam.kura.utils.block.BlockInteractionHelper
 import me.windyteam.kura.utils.entity.CrystalUtil
 import me.windyteam.kura.utils.entity.EntityUtil
-import me.windyteam.kura.utils.font.FontUtils
 import me.windyteam.kura.utils.getMiningSide
 import me.windyteam.kura.utils.gl.MelonTessellator
 import me.windyteam.kura.utils.gl.XG42Tessellator
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.math.GeometryMasks
-import me.windyteam.kura.utils.math.MathUtil
-import me.windyteam.kura.utils.math.RotationUtil
 import me.windyteam.kura.utils.mc.BlockUtil
 import me.windyteam.kura.utils.mc.ChatUtil
-import me.windyteam.kura.utils.render.RenderUtil
-import me.windyteam.kura.utils.render.sexy.BlockRenderSmooth
-import me.windyteam.kura.utils.render.sexy.FadeUtils
 import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.GlStateManager
@@ -96,8 +89,9 @@ import kotlin.math.floor
  * Created by dyzjct on 07/12/2022.
  * Updated by dyzjct on 24/12/2022.
  */
-@Module.Info(name = "KuraAura", category = Category.XDDD, description = "AutoCrystal")
-class KuraAura : Module() {
+
+@Module.Info(name = "AutoCrystal", category = Category.XDDD, description = "AutoCrystal")
+class AutoCrystal : Module() {
     var p = msetting("Page", Page.GENERAL)
 
     //Page GENERAL
@@ -130,7 +124,6 @@ class KuraAura : Module() {
     private var breakMaxSelf = isetting("BreakMaxSelf", 12, 0, 36).m(p, Page.BREAK)
 
     //Page Calculation
-    private var maxTargets = isetting("MaxTarget", 2, 1, 8).m(p, Page.CALCULATION)
     private var motionPredict = bsetting("MotionPredict", true).m(p, Page.CALCULATION)
     private var predictTicks = isetting("PredictTicks", 8, 1, 20).b(motionPredict).m(p, Page.CALCULATION)
     private var debug = bsetting("Debug", false).m(p, Page.CALCULATION)
@@ -160,8 +153,6 @@ class KuraAura : Module() {
     private var antiSurround = bsetting("AntiSurround", true).m(p, Page.LETHAL)
 
     //Page Render
-    private var targetHUD = bsetting("TargetHUD", false).m(p, Page.RENDER)
-    private var targetHudMod = msetting("TargetHudMod", RenderTargetMod.Normal).m(p, Page.RENDER).b(targetHUD)
     private var hudInfoMod = msetting("HudInfo", Mode.Target).m(p, Page.RENDER)
     private var outline = bsetting("Outline", true).m(p, Page.RENDER)
     private var renderText = bsetting("RenderText", true).m(p, Page.RENDER)
@@ -184,7 +175,6 @@ class KuraAura : Module() {
     private var movingLength = fsetting("MovingLength", 350f, 1f, 1000f).m(p, Page.RENDER)
     private var renderMode = msetting("RenderMode", RenderModes.Glide).m(p, Page.RENDER)
     private var blockRenderSmooth = BlockEasingRender(BlockPos(0, 0, 0), 650f, 400f)
-    private var blockRenderSmooths = BlockRenderSmooth(BlockPos(0, 0, 0), 550L)
 
     @Transient
     var lastEntityID = AtomicInteger(-1)
@@ -197,7 +187,7 @@ class KuraAura : Module() {
     private var crystalTarget: CrystalTarget? = null
     private var predictionTarget: Vec3d? = null
     private var tempSpawnPos: BlockPos? = null
-    private var render: BlockPos? = null
+    var render: BlockPos? = null
     private var breakrender: BlockPos? = null
     private var shouldShadeRender = false
     private var switchCooldown = false
@@ -210,18 +200,14 @@ class KuraAura : Module() {
     private var cSlot = -1
     private var damageCa = 0
     private var popTicks = 0
-    private var breaked: Boolean = false
     private var selfDamageCA = 0.0
     private var popList = ConcurrentHashMap<CrystalChainPop, Long>()
     private var damageCA = 0.0
-    private var shouldOffFadeReset = false
-    private var shouldOffFadeRender = false
-    private var offsetPos: BlockPos? = null
-    private var fadeBlockSize = FadeUtils(movingLength.value)
     private var shouldInfoLastBreak = false
     private var lastBreakTime = 0L
     private var infoBreakTime = 0L
     private var offsetFacing = arrayOf(EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.EAST)
+    private var attackingCrystal: EntityEnderCrystal? = null
 
     @SubscribeEvent
     fun onClientDisconnect(event: ClientDisconnectionFromServerEvent?) {
@@ -327,17 +313,15 @@ class KuraAura : Module() {
                 if (EntityUtil.isInHole(target)) doAntiSurround(InstantMine.breakPos)
             }
         }
-        if (crystalMod.value == CrystalMod.PlaceBreak) {
-            breaked = false
+
+        if (crystalMod.value == CrystalMod.PlaceBreak || strictDirection.value) {
             place(event, null)
             explode(event)
-            breaked = true
         } else if (crystalMod.value == CrystalMod.BreakPlace) {
-            breaked = true
             explode(event)
             place(event, null)
-            breaked = false
         }
+
         if (popList.isNotEmpty()) {
             popList.forEach {
                 if (!mc.world.playerEntities.contains(it.key.target)) {
@@ -357,6 +341,8 @@ class KuraAura : Module() {
             return
         }
         val crystal = getExplodeCrystal(syncHurtTime.value, renderEnt!!)
+        attackingCrystal = crystal
+        if (crystal == null) attackingCrystal = null
         if (mc.player != null && crystal != null) {
             if (mc.player.getDistance(crystal) <= breakRange.value) {
                 lastCrystal = crystal
@@ -438,8 +424,17 @@ class KuraAura : Module() {
                     spoofHotbar(cSlot, true)
                 }
                 if (rotate.value) {
-                    rotations = BlockInteractionHelper.getLegitRotations(Vec3d(render!!).add(0.5, 1.0, 0.5))
+                    rotations = BlockInteractionHelper.getLegitRotations(
+                        Vec3d(lastCrystal!!.position.down()).add(
+                            0.5, 0.5, 0.5
+                        )
+                    )
 //                    Rotations = AimUtil.getNeededFacing(new Vec3d(render).add(0.5, 0, 0.5), render.getY() < mc.player.posY);
+                    if (strictDirection.value) {
+                        if (yawTicksPassed > 0) {
+                            rotations[0] = mc.player.lastReportedYaw
+                        }
+                    }
                     if (yawStep.value) {
                         if (yawTicksPassed > 0) {
                             rotations[0] = mc.player.lastReportedYaw
@@ -1012,7 +1007,7 @@ class KuraAura : Module() {
             if (rainbow.value) b else color.value.blue
         )
         val fonts = GuiManager.getINSTANCE().font
-        try {
+        runCatching {
             if (render != null) {
                 blockRenderSmooth.begin()
                 if (renderMode.value == RenderModes.Glide) {
@@ -1058,62 +1053,7 @@ class KuraAura : Module() {
                     )
                     XG42Tessellator.release()
                 }
-                if (renderMode.value == RenderModes.OldGlide) {
-                    if (render != null) {
-                        offsetPos = BlockPos(render!!)
-                        shouldOffFadeReset = true
-                        if (shouldOffFadeRender) {
-                            shouldOffFadeRender = false
-                            fadeBlockSize.reset()
-                        }
-                        val interpolateEntity = MathUtil.interpolateEntity(mc.player, mc.renderPartialTicks)
-                        var pos: AxisAlignedBB =
-                            AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(blockRenderSmooths.renderPos)
-                        pos = pos.offset(-interpolateEntity.x, -interpolateEntity.y, -interpolateEntity.z)
-                        renderESP(pos, fadeBlockSize.easeOutQuad().toFloat())
-                        if (renderText.value) {
-                            if (LunarAura.renderBlockDmg.containsKey(render)) {
-                                GlStateManager.pushMatrix()
-                                val blockPos: Vec3d = blockRenderSmooths.renderPos
-                                GlStateManager.shadeModel(GL11.GL_SMOOTH)
-                                XG42Tessellator.glBillboardDistanceScaled(
-                                    blockPos.x.toFloat() + 0.5f,
-                                    blockPos.y.toFloat() + 0.5f,
-                                    blockPos.z.toFloat() + 0.5f,
-                                    mc.player,
-                                    1f
-                                )
-                                val damage = LunarAura.renderBlockDmg[render]!!
-                                val damageText = (if (floor(damage) == damage) damage else String.format(
-                                    "%.1f", damage
-                                )).toString() + ""
-                                GlStateManager.disableDepth()
-                                GlStateManager.translate(
-                                    -(FontUtils.Comfortaa.getStringWidth(damageText) / 2.0), 0.0, 0.0
-                                )
-                                GlStateManager.scale(1f, 1f, 1f)
-                                FontUtils.Comfortaa.drawStringWithShadow(damageText, 1.0, 1.0, -1)
-                                GlStateManager.popMatrix()
-                            }
-                        }
-                    } else if (shouldOffFadeReset) {
-                        shouldOffFadeReset = false
-                        shouldOffFadeRender = true
-                        fadeBlockSize.reset()
-                    } else {
-                        if (fadeBlockSize.isEnd) {
-                            shouldOffFadeRender = false
-                        }
-                    }
-                    if (shouldOffFadeRender) {
-                        if (offsetPos != null) {
-                            val interpolateEntity = MathUtil.interpolateEntity(mc.player, mc.renderPartialTicks)
-                            var pos: AxisAlignedBB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(offsetPos)
-                            pos = pos.offset(-interpolateEntity.x, -interpolateEntity.y, -interpolateEntity.z)
-                            renderESP(pos, (1 - fadeBlockSize.easeOutQuad()).toFloat())
-                        }
-                    }
-                }
+
                 if (renderText.value) {
                     if (textMode.value == TextMode.Damage) {
                         if (renderBlockDmg.containsKey(render) && renderMode.value == RenderModes.Glide) {
@@ -1261,28 +1201,6 @@ class KuraAura : Module() {
                 blockRenderSmooth.resetFade()
                 blockRenderSmooth.end()
             }
-            if (renderEnt != null && targetHUD.value) {
-                if (targetHudMod.value == RenderTargetMod.Normal) {
-                    MelonTessellator.drawBBBox(
-                        AxisAlignedBB(
-                            renderEnt!!.entityBoundingBox.minX,
-                            renderEnt!!.entityBoundingBox.minY,
-                            renderEnt!!.entityBoundingBox.minZ,
-                            renderEnt!!.entityBoundingBox.minX + renderEnt!!.width / 1.5f,
-                            renderEnt!!.entityBoundingBox.minY + renderEnt!!.height / 2f,
-                            renderEnt!!.entityBoundingBox.minZ + renderEnt!!.width / 1.5f
-                        ), GuiManager.getINSTANCE().color, alpha.value, 1.0f, outline.value
-                    )
-                } else if (targetHudMod.value == RenderTargetMod.New) {
-                    val color = Color(
-                        if (rainbow.value) r else color.value.red,
-                        if (rainbow.value) g else color.value.green,
-                        if (rainbow.value) b else color.value.blue
-                    )
-                    RenderUtil.drawFade(renderEnt, color)
-                }
-            }
-        } catch (ignored: Exception) {
         }
     }
 
@@ -1354,28 +1272,37 @@ class KuraAura : Module() {
         )
     }
 
-    override fun getHudInfo(): String {
-        if (shouldInfoLastBreak && lastBreakTime !== 0L) {
+    override fun getHudInfo(): String? {
+        if (shouldInfoLastBreak && lastBreakTime != 0L) {
             infoBreakTime = System.currentTimeMillis() - lastBreakTime
             lastBreakTime = 0L
             shouldInfoLastBreak = false
         }
-        if (renderEnt != null && hudInfoMod.value == Mode.Target) {
-            return TextFormatting.AQUA.toString() + "" + renderEnt!!.name + ""
+        return when (hudInfoMod.value) {
+            Mode.Target -> {
+                if (renderEnt != null) {
+                    TextFormatting.RED.toString() + "" + renderEnt!!.name
+                } else null
+            }
+
+            Mode.Action -> {
+                if (attackingCrystal != null && lastCrystal != null && render != null){
+                    return if (Random().nextBoolean()) "Placing" else "Breaking"
+                } else null
+                if (lastCrystal != null && render != null) return "Placing"
+                return if (attackingCrystal != null && render != null) "Breaking" else null
+            }
+
+            Mode.Differentiation -> if (infoBreakTime != 0L && renderEnt != null) {
+                val nmsl = 100.0
+                val cnm = 2
+                return TextFormatting.YELLOW.toString() + "[" + TextFormatting.GREEN + TextFormatting.OBFUSCATED + String.format(
+                    java.lang.String.valueOf(infoBreakTime / nmsl), cnm
+                ) + TextFormatting.YELLOW.toString() + "]"
+            } else null
+
+            else -> null
         }
-        if (hudInfoMod.value == Mode.BreakPlace && breaked && renderEnt != null) {
-            return TextFormatting.AQUA.toString() + "" + "Breaking" + ""
-        } else if (hudInfoMod.value == Mode.BreakPlace && !breaked && renderEnt != null) {
-            return TextFormatting.AQUA.toString() + "" + "Placing" + ""
-        } else if (infoBreakTime !== 0L && hudInfoMod.value == Mode.BreakTime && renderEnt != null) {
-            val nmsl = 100.0
-            val cnm = 2
-            return TextFormatting.YELLOW.toString() + "[ " + TextFormatting.AQUA + TextFormatting.OBFUSCATED + String.format(
-                java.lang.String.valueOf(
-                    infoBreakTime / nmsl
-                ), cnm
-            ) + TextFormatting.YELLOW + " ]"
-        } else return TextFormatting.RED.toString() + "null target"
     }
 
     enum class Page {
@@ -1399,19 +1326,15 @@ class KuraAura : Module() {
     }
 
     enum class RenderModes {
-        Glide, Normal, OldGlide
+        Glide, Normal
     }
 
     enum class Mode {
-        Target, BreakPlace, BreakTime
+        Target, Action, Differentiation
     }
 
     enum class TextMode {
         Target, Damage
-    }
-
-    enum class RenderTargetMod {
-        Normal, New
     }
 
     enum class CrystalMod {
@@ -1420,7 +1343,7 @@ class KuraAura : Module() {
 
     companion object {
         var renderBlockDmg = ConcurrentHashMap<BlockPos?, Double>()
-        var INSTANCE = KuraAura()
+        var INSTANCE = AutoCrystal()
         var renderEnt: EntityLivingBase? = null
     }
 

@@ -4,7 +4,6 @@ import me.windyteam.kura.module.Category;
 import me.windyteam.kura.module.Module;
 import me.windyteam.kura.setting.Setting;
 import me.windyteam.kura.utils.mc.EntityUtil;
-import me.windyteam.kura.utils.mc.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -60,13 +59,7 @@ public class AutoTotem extends Module {
                     mc.player.setVelocity(0, 0, 0);
                 }
                 mc.playerController.windowClick(0, preferredTotemSlot, 0, ClickType.PICKUP, mc.player);
-                if (strict.getValue() && EntityUtil.isMoving()) {
-                    mc.player.setVelocity(0, 0, 0);
-                }
                 mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                if (strict.getValue() && EntityUtil.isMoving()) {
-                    mc.player.setVelocity(0, 0, 0);
-                }
                 mc.playerController.updateController();
             }
 
@@ -78,13 +71,7 @@ public class AutoTotem extends Module {
                     mc.player.setVelocity(0, 0, 0);
                 }
                 mc.playerController.windowClick(0, preferredTotemSlot, 0, ClickType.PICKUP, mc.player);
-                if (strict.getValue() && EntityUtil.isMoving()) {
-                    mc.player.setVelocity(0, 0, 0);
-                }
                 mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                if (strict.getValue() && EntityUtil.isMoving()) {
-                    mc.player.setVelocity(0, 0, 0);
-                }
                 if (!offhandEmptyPreSwitch) {
                     mc.playerController.windowClick(0, preferredTotemSlot, 0, ClickType.PICKUP, mc.player);
                 }

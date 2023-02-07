@@ -4,8 +4,7 @@ import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.event.events.render.RenderEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.module.ModuleManager
-import me.windyteam.kura.module.modules.crystalaura.KuraAura
+import me.windyteam.kura.module.modules.crystalaura.AutoCrystal
 import me.windyteam.kura.setting.Setting
 import me.windyteam.kura.utils.Timer
 import me.windyteam.kura.utils.entity.EntityUtil
@@ -31,24 +30,20 @@ class KnifeBot : Module() {
     private var tps: Setting<Boolean> = bsetting("TPSSync", true).m(setting, Settings.COMBAT)
     private var packet: Setting<Boolean> = bsetting("Packet", false).m(setting, Settings.COMBAT)
     private var info: Setting<Boolean> = bsetting("Info", true).m(setting, Settings.RENDER)
-    var target:EntityPlayer? = null
+    var target: EntityPlayer? = null
+
     override fun onWorldRender(event: RenderEvent) {
         if (fullNullCheck()) return
         if (target != null) {
             if (render.value === RenderMode.OLD) {
                 RenderUtilv12.drawEntityBoxESP(
-                    target,
-                    Color(255,255,255),
-                    true,
-                    Color(255, 255, 255, 130),
-                    0.7f,
-                    true,
-                    true,
-                    35
+                    target, Color(255, 255, 255), true, Color(255, 255, 255, 130), 0.7f, true, true, 35
                 )
             } else if (render.value === RenderMode.JELLO) {
-                if (!ModuleManager.getModuleByClass(KuraAura::class.java).isEnabled || KuraAura.renderEnt == null){
-                    RenderUtil.drawFade(target, Color(255,255,255))
+                if (EntityUtil.holdingWeapon(mc.player) && AutoCrystal.renderEnt == null) {
+                    RenderUtil.drawFade(target, Color(0, 255, 0))
+                } else if (AutoCrystal.renderEnt != null) {
+                    RenderUtil.drawFade(target, Color(255, 0, 0))
                 }
             }
         }
@@ -106,5 +101,8 @@ class KnifeBot : Module() {
         COMBAT, RENDER
     }
 
-    companion object { @JvmStatic var INSTANCE: KnifeBot? = KnifeBot() }
+    companion object {
+        @JvmStatic
+        var INSTANCE: KnifeBot? = KnifeBot()
+    }
 }

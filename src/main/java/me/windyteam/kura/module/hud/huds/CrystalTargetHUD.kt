@@ -3,7 +3,7 @@ package me.windyteam.kura.module.hud.huds
 import me.windyteam.kura.module.HUDModule
 import me.windyteam.kura.module.ModuleManager
 import me.windyteam.kura.module.hud.info.Player.Companion.drawEntityOnScreen
-import me.windyteam.kura.module.modules.crystalaura.KuraAura
+import me.windyteam.kura.module.modules.crystalaura.AutoCrystal
 import me.windyteam.kura.setting.IntegerSetting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
@@ -18,12 +18,12 @@ class CrystalTargetHUD : HUDModule() {
     val size: IntegerSetting = isetting("Size", 30,1,100)
     val mc: Minecraft = Minecraft.getMinecraft()
     override fun onRender() {
-        if (ModuleManager.getModuleByClass(KuraAura::class.java).isEnabled) {
-            if (KuraAura.renderEnt != null) {
-                val name = StringUtils.stripControlCodes(KuraAura.renderEnt!!.name)
+        if (ModuleManager.getModuleByClass(AutoCrystal::class.java).isEnabled) {
+            if (AutoCrystal.renderEnt != null) {
+                val name = StringUtils.stripControlCodes(AutoCrystal.renderEnt!!.name)
                 val renderX = x + 35
                 val renderY = y + 10
-                val healthPercentage: Float = KuraAura.renderEnt!!.health / KuraAura.renderEnt!!.maxHealth
+                val healthPercentage: Float = AutoCrystal.renderEnt!!.health / AutoCrystal.renderEnt!!.maxHealth
                 val maxX = 30.coerceAtLeast(mc.fontRenderer.getStringWidth(name) + 30).toFloat() + size.value
                 Gui.drawRect(
                     renderX,
@@ -35,16 +35,16 @@ class CrystalTargetHUD : HUDModule() {
                     renderY + 50 + size.value,
                     (renderX + maxX * healthPercentage).toInt(),
                     renderY + 75 + size.value,
-                    getHealthColor(KuraAura.renderEnt!!)
+                    getHealthColor(AutoCrystal.renderEnt!!)
                 )
                 mc.fontRenderer.drawStringWithShadow(name, (renderX + 25).toFloat(), renderY + 7f, -1)
                 drawEntityOnScreen(
                     renderX + 12,
                     renderY + 33,
                     15,
-                    KuraAura.renderEnt!!.rotationYaw,
-                    KuraAura.renderEnt!!.rotationPitch,
-                    KuraAura.renderEnt!!
+                    AutoCrystal.renderEnt!!.rotationYaw,
+                    AutoCrystal.renderEnt!!.rotationPitch,
+                    AutoCrystal.renderEnt!!
                 )
             }
         }

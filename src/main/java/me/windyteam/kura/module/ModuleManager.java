@@ -9,7 +9,7 @@ import me.windyteam.kura.module.modules.chat.*;
 import me.windyteam.kura.module.modules.client.*;
 import me.windyteam.kura.module.modules.combat.*;
 import me.windyteam.kura.module.modules.combat.holefillers.HoleFiller;
-import me.windyteam.kura.module.modules.crystalaura.KuraAura;
+import me.windyteam.kura.module.modules.crystalaura.AutoCrystal;
 import me.windyteam.kura.module.modules.crystalaura.LunarAura;
 import me.windyteam.kura.module.modules.misc.*;
 import me.windyteam.kura.module.modules.movement.*;
@@ -360,8 +360,7 @@ public class ModuleManager {
         registerModule(new SmartOffHand());
         //SEXY
         registerModule(new NewBedAura());
-        registerModule(new KuraAura());
-        registerModule(new LunarAura());
+        registerModule(new AutoCrystal());
         getModules().sort(Comparator.comparing(IModule::getName));
     }
     public void loadHUDs() {
