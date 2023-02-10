@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.culling.ICamera
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
@@ -99,6 +98,39 @@ object MelonTessellator : Tessellator(2097152) {
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()
         GlStateManager.popMatrix()
+    }
+
+    fun drawGradientRect(x: Int, y: Int, w: Int, h: Int, startColor: Int, endColor: Int) {
+        val f = (startColor shr 24 and 0xFF) / 255.0f
+        val f2 = (startColor shr 16 and 0xFF) / 255.0f
+        val f3 = (startColor shr 8 and 0xFF) / 255.0f
+        val f4 = (startColor and 0xFF) / 255.0f
+        val f5 = (endColor shr 24 and 0xFF) / 255.0f
+        val f6 = (endColor shr 16 and 0xFF) / 255.0f
+        val f7 = (endColor shr 8 and 0xFF) / 255.0f
+        val f8 = (endColor and 0xFF) / 255.0f
+        GlStateManager.disableTexture2D()
+        GlStateManager.enableBlend()
+        GlStateManager.disableAlpha()
+        GlStateManager.tryBlendFuncSeparate(
+            GlStateManager.SourceFactor.SRC_ALPHA,
+            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+            GlStateManager.SourceFactor.ONE,
+            GlStateManager.DestFactor.ZERO
+        )
+        GlStateManager.shadeModel(7425)
+        val tessellator = getInstance()
+        val vertexbuffer = tessellator.buffer
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR)
+        vertexbuffer.pos(x + w.toDouble(), y.toDouble(), 0.0).color(f2, f3, f4, f).endVertex()
+        vertexbuffer.pos(x.toDouble(), y.toDouble(), 0.0).color(f2, f3, f4, f).endVertex()
+        vertexbuffer.pos(x.toDouble(), y + h.toDouble(), 0.0).color(f6, f7, f8, f5).endVertex()
+        vertexbuffer.pos(x + w.toDouble(), y + h.toDouble(), 0.0).color(f6, f7, f8, f5).endVertex()
+        tessellator.draw()
+        GlStateManager.shadeModel(7424)
+        GlStateManager.disableBlend()
+        GlStateManager.enableAlpha()
+        GlStateManager.enableTexture2D()
     }
 
     fun drawPlane(x: Double, y: Double, z: Double, bb: AxisAlignedBB, width: Float, color: Int) {

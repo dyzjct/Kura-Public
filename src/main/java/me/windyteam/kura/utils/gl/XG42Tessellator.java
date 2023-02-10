@@ -53,6 +53,33 @@ public class XG42Tessellator extends Tessellator {
         GlStateManager.shadeModel(GL11.GL_FLAT);
     }
 
+    public static void drawGradientRect(final int x, final int y, final int w, final int h, final int startColor, final int endColor) {
+        final float f = (startColor >> 24 & 0xFF) / 255.0f;
+        final float f2 = (startColor >> 16 & 0xFF) / 255.0f;
+        final float f3 = (startColor >> 8 & 0xFF) / 255.0f;
+        final float f4 = (startColor & 0xFF) / 255.0f;
+        final float f5 = (endColor >> 24 & 0xFF) / 255.0f;
+        final float f6 = (endColor >> 16 & 0xFF) / 255.0f;
+        final float f7 = (endColor >> 8 & 0xFF) / 255.0f;
+        final float f8 = (endColor & 0xFF) / 255.0f;
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.disableAlpha();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.shadeModel(7425);
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder vertexbuffer = tessellator.getBuffer();
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        vertexbuffer.pos(x + (double) w, y, 0.0).color(f2, f3, f4, f).endVertex();
+        vertexbuffer.pos(x, y, 0.0).color(f2, f3, f4, f).endVertex();
+        vertexbuffer.pos(x, y + (double) h, 0.0).color(f6, f7, f8, f5).endVertex();
+        vertexbuffer.pos(x + (double) w, y + (double) h, 0.0).color(f6, f7, f8, f5).endVertex();
+        tessellator.draw();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.disableBlend();
+        GlStateManager.enableAlpha();
+        GlStateManager.enableTexture2D();
+    }
     public static void color(int color) {
         float f = (float) (color >> 24 & 255) / 255.0f;
         float f1 = (float) (color >> 16 & 255) / 255.0f;

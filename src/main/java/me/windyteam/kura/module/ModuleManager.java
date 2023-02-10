@@ -281,6 +281,7 @@ public class ModuleManager {
         registerModule(new AutoTopCev());
         registerModule(new HoleKicker());
         registerModule(new KnifeBot());
+        registerModule(new HoleKickerRewrite());
         //Player
         registerModule(new AntiShulkerBox());
         registerModule(new StrictPacketMine());

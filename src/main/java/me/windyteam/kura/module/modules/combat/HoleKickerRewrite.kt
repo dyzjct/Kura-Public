@@ -2,172 +2,227 @@ package me.windyteam.kura.module.modules.combat
 
 import kura.utils.Wrapper
 import kura.utils.isReplaceable
-import me.windyteam.kura.event.events.block.BlockBreakEvent
 import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.module.Module.Info
-import me.windyteam.kura.utils.Timer
-import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.block.BlockUtil2
-import me.windyteam.kura.utils.getTarget
+import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
-import net.minecraft.block.BlockPistonBase
+import me.windyteam.kura.utils.player.Timer
+import me.windyteam.kura.utils.player.getTarget
 import net.minecraft.block.state.IBlockState
+import net.minecraft.entity.Entity
+import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.network.Packet
+import net.minecraft.network.play.client.CPacketAnimation
+import net.minecraft.network.play.client.CPacketHeldItemChange
 import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.network.play.client.CPacketUseEntity
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import java.util.stream.Collectors
 
-@Info(name = "HoleKickerRewrite", category = Category.COMBAT)
-class HoleKickerRewrite : Module(){
-    private val range = isetting("Range",6,0,12)
-    private val delay = isetting("Delay", 0, 0, 300)
-    private val autoToggle = bsetting("AutoToggle",false)
+/**
+ * created by chunfeng666 on 2022-10-05
+ * update by dyzjct on 2023-2-8
+ */
 
-    private var target :EntityPlayer? = null
+@Module.Info(name = "HoleKickerNew", category = Category.COMBAT)
+class HoleKickerRewrite : Module() {
+    private val range = settings("Range", 5, 1, 16)
+    private val delay = settings("Delay",100,0,500)
+    private val breakCrystal = settings("BreakCrystal", false)
+    private val packetPlace = settings("PacketPlace", false)
+    private val autoToggle = settings("AutoToggle",true)
     private var pistonList = mutableListOf<BlockPos>()
-    private var redStoneList2 = mutableListOf<BlockPos>()
-    private var redStoneList3 = mutableListOf<BlockPos>()
-    private var breakPos:BlockPos? = null
-    private var rotateList = mutableListOf<Float>()
-    private var isPlace = 0
-    private var pushList = mutableListOf<BlockPos>()
+    private var breakList = mutableListOf<BlockPos>()
+    private var timer = Timer()
 
-    private val timer = Timer()
+    var target: EntityPlayer? = null
+    private var isSneaking = false
+    override fun onEnable() {
+        if (fullNullCheck()) return
+        if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1 || InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) == -1 && InventoryUtil.findHotbarBlock(Blocks.PISTON) == -1) {
+            if (autoToggle.value){
+                disable()
+            }
+            return
+        }
+        EntityUtil.getRoundedBlockPos(mc.player as Entity)
+        loadPistonList()
+        loadBreakList()
+    }
 
     @SubscribeEvent
-    fun onTick(event: MotionUpdateEvent.FastTick){
+    fun onTick(event: MotionUpdateEvent) {
         if (fullNullCheck()) return
-        if (mc.player == null || mc.world == null) return
+        if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1 || InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) == -1 && InventoryUtil.findHotbarBlock(Blocks.PISTON) == -1) {
+            if (autoToggle.value){
+                disable()
+            }
+            return
+        }
+        EntityUtil.getRoundedBlockPos(mc.player as Entity)
         target = getTarget(range.value)
-        if (target == null) return
-        val playerPos = BlockPos(target!!.posX,target!!.posY,target!!.posZ)
-        if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1) {
-            if (autoToggle.value) disable()
+        if (target == null) {
+            if (autoToggle.value){
+                disable()
+            }
             return
         }
-        if (InventoryUtil.findHotbarBlock(Blocks.PISTON) == -1) {
-            if (autoToggle.value) disable()
-            return
+        if (breakCrystal.value) {
+            breakCrystal()
         }
-        if (!mc.player.onGround) return
-        if (getBlock(playerPos.add(0,2,0)).block != Blocks.AIR) return
-        loadList()
-        for (i in 1..4){
-            if (!this.timer.passedMs(this.delay.value.toLong())) continue
-            if (pistonList[i] == breakPos || getBlock(pistonList[i]).block != Blocks.AIR && getBlock(pistonList[i]).block != Blocks.PISTON) continue
-            if (getBlock(redStoneList2[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList2[i])){
-                blockRedStone(redStoneList2[i])
-                if (mc.world.isPlaceable(pistonList[i])) doPistonPlace(pistonList[i],rotateList[i])
-            } else if (getBlock(redStoneList3[i]).block == Blocks.AIR && mc.world.isPlaceable(redStoneList3[i])){
-                blockRedStone(redStoneList3[i])
-                if (mc.world.isPlaceable(pistonList[i])) doPistonPlace(pistonList[i],rotateList[i])
-            }
-            if (getBlock(pushList[i]).block != Blocks.AIR){
-                canBreakRedStone(redStoneList2[i])
-                canBreakRedStone(redStoneList3[i])
-            }
-            break
-        }
-        clearList()
-        if (autoToggle.value && isPlace==4) toggle()
+        doPistonTrap()
     }
 
-    private fun canBreakRedStone(pos: BlockPos){
-        if (getBlock(pos).block == Blocks.REDSTONE_BLOCK) mc.playerController.onPlayerDamageBlock(pos, BlockUtil2.getRayTraceFacing(pos))
-    }
-
-    private fun doPistonPlace(pos: BlockPos,rotate:Float){
-        if (mc.world.isPlaceable(pos)){
-            mc.player.connection.sendPacket(CPacketPlayer.Rotation(rotate, 0f, true) as Packet<*>)
-            blockPiston(pos)
-        }
-    }
-
-    private fun clearList(){
+    override fun onDisable() {
+        isSneaking = EntityUtil.stopSneaking(isSneaking)
         pistonList.clear()
-        rotateList.clear()
-        redStoneList2.clear()
-        redStoneList3.clear()
-        pushList.clear()
     }
-    private fun loadList(){
+
+    private fun doPistonTrap() {
+        if (fullNullCheck()) {
+            return
+        }
         target = getTarget(range.value)
-        if (target == null) return
-        val playerPos = BlockPos(target!!.posX,target!!.posY,target!!.posZ)
-        pistonList.add(playerPos.add(1,1,0))
-        pistonList.add(playerPos.add(-1,1,0))
-        pistonList.add(playerPos.add(0,1,1))
-        pistonList.add(playerPos.add(0,1,-1))
-        redStoneList2.add(playerPos.add(1,0,0))
-        redStoneList2.add(playerPos.add(-1,0,0))
-        redStoneList2.add(playerPos.add(0,0,1))
-        redStoneList2.add(playerPos.add(0,0,-1))
-        redStoneList3.add(playerPos.add(1,1,1))
-        redStoneList3.add(playerPos.add(-1,1,1))
-        redStoneList3.add(playerPos.add(1,1,1))
-        redStoneList3.add(playerPos.add(1,1,-1))
-        pushList.add(playerPos.add(-1,1,0))
-        pushList.add(playerPos.add(1,1,0))
-        pushList.add(playerPos.add(0,1,-1))
-        pushList.add(playerPos.add(0,1,1))
-        rotateList.add(270.0f)
-        rotateList.add(90.0f)
-        rotateList.add(0.0f)
-        rotateList.add(180.0f)
+        if (target == null) {
+            if (autoToggle.value){
+                disable()
+            }
+            return
+        }
+        val playerPos = BlockPos(target!!.posX, target!!.posY, target!!.posZ)
+        val b = mc.player.inventory.currentItem
+        val loop = if (packetPlace.value){
+            2
+        } else {
+            1
+        }
+        for (a in 1..loop){
+            var doPiston = false
+            var doRedStone = false
+            var doRedStone1 = false
+            for (i in pistonList){
+                if (mc.world.isPlaceable(BlockPos(playerPos.add(i.x,0,i.z))) && timer.passedMs(delay.value.toLong())){
+                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
+                    placeBlock(BlockPos(playerPos.add(i.x,0,i.z)))
+                    doRedStone = true
+                }
+                switchToSlot(b)
+                if (InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) != -1) {
+                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON))
+                } else if (InventoryUtil.findHotbarBlock(Blocks.PISTON) != -1){
+                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.PISTON))
+                }
+                when (i){
+                    pistonList[0] -> {
+                        mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f,0f,true))
+                    }
+                    pistonList[1] -> {
+                        mc.player.connection.sendPacket(CPacketPlayer.Rotation(90.0f,0f,true))
+                    }
+                    pistonList[2] -> {
+                        mc.player.connection.sendPacket(CPacketPlayer.Rotation(0.0f,0f,true))
+                    }
+                    pistonList[3] -> {
+                        mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f,0f,true))
+                    }
+                }
+                if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(playerPos.add(i)) && mc.player.inventory.currentItem == InventoryUtil.findHotbarBlock(Blocks.PISTON) || mc.player.inventory.currentItem == InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)){
+                    placeBlock(playerPos.add(i))
+                    doPiston = true
+                }
+                if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(playerPos.add(i.x,2,i.z)) && !doRedStone){
+                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
+                    placeBlock(playerPos.add(i.x,2,i.z))
+                    switchToSlot(b)
+                    doRedStone1 = true
+                }
+                if (doPiston && doRedStone || doRedStone1){
+                    breakRedStone()
+                    if (autoToggle.value){
+                        disable()
+                    }
+                    break
+                }
+            }
+        }
+        mc.player.inventory.currentItem = b
+        mc.playerController.updateController()
     }
 
-    private fun blockPiston(pos: BlockPos) {
-        val old: Int = mc.player.inventory.currentItem
-        if (mc.world.getBlockState(pos).block === Blocks.AIR) {
-            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(BlockPistonBase::class.java)
-            mc.playerController.updateController()
-            BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, false, true, false)
-            mc.player.inventory.currentItem = old
-            mc.playerController.updateController()
-            isPlace++
+    private fun breakRedStone() {
+        if (fullNullCheck()) {
+            return
+        }
+        target = getTarget(range.value)
+        if (target == null) {
+            return
+        }
+        val breakPos = BlockPos(target!!.posX, target!!.posY, target!!.posZ)
+        for (i in breakList){
+            if (getBlock(breakPos.add(i))!!.block == Blocks.REDSTONE_BLOCK) {
+                mc.playerController.onPlayerDamageBlock(
+                    breakPos.add(i), BlockUtil2.getRayTraceFacing(breakPos.add(i))
+                )
+            }
         }
     }
 
-    private fun blockRedStone(pos: BlockPos) {
-        val old: Int = mc.player.inventory.currentItem
-        if (mc.world.getBlockState(pos).block === Blocks.AIR) {
-            mc.player.inventory.currentItem = InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK)
-            mc.playerController.updateController()
-            BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, false, true, false)
-            mc.player.inventory.currentItem = old
-            mc.playerController.updateController()
-            isPlace++
-        }
+    private fun loadBreakList(){
+        if (fullNullCheck()) return
+        breakList.add(BlockPos(1,2,0))
+        breakList.add(BlockPos(-1,2,0))
+        breakList.add(BlockPos(0,2,1))
+        breakList.add(BlockPos(0,2,-1))
+        breakList.add(BlockPos(1,0,0))
+        breakList.add(BlockPos(-1,0,0))
+        breakList.add(BlockPos(0,0,1))
+        breakList.add(BlockPos(0,0,-1))
+    }
+
+    private fun loadPistonList(){
+        pistonList.add(BlockPos(1,1,0))
+        pistonList.add(BlockPos(-1,1,0))
+        pistonList.add(BlockPos(0,1,1))
+        pistonList.add(BlockPos(0,1,-1))
+    }
+
+    private fun placeBlock(pos: BlockPos) {
+        BlockUtil2.placeBlock(pos,EnumHand.MAIN_HAND,false,packetPlace.value,false)
+    }
+
+    private fun getBlock(block: BlockPos): IBlockState? {
+        return mc.world.getBlockState(block)
+    }
+
+    private fun switchToSlot(slot: Int) {
+        mc.player.connection.sendPacket(CPacketHeldItemChange(slot) as Packet<*>)
+        mc.player.inventory.currentItem = slot
+        mc.playerController.updateController()
     }
 
     fun World.isPlaceable(pos: BlockPos, ignoreSelfCollide: Boolean = false) =
         this.getBlockState(pos).isReplaceable && this.checkNoEntityCollision(
-            AxisAlignedBB(pos),
+        AxisAlignedBB(pos),
         if (ignoreSelfCollide) Wrapper.player else null
     )
-
-    private fun getBlock(block: BlockPos): IBlockState {
-        return mc.world.getBlockState(block)
-    }
-
-    override fun onDisable() {
-        isPlace = 0
-    }
-
-    @SubscribeEvent
-    fun onBreak(event: BlockBreakEvent) {
-        if (fullNullCheck()) {
-            return
-        }
-        if (event.position != null) {
-            breakPos = event.position
+    private fun breakCrystal() {
+        for (crystal in mc.world.loadedEntityList.stream()
+            .filter { e: Entity -> e is EntityEnderCrystal && !e.isDead }
+            .sorted(Comparator.comparing { e: Entity -> java.lang.Float.valueOf(mc.player.getDistance(e)) })
+            .collect(
+                Collectors.toList()
+            )) {
+            if (crystal !is EntityEnderCrystal || mc.player.getDistance(crystal) > 4.0f) continue
+            mc.player.connection.sendPacket(CPacketUseEntity(crystal) as Packet<*>)
+            mc.player.connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND) as Packet<*>)
         }
     }
 }

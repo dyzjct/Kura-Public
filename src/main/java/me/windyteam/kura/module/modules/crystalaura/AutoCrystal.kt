@@ -425,7 +425,7 @@ class AutoCrystal : Module() {
                 }
                 if (rotate.value) {
                     rotations = BlockInteractionHelper.getLegitRotations(
-                        Vec3d(lastCrystal!!.position.down()).add(
+                        Vec3d(render!!.down()).add(
                             0.5, 0.5, 0.5
                         )
                     )

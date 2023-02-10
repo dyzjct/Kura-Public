@@ -5,18 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b082cd60-3676-48a7-8ea0-3d2e0cdd16b6" name="变更" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/chat/ChatSuffix.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/Fastuse.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/ModuleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/ModuleManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/hud/huds/CrystalTargetHUD.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/hud/huds/CrystalTargetHUD.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/chat/ChatSuffix.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoTotem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoTotem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/Fastuse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/KnifeBot.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/KnifeBot.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/KuraAura.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/AutoCrystal.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/KuraAura2.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/render/RenderUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/render/RenderUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/HoleKickerRewrite.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/AutoCrystal.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/AutoCrystal.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/gl/MelonTessellator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/gl/MelonTessellator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/gl/XG42Tessellator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/gl/XG42Tessellator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,30 +71,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "E:/code/Melon-4.3 deobf",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/KuraMaster/Kura/src/main/java/me/windyteam/kura/module/modules/render&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\render" />
       <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\combat" />
       <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\utils\render" />
       <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\utils" />
       <recent name="D:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\misc" />
-      <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\render" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
       <recent name="me.windyteam.kura.module.modules.render" />
+    </key>
+    <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
+      <recent name="me.windyteam.kura.module.modules.combat" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="me.windyteam.kura.manager" />
