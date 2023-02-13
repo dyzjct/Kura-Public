@@ -111,9 +111,9 @@ object ForgeEventProcessor : Event() {
                 CrystalDamageCalculator.reductionMap[entity] = CrystalDamageCalculator.Companion.DamageReduction(entity)
             }
             if (PeekCommand.sb != null) {
-                val scaledresolution = ScaledResolution(Minecraft.getMinecraft())
-                val i = scaledresolution.scaledWidth
-                val j = scaledresolution.scaledHeight
+                val scaledResolution = ScaledResolution(Minecraft.getMinecraft())
+                val i = scaledResolution.scaledWidth
+                val j = scaledResolution.scaledHeight
                 val gui = GuiShulkerBox(Wrapper.mc.player.inventory, PeekCommand.sb)
                 gui.setWorldAndResolution(Wrapper.getMinecraft(), i, j)
                 Minecraft.getMinecraft().displayGuiScreen(gui)
