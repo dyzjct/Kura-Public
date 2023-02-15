@@ -31,9 +31,9 @@ import java.util.stream.Collectors
 import kotlin.math.abs
 
 @Module.Info(name = "Burrow", category = Category.COMBAT, description = "Selffill urself in ur mom's pussy")
-class Burrow : Module() {
+object Burrow : Module() {
     private val rotate: Setting<Boolean> = bsetting("Rotate", true)
-    private val breakcrystal: Setting<Boolean> = bsetting("BreakCrystal", true)
+    private val breakcCystal: Setting<Boolean> = bsetting("BreakCrystal", true)
     private val toggleRStep: Setting<Boolean> = bsetting("ToggleRStep", true)
     private val safe: Setting<Boolean> = bsetting("ToggleWhileInObi", true)
     private val safeCheck: Setting<Boolean> = bsetting("LagCheck", true)
@@ -54,7 +54,7 @@ class Burrow : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (breakcrystal.value){
+        if (breakcCystal.value){
             this.breakcrystal()
         }
         if (toggleRStep.value) {
@@ -208,16 +208,28 @@ class Burrow : Module() {
         }
         when (clientMode.value) {
             Client.Melon -> {
-                //InventoryUtil.switchToHotbarSlot(mode.value.equals(Mode.Obsidian) ? InventoryUtil.findHotbarBlock(BlockObsidian.class) : InventoryUtil.findHotbarBlock(BlockEnderChest.class), false);
                 if (mc.connection != null && fakeJump.value) {
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.41999998688698,
-                            mc.player.posZ,
-                            false
+                    if (rotate.value){
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.41999998688698,
+                                mc.player.posZ,
+                                mc.player.rotationYaw
+                                , 90f,
+                                false
+                            )
                         )
-                    )
+                    } else {
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.Position(
+                                mc.player.posX,
+                                mc.player.posY + 0.41999998688698,
+                                mc.player.posZ,
+                                false
+                            )
+                        )
+                    }
                     mc.player.connection.sendPacket(
                         CPacketPlayer.Position(
                             mc.player.posX,
@@ -251,10 +263,7 @@ class Burrow : Module() {
                         )
                     )
                 }
-//                if (rotate.value) {
-//                    event.setRotation(mc.player.rotationYaw, 90f);
-//                    it.setRotation(mc.player.rotationYaw, 90f)
-//                }
+
                 BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, rotate.value, true)
                 InventoryUtil.switchToHotbarSlot(oldSlot,false)
                 var head = 0
@@ -328,14 +337,27 @@ class Burrow : Module() {
 
             Client.Negative -> {
                 if (mc.connection != null && fakeJump.value) {
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.41999998688698,
-                            mc.player.posZ,
-                            false
+                    if (rotate.value){
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.41999998688698,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
                         )
-                    )
+                    } else {
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.Position(
+                                mc.player.posX,
+                                mc.player.posY + 0.41999998688698,
+                                mc.player.posZ,
+                                false
+                            )
+                        )
+                    }
                     mc.player.connection.sendPacket(
                         CPacketPlayer.Position(
                             mc.player.posX,
@@ -517,9 +539,5 @@ class Burrow : Module() {
 
     enum class Client {
         Melon, Other, Negative
-    }
-
-    companion object {
-        var INSTANCE = Burrow()
     }
 }

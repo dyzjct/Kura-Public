@@ -242,7 +242,7 @@ public class ModuleManager {
         registerModule(new PortalESP());
         registerModule(new ShulkerPreview());
         registerModule(new Notification());
-        registerModule(new BreakESP());
+        registerModule(BreakESP.INSTANCE);
         registerModule(new ESP());
         registerModule(new BurrowESP());
         registerModule(new CityESP());
@@ -259,7 +259,7 @@ public class ModuleManager {
         registerModule(new AutoTotem());
         registerModule(new AutoTrap());
         registerModule(new AutoCity());
-        registerModule(new Burrow());
+        registerModule(Burrow.INSTANCE);
         registerModule(new Burrow2());
         registerModule(new Criticals());
         registerModule(new CevBreaker());
@@ -281,10 +281,9 @@ public class ModuleManager {
         registerModule(new AutoTopCev());
         registerModule(new HoleKicker());
         registerModule(new KnifeBot());
-        registerModule(new HoleKickerRewrite());
+        registerModule(HoleKickerRewrite.INSTANCE);
         //Player
         registerModule(new AntiShulkerBox());
-        registerModule(new StrictPacketMine());
         registerModule(new LiquidInteract());
         registerModule(new Reach());
         registerModule(new Freecam());
@@ -361,7 +360,7 @@ public class ModuleManager {
         registerModule(new SmartOffHand());
         //SEXY
         registerModule(new NewBedAura());
-        registerModule(new AutoCrystal());
+        registerModule(AutoCrystal.INSTANCE);
         getModules().sort(Comparator.comparing(IModule::getName));
     }
     public void loadHUDs() {

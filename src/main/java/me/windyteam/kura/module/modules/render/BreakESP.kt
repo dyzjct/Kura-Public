@@ -22,7 +22,7 @@ import java.text.DecimalFormat
 import kotlin.math.abs
 
 @Module.Info(name = "BreakESP", category = Category.RENDER, description = "BreakEsp")
-class BreakESP : Module() {
+object BreakESP : Module() {
     private val mineMap: MutableMap<Int, BreakESPExtend>? = Maps.newHashMap()
     private var renderDoublePos = bsetting("RenderDoublePos", false)
     private var doublePosColor = csetting("DoublePosColor", Color(239, 13, 136)).b(renderDoublePos)
@@ -44,7 +44,6 @@ class BreakESP : Module() {
     private var df = DecimalFormat("0.00")
     private var lastPos: BlockPos? = null
     private var currentState = ""
-    companion object { @JvmStatic var INSTANCE:BreakESP? = BreakESP() }
 
 
     @SubscribeEvent

@@ -8,6 +8,7 @@ import me.windyteam.kura.module.Module
 import me.windyteam.kura.utils.block.BlockUtil2
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
+import me.windyteam.kura.utils.math.RotationUtil
 import me.windyteam.kura.utils.player.Timer
 import me.windyteam.kura.utils.player.getTarget
 import net.minecraft.block.state.IBlockState
@@ -23,22 +24,26 @@ import net.minecraft.network.play.client.CPacketUseEntity
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 import net.minecraft.world.World
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.stream.Collectors
 
 /**
  * created by chunfeng666 on 2022-10-05
- * update by dyzjct on 2023-2-8
+ * update by dyzjct on 2023-2-15
  */
 
 @Module.Info(name = "HoleKickerNew", category = Category.COMBAT)
-class HoleKickerRewrite : Module() {
+object HoleKickerRewrite : Module() {
     private val range = settings("Range", 5, 1, 16)
     private val delay = settings("Delay",100,0,500)
     private val breakCrystal = settings("BreakCrystal", false)
     private val packetPlace = settings("PacketPlace", false)
     private val autoToggle = settings("AutoToggle",true)
+    private val autoPush = settings("Push",false)
+    private val rotate = settings("Rotate",false)
     private var pistonList = mutableListOf<BlockPos>()
     private var breakList = mutableListOf<BlockPos>()
     private var timer = Timer()
@@ -61,24 +66,26 @@ class HoleKickerRewrite : Module() {
     @SubscribeEvent
     fun onTick(event: MotionUpdateEvent) {
         if (fullNullCheck()) return
-        if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1 || InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) == -1 && InventoryUtil.findHotbarBlock(Blocks.PISTON) == -1) {
-            if (autoToggle.value){
-                disable()
+        runCatching {
+            if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1 || InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) == -1 && InventoryUtil.findHotbarBlock(Blocks.PISTON) == -1) {
+                if (autoToggle.value){
+                    disable()
+                }
+                return
             }
-            return
-        }
-        EntityUtil.getRoundedBlockPos(mc.player as Entity)
-        target = getTarget(range.value)
-        if (target == null) {
-            if (autoToggle.value){
-                disable()
+            EntityUtil.getRoundedBlockPos(mc.player as Entity)
+            target = getTarget(range.value)
+            if (target == null) {
+                if (autoToggle.value){
+                    disable()
+                }
+                return
             }
-            return
+            if (breakCrystal.value) {
+                breakCrystal()
+            }
+            doPistonTrap()
         }
-        if (breakCrystal.value) {
-            breakCrystal()
-        }
-        doPistonTrap()
     }
 
     override fun onDisable() {
@@ -99,27 +106,38 @@ class HoleKickerRewrite : Module() {
         }
         val playerPos = BlockPos(target!!.posX, target!!.posY, target!!.posZ)
         val b = mc.player.inventory.currentItem
-        val loop = if (packetPlace.value){
-            2
-        } else {
-            1
-        }
-        for (a in 1..loop){
-            var doPiston = false
-            var doRedStone = false
-            var doRedStone1 = false
-            for (i in pistonList){
-                if (mc.world.isPlaceable(BlockPos(playerPos.add(i.x,0,i.z))) && timer.passedMs(delay.value.toLong())){
-                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
-                    placeBlock(BlockPos(playerPos.add(i.x,0,i.z)))
-                    doRedStone = true
-                }
-                switchToSlot(b)
-                if (InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) != -1) {
-                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON))
-                } else if (InventoryUtil.findHotbarBlock(Blocks.PISTON) != -1){
-                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.PISTON))
-                }
+
+        var doPiston = false
+        var doRedStone = false
+        var doRedStone1 = false
+        for (i in pistonList){
+            val side = BlockUtil2.getFirstFacing(playerPos.add(i.x,0,i.z))
+            val neighbour: BlockPos = playerPos.add(i).offset(side)
+            val opposite = side.getOpposite()
+            val hitVec = Vec3d(neighbour as Vec3i).add(0.5, 0.5, 0.5).add(Vec3d(opposite.getDirectionVec()).scale(0.5))
+            if (rotate.value) {
+                RotationUtil.faceVector(hitVec, true)
+            }
+            if (mc.world.isPlaceable(BlockPos(playerPos.add(i.x,0,i.z))) && timer.passedMs(delay.value.toLong())){
+                switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
+                placeRedStone(BlockPos(playerPos.add(i.x,0,i.z)))
+                doRedStone = true
+            }
+            val pistonSide = BlockUtil2.getFirstFacing(playerPos.add(i))
+            val pistonNeighbour: BlockPos = playerPos.add(i).offset(pistonSide)
+            val pistonOpposite = side.getOpposite()
+            val pistonHitVec = Vec3d(pistonNeighbour as Vec3i).add(0.5, 0.5, 0.5).add(Vec3d(pistonOpposite.getDirectionVec()).scale(0.5))
+            if (rotate.value) {
+                RotationUtil.faceVector(pistonHitVec, true)
+            }
+            switchToSlot(b)
+            if (InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) != -1) {
+                switchToSlot(InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON))
+            } else if (InventoryUtil.findHotbarBlock(Blocks.PISTON) != -1){
+                switchToSlot(InventoryUtil.findHotbarBlock(Blocks.PISTON))
+            }
+            if (!mc.world.isPlaceable(BlockPos(playerPos.add(i.x,1,i.z))) && getBlock(BlockPos(playerPos.add(i.x,1,i.z)))!!.block != Blocks.STICKY_PISTON || !mc.world.isPlaceable(BlockPos(playerPos.add(i.x,1,i.z))) && getBlock(BlockPos(playerPos.add(i.x,1,i.z)))!!.block != Blocks.PISTON) continue
+            if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(playerPos.add(i)) && mc.player.inventory.currentItem == InventoryUtil.findHotbarBlock(Blocks.PISTON) || mc.player.inventory.currentItem == InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)){
                 when (i){
                     pistonList[0] -> {
                         mc.player.connection.sendPacket(CPacketPlayer.Rotation(270.0f,0f,true))
@@ -134,23 +152,24 @@ class HoleKickerRewrite : Module() {
                         mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f,0f,true))
                     }
                 }
-                if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(playerPos.add(i)) && mc.player.inventory.currentItem == InventoryUtil.findHotbarBlock(Blocks.PISTON) || mc.player.inventory.currentItem == InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON)){
-                    placeBlock(playerPos.add(i))
-                    doPiston = true
-                }
-                if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(playerPos.add(i.x,2,i.z)) && !doRedStone){
-                    switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
-                    placeBlock(playerPos.add(i.x,2,i.z))
-                    switchToSlot(b)
-                    doRedStone1 = true
-                }
-                if (doPiston && doRedStone || doRedStone1){
+                placePiston(playerPos.add(i))
+                doPiston = true
+            }
+            if (!doRedStone) if (!mc.world.isPlaceable(BlockPos(playerPos.add(i.x,2,i.z))) && getBlock(BlockPos(playerPos.add(i.x,2,i.z)))!!.block != Blocks.REDSTONE_BLOCK) continue
+            if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(playerPos.add(i.x,2,i.z)) && !doRedStone){
+                switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
+                placeRedStone(playerPos.add(i.x,2,i.z))
+                switchToSlot(b)
+                doRedStone1 = true
+            }
+            if (doPiston && doRedStone || doRedStone1){
+                if (autoPush.value){
                     breakRedStone()
-                    if (autoToggle.value){
-                        disable()
-                    }
-                    break
                 }
+                if (autoToggle.value){
+                    disable()
+                }
+                break
             }
         }
         mc.player.inventory.currentItem = b
@@ -194,8 +213,12 @@ class HoleKickerRewrite : Module() {
         pistonList.add(BlockPos(0,1,-1))
     }
 
-    private fun placeBlock(pos: BlockPos) {
-        BlockUtil2.placeBlock(pos,EnumHand.MAIN_HAND,false,packetPlace.value,false)
+    private fun placeRedStone(pos: BlockPos) {
+        BlockUtil2.placeBlock(pos,EnumHand.MAIN_HAND, false,packetPlace.value,false)
+    }
+
+    private fun placePiston(pos: BlockPos) {
+        BlockUtil2.placeBlock(pos,EnumHand.MAIN_HAND, false,packetPlace.value,false)
     }
 
     private fun getBlock(block: BlockPos): IBlockState? {

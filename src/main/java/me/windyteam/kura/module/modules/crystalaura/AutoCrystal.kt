@@ -91,7 +91,7 @@ import kotlin.math.floor
  */
 
 @Module.Info(name = "AutoCrystal", category = Category.XDDD, description = "Test Strict :)")
-class AutoCrystal : Module() {
+object AutoCrystal : Module() {
     var p = msetting("Page", Page.GENERAL)
 
     //Page GENERAL
@@ -103,6 +103,7 @@ class AutoCrystal : Module() {
     private var yawStep = bsetting("YawStep", false).b(rotate).m(p, Page.GENERAL)
     private var yawAngle = fsetting("YawAngle", 0.1f, 0.1f, 0.5f).b(rotate).b(yawStep).m(p, Page.GENERAL)
     private var yawTicks = isetting("YawTicks", 1, 1, 5).b(rotate).b(yawStep).m(p, Page.GENERAL)
+    private var mustLookCrystal = settings("MustLookCrystal",false).b(rotate)
 
     //Page Place
     private var packetPlaceMode = msetting("PacketMode", PacketPlaceMode.Off).m(p, Page.PLACE)
@@ -381,7 +382,7 @@ class AutoCrystal : Module() {
     }
 
     private fun place(event: MotionUpdateEvent.Tick?, pos: BlockPos?) {
-        try {
+        runCatching {
             var crystalSlot =
                 if (mc.player.heldItemMainhand.getItem() === Items.END_CRYSTAL) mc.player.inventory.currentItem else -1
             if (crystalSlot == -1) {
@@ -507,7 +508,7 @@ class AutoCrystal : Module() {
                         }
                         blockRenderSmooth.updatePos(render!!)
                         if (predictHitFactor.value != 0 && renderEnt != null) {
-                            try {
+                            runCatching {
                                 if (renderEnt!!.isDead || !canPredictHit || !canHitCrystal(
                                         lastCrystal!!.positionVector
                                     )
@@ -526,7 +527,6 @@ class AutoCrystal : Module() {
                                         }
                                     }
                                 }
-                            } catch (ignored: Exception) {
                             }
                         }
                         placeTimerUtils.reset()
@@ -536,7 +536,6 @@ class AutoCrystal : Module() {
                     spoofHotbar(newSlot, true)
                 }
             }
-        } catch (ignored: Exception) {
         }
     }
 
@@ -562,7 +561,7 @@ class AutoCrystal : Module() {
                         AutoMend::class.java
                     ).isDisabled
 
-                for (blockPos in ArrayList(rendertions(placeRange.value.toDouble()))) {
+                for (blockPos in ArrayList(renderTions(placeRange.value.toDouble()))) {
                     if (entity2.getDistanceSq(blockPos) >= enemyRange.value * enemyRange.value) continue
                     if (mc.player.getDistance(
                             blockPos.x.toDouble(), blockPos.y.toDouble(), blockPos.z.toDouble()
@@ -582,7 +581,7 @@ class AutoCrystal : Module() {
                         popList.forEach {
                             if (it.key.target != null && it.key.target == entity2) {
                                 if (System.currentTimeMillis() - it.value >= chainPopTime.value) {
-                                    for (pos in rendertions(placeRange.value.toDouble())) {
+                                    for (pos in renderTions(placeRange.value.toDouble())) {
                                         if (d / chainPopFactor.value > it.key.dmg) continue
                                         if (pos == it.key.targetPos) continue
                                         if (damage > chainPopDamage.value) continue
@@ -761,10 +760,12 @@ class AutoCrystal : Module() {
     private fun explodeCrystal(event: MotionUpdateEvent.Tick?) {
         val crystal = getExplodeCrystal(syncHurtTime.value, renderEnt!!)
         var canBreak = true
-        if (rotate.value){
-            canBreak = if (strictDirection.value && RotationUtil.getRotationsBlock(renderEnt!!.position.down(),getMiningSide(renderEnt!!.position.down()!!) ?: EnumFacing.UP,false)[0] == mc.player.lastReportedYaw && RotationUtil.getRotationsBlock(renderEnt!!.position.down(),getMiningSide(
-                    renderEnt!!.position.down()
-                ) ?: EnumFacing.UP,false)[1] == mc.player.lastReportedPitch){
+        if (rotate.value && mustLookCrystal.value ){
+            canBreak = if (strictDirection.value && RotationUtil.getRotationsBlock(render!!,getMiningSide(
+                    render!!
+                ) ?: EnumFacing.UP,false)[0] <= 1 +mc.player.lastReportedYaw && RotationUtil.getRotationsBlock(render!!,getMiningSide(
+                    render!!
+                ) ?: EnumFacing.UP,false)[1] <= 1 + mc.player.lastReportedPitch){
                 true
             } else !strictDirection.value && RotationUtil.getRotationsBlock(renderEnt!!.position.down(),EnumFacing.UP,false)[0] == mc.player.lastReportedYaw && RotationUtil.getRotationsBlock(renderEnt!!.position.down(), EnumFacing.UP,false)[1] == mc.player.lastReportedPitch
         }
@@ -828,6 +829,7 @@ class AutoCrystal : Module() {
                 }
             }
         }
+
         if (syncHurtTime) {
             if (mc.player.hurtResistantTime > mc.player.maxHurtResistantTime / 2.0 && max != null) {
                 return max
@@ -885,14 +887,13 @@ class AutoCrystal : Module() {
     }
 
     private fun packetExplode(i: Int) {
-        try {
+        runCatching {
             if (mc.player.getDistance(lastCrystal!!) <= breakRange.value && canHitCrystal(lastCrystal!!.positionVector)) {
                 val wdnmd = CPacketUseEntity(lastCrystal!!)
                 wdnmd.entityId = i
                 wdnmd.action = CPacketUseEntity.Action.ATTACK
                 mc.player.connection.sendPacket(wdnmd)
             }
-        } catch (ignored: Exception) {
         }
     }
 
@@ -941,7 +942,7 @@ class AutoCrystal : Module() {
         return false
     }
 
-    private fun rendertions(range: Double): List<BlockPos> {
+    private fun renderTions(range: Double): List<BlockPos> {
         val positions = NonNullList.create<BlockPos>()
         positions.addAll(
             CrystalUtil.getSphere(EntityUtil.getPlayerPos(), range, range, false, true, 0).stream()
@@ -1335,11 +1336,8 @@ class AutoCrystal : Module() {
         PlaceBreak, BreakPlace
     }
 
-    companion object {
-        var renderBlockDmg = ConcurrentHashMap<BlockPos?, Double>()
-        var INSTANCE = AutoCrystal()
-        var renderEnt: EntityLivingBase? = null
-    }
+    var renderEnt: EntityLivingBase? = null
+    private var renderBlockDmg = ConcurrentHashMap<BlockPos?, Double>()
 
     val BlockPos.state: IBlockState get() = mc.world.getBlockState(this)
     private val BlockPos.collisionBox: AxisAlignedBB
