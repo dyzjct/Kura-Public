@@ -16,7 +16,7 @@ import net.minecraft.item.*
 import org.lwjgl.input.Mouse
 
 @Module.Info(name = "SmartOffHand", category = Category.XDDD, description = "StupidOffHand")
-class SmartOffHand : Module() {
+object SmartOffHand : Module() {
     private var totems = 0
     private var count = 0
     private var mode = msetting("Mode", Mode.Crystal)
@@ -32,12 +32,11 @@ class SmartOffHand : Module() {
     private var maxSelfDmg = dsetting("MaxSelfDmg", 26.0, 0.0, 36.0).b(crystalCalculate)
     override fun onUpdate() {
         val shouldSwitch: Boolean
-        val sOffhandItem: Item
         if (fullNullCheck()) {
             return
         }
-        if (!AutoTotem.INSTANCE.soft.value) {
-            AutoTotem.INSTANCE.soft.value = true
+        if (!AutoTotem.soft.value) {
+            AutoTotem.soft.value = true
         }
         var crystals = mc.player.inventory.mainInventory.stream()
             .filter { itemStack: ItemStack -> itemStack.getItem() === Items.END_CRYSTAL }
@@ -65,7 +64,7 @@ class SmartOffHand : Module() {
             if (item != null) (if (item == Items.END_CRYSTAL) crystals else if (item == Items.TOTEM_OF_UNDYING) totems else gapple) else 0
         val handItem = mc.player.heldItemMainhand.getItem()
         val offhandItem = if (mode.value as Mode? == Mode.Crystal as Any) Items.END_CRYSTAL else Items.GOLDEN_APPLE
-        sOffhandItem = if (mode.value as Mode? == Mode.Crystal as Any) Items.GOLDEN_APPLE else Items.END_CRYSTAL
+        val sOffhandItem: Item = if (mode.value as Mode? == Mode.Crystal as Any) Items.GOLDEN_APPLE else Items.END_CRYSTAL
         val item2 = sOffhandItem
         if (switchMode.value as SMode? == SMode.Sword as Any) {
             shouldSwitch = mc.player.heldItemMainhand.getItem() is ItemSword && Mouse.isButtonDown(
@@ -103,7 +102,7 @@ class SmartOffHand : Module() {
         } else false
     }
 
-    fun calcHealth(): Boolean {
+    private fun calcHealth(): Boolean {
         var maxDmg = 0.5
         for (entity in ArrayList(mc.world.loadedEntityList)) {
             if (entity !is EntityEnderCrystal) {
@@ -121,13 +120,13 @@ class SmartOffHand : Module() {
         return maxDmg - 0.5 > mc.player.health + mc.player.getAbsorptionAmount() || maxDmg > maxSelfDmg.value
     }
 
-    fun checkHealth(): Boolean {
+    private fun checkHealth(): Boolean {
         val lowHealth = (mc.player.health + mc.player.getAbsorptionAmount()).toDouble() <= sbHealth.value as Double
         val notInHoleAndLowHealth = lowHealth && !HoleUtil.isPlayerInHole()
         return if (holeCheck.value as Boolean != false) notInHoleAndLowHealth else lowHealth
     }
 
-    fun switch_Totem() {
+    private fun switch_Totem() {
         if (totems != 0 && mc.player.heldItemOffhand.getItem() != Items.TOTEM_OF_UNDYING) {
             val slot =
                 if (getItemSlot(Items.TOTEM_OF_UNDYING) < 9) getItemSlot(Items.TOTEM_OF_UNDYING) + 36 else getItemSlot(
@@ -137,7 +136,7 @@ class SmartOffHand : Module() {
         }
     }
 
-    fun switchTo(slot: Int) {
+    private fun switchTo(slot: Int) {
         try {
             if (timerUtils.passed(delay.value)) {
                 mc.playerController.windowClick(
@@ -168,7 +167,7 @@ class SmartOffHand : Module() {
         }
     }
 
-    fun getItemSlot(input: Item): Int {
+    private fun getItemSlot(input: Item): Int {
         var itemSlot = -1
         for (i in 45 downTo 1) {
             if (mc.player.inventory.getStackInSlot(i).getItem() !== input) continue
@@ -201,7 +200,6 @@ class SmartOffHand : Module() {
         Crystal, Gap
     }
 
-    companion object {
-        var timerUtils = TimerUtils()
-    }
+
+    private var timerUtils = TimerUtils()
 }

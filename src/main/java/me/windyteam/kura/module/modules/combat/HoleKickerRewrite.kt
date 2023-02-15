@@ -120,7 +120,7 @@ object HoleKickerRewrite : Module() {
             }
             if (mc.world.isPlaceable(BlockPos(playerPos.add(i.x,0,i.z))) && timer.passedMs(delay.value.toLong())){
                 switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
-                placeRedStone(BlockPos(playerPos.add(i.x,0,i.z)))
+                placeBlock(BlockPos(playerPos.add(i.x,0,i.z)))
                 doRedStone = true
             }
             val pistonSide = BlockUtil2.getFirstFacing(playerPos.add(i))
@@ -152,13 +152,13 @@ object HoleKickerRewrite : Module() {
                         mc.player.connection.sendPacket(CPacketPlayer.Rotation(180.0f,0f,true))
                     }
                 }
-                placePiston(playerPos.add(i))
+                placeBlock(playerPos.add(i))
                 doPiston = true
             }
             if (!doRedStone) if (!mc.world.isPlaceable(BlockPos(playerPos.add(i.x,2,i.z))) && getBlock(BlockPos(playerPos.add(i.x,2,i.z)))!!.block != Blocks.REDSTONE_BLOCK) continue
             if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(playerPos.add(i.x,2,i.z)) && !doRedStone){
                 switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
-                placeRedStone(playerPos.add(i.x,2,i.z))
+                placeBlock(playerPos.add(i.x,2,i.z))
                 switchToSlot(b)
                 doRedStone1 = true
             }
@@ -213,11 +213,7 @@ object HoleKickerRewrite : Module() {
         pistonList.add(BlockPos(0,1,-1))
     }
 
-    private fun placeRedStone(pos: BlockPos) {
-        BlockUtil2.placeBlock(pos,EnumHand.MAIN_HAND, false,packetPlace.value,false)
-    }
-
-    private fun placePiston(pos: BlockPos) {
+    private fun placeBlock(pos: BlockPos) {
         BlockUtil2.placeBlock(pos,EnumHand.MAIN_HAND, false,packetPlace.value,false)
     }
 

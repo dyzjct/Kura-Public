@@ -10,6 +10,7 @@ import me.windyteam.kura.setting.ModeSetting
 import me.windyteam.kura.setting.Setting
 import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
+import me.windyteam.kura.utils.math.RotationUtil
 import me.windyteam.kura.utils.mc.ChatUtil
 import net.minecraft.block.BlockEnderChest
 import net.minecraft.block.BlockObsidian
@@ -26,14 +27,15 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.stream.Collectors
 import kotlin.math.abs
 
-@Module.Info(name = "Burrow", category = Category.COMBAT, description = "Selffill urself in ur mom's pussy")
+@Module.Info(name = "Burrow", category = Category.COMBAT, description = "Self-fill ur self in ur mom's pussy")
 object Burrow : Module() {
     private val rotate: Setting<Boolean> = bsetting("Rotate", true)
-    private val breakcCystal: Setting<Boolean> = bsetting("BreakCrystal", true)
+    private val breakCrystal: Setting<Boolean> = bsetting("BreakCrystal", true)
     private val toggleRStep: Setting<Boolean> = bsetting("ToggleRStep", true)
     private val safe: Setting<Boolean> = bsetting("ToggleWhileInObi", true)
     private val safeCheck: Setting<Boolean> = bsetting("LagCheck", true)
@@ -54,7 +56,7 @@ object Burrow : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (breakcCystal.value){
+        if (breakCrystal.value){
             this.breakcrystal()
         }
         if (toggleRStep.value) {
@@ -209,27 +211,24 @@ object Burrow : Module() {
         when (clientMode.value) {
             Client.Melon -> {
                 if (mc.connection != null && fakeJump.value) {
-                    if (rotate.value){
+                    if (rotate.value) {
                         mc.player.connection.sendPacket(
-                            CPacketPlayer.PositionRotation(
-                                mc.player.posX,
-                                mc.player.posY + 0.41999998688698,
-                                mc.player.posZ,
-                                mc.player.rotationYaw
-                                , 90f,
-                                false
-                            )
-                        )
-                    } else {
-                        mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
-                                mc.player.posX,
-                                mc.player.posY + 0.41999998688698,
-                                mc.player.posZ,
+                            CPacketPlayer.Rotation(
+                                mc.player.rotationYaw,
+                                90f,
                                 false
                             )
                         )
                     }
+
+                    mc.player.connection.sendPacket(
+                        CPacketPlayer.Position(
+                            mc.player.posX,
+                            mc.player.posY + 0.41999998688698,
+                            mc.player.posZ,
+                            false
+                        )
+                    )
                     mc.player.connection.sendPacket(
                         CPacketPlayer.Position(
                             mc.player.posX,
@@ -264,7 +263,7 @@ object Burrow : Module() {
                     )
                 }
 
-                BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, rotate.value, true)
+                BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
                 InventoryUtil.switchToHotbarSlot(oldSlot,false)
                 var head = 0
                 while (head < 20) {
@@ -339,25 +338,23 @@ object Burrow : Module() {
                 if (mc.connection != null && fakeJump.value) {
                     if (rotate.value){
                         mc.player.connection.sendPacket(
-                            CPacketPlayer.PositionRotation(
-                                mc.player.posX,
-                                mc.player.posY + 0.41999998688698,
-                                mc.player.posZ,
+                            CPacketPlayer.Rotation(
                                 mc.player.rotationYaw,
                                 90f,
                                 false
                             )
                         )
-                    } else {
-                        mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
-                                mc.player.posX,
-                                mc.player.posY + 0.41999998688698,
-                                mc.player.posZ,
-                                false
-                            )
-                        )
                     }
+
+                    mc.player.connection.sendPacket(
+                        CPacketPlayer.Position(
+                            mc.player.posX,
+                            mc.player.posY + 0.41999998688698,
+                            mc.player.posZ,
+                            false
+                        )
+                    )
+
                     mc.player.connection.sendPacket(
                         CPacketPlayer.Position(
                             mc.player.posX,
@@ -391,10 +388,16 @@ object Burrow : Module() {
                         )
                     )
                 }
-//                if (rotate.value) {
-//                    event.setRotation(mc.player.rotationYaw, 90f)
-//                }
-                BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, rotate.value, true)
+                if (rotate.value) {
+                    mc.player.connection.sendPacket(
+                        CPacketPlayer.Rotation(
+                            mc.player.rotationYaw,
+                            90f,
+                            false
+                        )
+                    )
+                }
+                BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
                 InventoryUtil.switchToHotbarSlot(oldSlot,false)
                 if (mc.connection != null) {
                     var boost: Double
@@ -467,7 +470,7 @@ object Burrow : Module() {
                             )
                         )
                     }
-                    BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, rotate.value, true)
+                    BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
                     InventoryUtil.switchToHotbarSlot(oldSlot,false)
                     mc.player.connection.sendPacket(
                         CPacketPlayer.Position(

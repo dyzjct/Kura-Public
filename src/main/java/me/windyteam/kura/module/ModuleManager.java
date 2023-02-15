@@ -256,7 +256,7 @@ public class ModuleManager {
         registerModule(new Auto32GAY());
         registerModule(new AutoMend());
         registerModule(new AutoReplenish());
-        registerModule(new AutoTotem());
+        registerModule(AutoTotem.INSTANCE);
         registerModule(new AutoTrap());
         registerModule(new AutoCity());
         registerModule(Burrow.INSTANCE);
@@ -357,7 +357,7 @@ public class ModuleManager {
         registerModule(new Surround());
         registerModule(new AutoCraftBed());
         registerModule(new IQBooster());
-        registerModule(new SmartOffHand());
+        registerModule(SmartOffHand.INSTANCE);
         //SEXY
         registerModule(new NewBedAura());
         registerModule(AutoCrystal.INSTANCE);

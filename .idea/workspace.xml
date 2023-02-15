@@ -5,13 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b082cd60-3676-48a7-8ea0-3d2e0cdd16b6" name="变更" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoTotem.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/ModuleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/ModuleManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoTotem.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/Burrow.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/Burrow.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/HoleKickerRewrite.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/HoleKickerRewrite.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/AutoCrystal.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/AutoCrystal.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/player/StrictPacketMine.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/BreakESP.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/BreakESP.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/xddd/SmartOffHand.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/xddd/SmartOffHand.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,20 +72,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/23204/Desktop/St1nkyk1d1337-new deobf&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "E:/code/New-abHack-buildable-src(stormorigin-fix)",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\render" />
