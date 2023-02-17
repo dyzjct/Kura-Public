@@ -3,7 +3,7 @@ package me.windyteam.kura.module.modules.misc
 import me.windyteam.kura.event.events.block.BlockBreakEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.utils.block.BlockUtil2
+import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
@@ -40,7 +40,7 @@ class AntiPiston : Module() {
                 perform(pos.add(0, 2, 0))
             }
             if (breakpiston.value) {
-                mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil2.getRayTraceFacing(pos.add(1, 1, 0)))
+                mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(1, 1, 0)))
             }
         }
         if (getBlock(pos.add(-1, 1, 0)).block === Blocks.PISTON) {
@@ -56,7 +56,7 @@ class AntiPiston : Module() {
             if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(-1, 1, 0),
-                    BlockUtil2.getRayTraceFacing(pos.add(-1, 1, 0))
+                    BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0))
                 )
             }
         }
@@ -71,7 +71,7 @@ class AntiPiston : Module() {
                 perform(pos.add(0, 2, 0))
             }
             if (breakpiston.value) {
-                mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil2.getRayTraceFacing(pos.add(0, 1, 1)))
+                mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil.getRayTraceFacing(pos.add(0, 1, 1)))
             }
         }
         if (getBlock(pos.add(0, 1, -1)).block === Blocks.PISTON) {
@@ -87,7 +87,7 @@ class AntiPiston : Module() {
             if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(0, 1, -1),
-                    BlockUtil2.getRayTraceFacing(pos.add(0, 1, -1))
+                    BlockUtil.getRayTraceFacing(pos.add(0, 1, -1))
                 )
             }
         }
@@ -103,7 +103,7 @@ class AntiPiston : Module() {
                 perform(pos.add(0, 2, 0))
             }
             if (breakpiston.value) {
-                mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil2.getRayTraceFacing(pos.add(1, 1, 0)))
+                mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(1, 1, 0)))
             }
         }
         if (getBlock(pos.add(-1, 1, 0)).block === Blocks.STICKY_PISTON) {
@@ -119,7 +119,7 @@ class AntiPiston : Module() {
             if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(-1, 1, 0),
-                    BlockUtil2.getRayTraceFacing(pos.add(-1, 1, 0))
+                    BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0))
                 )
             }
         }
@@ -134,7 +134,7 @@ class AntiPiston : Module() {
                 perform(pos.add(0, 2, 0))
             }
             if (breakpiston.value) {
-                mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil2.getRayTraceFacing(pos.add(0, 1, 1)))
+                mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil.getRayTraceFacing(pos.add(0, 1, 1)))
             }
         }
         if (getBlock(pos.add(0, 1, -1)).block === Blocks.STICKY_PISTON) {
@@ -150,7 +150,7 @@ class AntiPiston : Module() {
             if (breakpiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(0, 1, -1),
-                    BlockUtil2.getRayTraceFacing(pos.add(0, 1, -1))
+                    BlockUtil.getRayTraceFacing(pos.add(0, 1, -1))
                 )
             }
         }
@@ -173,7 +173,7 @@ class AntiPiston : Module() {
         if (pos == InstantMine.breakPos) return
         val old = mc.player.inventory.currentItem
         switchToSlot(obsidian)
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
         switchToSlot(old)
     }
 

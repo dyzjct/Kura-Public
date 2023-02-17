@@ -241,13 +241,13 @@ public class ModuleManager {
         registerModule(new PearlViewer());
         registerModule(new PortalESP());
         registerModule(new ShulkerPreview());
-        registerModule(new Notification());
+        registerModule(Notification.INSTANCE);
         registerModule(BreakESP.INSTANCE);
         registerModule(new ESP());
         registerModule(new BurrowESP());
         registerModule(new CityESP());
         registerModule(new Aspect());
-        registerModule(new CrystalRender());
+        registerModule(CrystalRender.INSTANCE);
 
         //Combat
         registerModule(new Aimbot());
@@ -263,7 +263,7 @@ public class ModuleManager {
         registerModule(new Burrow2());
         registerModule(new Criticals());
         registerModule(new CevBreaker());
-        registerModule(new DispenserMeta());
+        registerModule(DispenserMeta.INSTANCE);
         registerModule(new Fastuse());
         registerModule(new HoleSnap());
         registerModule(new PistonCrystal());
@@ -283,7 +283,6 @@ public class ModuleManager {
         registerModule(new KnifeBot());
         registerModule(HoleKickerRewrite.INSTANCE);
         //Player
-        registerModule(new AntiShulkerBox());
         registerModule(new LiquidInteract());
         registerModule(new Reach());
         registerModule(new Freecam());
@@ -305,6 +304,8 @@ public class ModuleManager {
         registerModule(new CancelPearl());
         registerModule(new TargetBuilder());
         registerModule(new Warner());
+        registerModule(new Nuker());
+        registerModule(PacketMine.INSTANCE);
         //Misc
         registerModule(new AntiAim());
         registerModule(new HeadBlocker());
@@ -321,12 +322,11 @@ public class ModuleManager {
         registerModule(new AutoRespawn());
         registerModule(new AutoWither());
         registerModule(new FakePlayer());
-        registerModule(new Nuker());
         registerModule(new MCP());
         registerModule(new MCF());
         registerModule(new NoRotate());
         registerModule(new EasyKitsCrasher());
-        registerModule(new InstantMine());
+        registerModule(InstantMine.INSTANCE);
         registerModule(new AntiHoleKicker());
         registerModule(new PacketAnalyzer());
         //Movement
@@ -364,7 +364,7 @@ public class ModuleManager {
         getModules().sort(Comparator.comparing(IModule::getName));
     }
     public void loadHUDs() {
-        registerHUD(new ShowArrayList());
+        registerHUD(ShowArrayList.INSTANCE);
         registerHUD(new Direction());
         registerHUD(new XG42ShowArrayList());
         registerHUD(new Welcomer());

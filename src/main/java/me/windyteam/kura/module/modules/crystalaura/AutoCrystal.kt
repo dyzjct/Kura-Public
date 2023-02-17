@@ -35,7 +35,6 @@ import me.windyteam.kura.utils.getMiningSide
 import me.windyteam.kura.utils.gl.MelonTessellator
 import me.windyteam.kura.utils.gl.XG42Tessellator
 import me.windyteam.kura.utils.inventory.InventoryUtil
-import me.windyteam.kura.utils.math.RotationUtil
 import me.windyteam.kura.utils.mc.BlockUtil
 import me.windyteam.kura.utils.mc.ChatUtil
 import net.minecraft.block.Block
@@ -103,7 +102,6 @@ object AutoCrystal : Module() {
     private var yawStep = bsetting("YawStep", false).b(rotate).m(p, Page.GENERAL)
     private var yawAngle = fsetting("YawAngle", 0.1f, 0.1f, 0.5f).b(rotate).b(yawStep).m(p, Page.GENERAL)
     private var yawTicks = isetting("YawTicks", 1, 1, 5).b(rotate).b(yawStep).m(p, Page.GENERAL)
-    private var mustLookCrystal = settings("MustLookCrystal",false).b(rotate)
 
     //Page Place
     private var packetPlaceMode = msetting("PacketMode", PacketPlaceMode.Off).m(p, Page.PLACE)
@@ -428,7 +426,7 @@ object AutoCrystal : Module() {
                 if (rotate.value) {
                     rotations = BlockInteractionHelper.getLegitRotations(
                         Vec3d(render!!.down()).add(
-                            0.5, 0.5, 0.5
+                            0.5, 1.0, 0.5
                         )
                     )
                 if (yawAngle.value < 1.0f) {
@@ -725,11 +723,11 @@ object AutoCrystal : Module() {
         }
         when (swingMode.value) {
             SwingMode.Off -> {}
-            SwingMode.Offhand -> {
+            SwingMode.OffHand -> {
                 mc.player.swingArm(EnumHand.OFF_HAND)
             }
 
-            SwingMode.Mainhand -> {
+            SwingMode.MainHand -> {
                 mc.player.swingArm(EnumHand.MAIN_HAND)
             }
 
@@ -759,18 +757,7 @@ object AutoCrystal : Module() {
 
     private fun explodeCrystal(event: MotionUpdateEvent.Tick?) {
         val crystal = getExplodeCrystal(syncHurtTime.value, renderEnt!!)
-        var canBreak = true
-        if (rotate.value && mustLookCrystal.value ){
-            canBreak = if (strictDirection.value && RotationUtil.getRotationsBlock(render!!,getMiningSide(
-                    render!!
-                ) ?: EnumFacing.UP,false)[0] <= 1 +mc.player.lastReportedYaw && RotationUtil.getRotationsBlock(render!!,getMiningSide(
-                    render!!
-                ) ?: EnumFacing.UP,false)[1] <= 1 + mc.player.lastReportedPitch){
-                true
-            } else !strictDirection.value && RotationUtil.getRotationsBlock(renderEnt!!.position.down(),EnumFacing.UP,false)[0] == mc.player.lastReportedYaw && RotationUtil.getRotationsBlock(renderEnt!!.position.down(), EnumFacing.UP,false)[1] == mc.player.lastReportedPitch
-        }
-
-        if (crystal != null && canBreak) {
+        if (crystal != null) {
             if (explodeTimerUtils.passed(hitDelay.value) && mc.connection != null) {
                 packetExplode(crystal.getEntityId())
                 swing()
@@ -1054,14 +1041,8 @@ object AutoCrystal : Module() {
                     XG42Tessellator.release()
                 }
                 if (renderBreak.value) {
-                    val attackingCrystalPosition = lastCrystal!!.position.down()
-
-//                    if (!attackingCrystalPosition.isFullBox) {
-//                        lookRenderPos = false
-//                        return
-//                    } else {
-//                        lookRenderPos = true
-//                    }
+//                    val attackingCrystalPosition = lastCrystal!!.position.down()
+                    val attackingCrystalPosition = attackingCrystal!!.position.down()
 
                     if (!attackingCrystalPosition.isFullBox) return
 
@@ -1317,7 +1298,7 @@ object AutoCrystal : Module() {
     }
 
     enum class SwingMode {
-        Offhand, Mainhand, Auto, Off
+        OffHand, MainHand, Auto, Off
     }
 
     enum class RenderModes {

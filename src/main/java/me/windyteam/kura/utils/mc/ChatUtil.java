@@ -19,7 +19,7 @@ public class ChatUtil {
 
     public static final int DeleteID = 94423;
     public static ArrayList<Notification> notifications = new ArrayList<>();
-    public static char SECTIONSIGN = '\u00A7';
+    public static char SECTIONSIGN = '§';
 
     public static String BLACK = SECTIONSIGN + "0";
     public static String DARK_BLUE = SECTIONSIGN + "1";

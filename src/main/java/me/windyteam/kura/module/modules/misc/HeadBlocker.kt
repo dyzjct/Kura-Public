@@ -10,7 +10,7 @@ import me.windyteam.kura.manager.SpeedManager
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.utils.Timer
-import me.windyteam.kura.utils.block.BlockUtil2
+import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import net.minecraft.block.state.IBlockState
@@ -54,12 +54,12 @@ class HeadBlocker : Module() {
             if (getBlock(pos.add(0, -1, 0)).block == Blocks.WEB && pos.add(0, -1, 0) != breakPos) {
                 Module.mc.playerController.onPlayerDamageBlock(
                     pos.add(0, -1, 0),
-                    BlockUtil2.getRayTraceFacing(pos.add(0, -1, 0))
+                    BlockUtil.getRayTraceFacing(pos.add(0, -1, 0))
                 )
             } else if (getBlock(pos.add(0, 0, 0)).block == Blocks.WEB && pos.add(0, 0, 0) != breakPos) {
-                Module.mc.playerController.onPlayerDamageBlock(pos.add(0, 0, 0), BlockUtil2.getRayTraceFacing(pos.add(0, 0, 0)))
+                Module.mc.playerController.onPlayerDamageBlock(pos.add(0, 0, 0), BlockUtil.getRayTraceFacing(pos.add(0, 0, 0)))
             } else if (getBlock(pos.add(0, 1, 0)).block == Blocks.WEB && pos.add(0, 1, 0) != breakPos) {
-                Module.mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 0), BlockUtil2.getRayTraceFacing(pos.add(0, 1, 0)))
+                Module.mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 0), BlockUtil.getRayTraceFacing(pos.add(0, 1, 0)))
             }
         }
         if (!mc.player.onGround) {
@@ -604,7 +604,7 @@ class HeadBlocker : Module() {
         }
         val old = mc.player.inventory.currentItem
         HotbarManager.spoofHotbar(obsidian)
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
         HotbarManager.spoofHotbar(old)
     }
     private fun facePlace(pos: BlockPos, x: Int, y: Int, z: Int) {
@@ -618,7 +618,7 @@ class HeadBlocker : Module() {
         }
         val old = mc.player.inventory.currentItem
         HotbarManager.spoofHotbar(obsidian)
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
         HotbarManager.spoofHotbar(old)
     }
 

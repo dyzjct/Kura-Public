@@ -5,7 +5,7 @@ import kura.utils.isReplaceable
 import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.utils.block.BlockUtil2
+import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.math.RotationUtil
@@ -71,6 +71,7 @@ object HoleKickerRewrite : Module() {
     @SubscribeEvent
     fun onTick(event: MotionUpdateEvent) {
         if (fullNullCheck()) return
+        if (!mc.player.onGround) return
         runCatching {
             if (InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK) == -1 || InventoryUtil.findHotbarBlock(Blocks.STICKY_PISTON) == -1 && InventoryUtil.findHotbarBlock(
                     Blocks.PISTON
@@ -89,9 +90,6 @@ object HoleKickerRewrite : Module() {
                 }
                 return
             }
-            if (breakCrystal.value) {
-                breakCrystal()
-            }
             doPistonTrap()
         }
     }
@@ -107,10 +105,10 @@ object HoleKickerRewrite : Module() {
         }
         target = getTarget(range.value)
         if (target == null) {
-            if (autoToggle.value) {
-                disable()
-            }
             return
+        }
+        if (breakCrystal.value) {
+            breakCrystal()
         }
         val playerPos = BlockPos(target!!.posX, target!!.posY, target!!.posZ)
         val b = mc.player.inventory.currentItem
@@ -119,69 +117,15 @@ object HoleKickerRewrite : Module() {
         var doRedStone = false
         var doRedStone1 = false
         for (i in 0..4) {
-            if (getBlock(BlockPos(playerPos.add(0, 3, 0)))!!.block != Blocks.AIR) continue
-            if (!mc.world.isPlaceable(BlockPos(playerPos.add(pistonList2[i]))) || !mc.world.isPlaceable(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList2[i].x, 2, pistonList2[i].z
-                        )
-                    )
-                )
-            ) continue
-            if (!mc.world.isPlaceable(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList[i].x, 2, pistonList[i].z
-                        )
-                    )
-                ) && getBlock(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList[i].x, 2, pistonList[i].z
-                        )
-                    )
-                )!!.block != Blocks.REDSTONE_BLOCK
-            ) {
+            if (mc.player.posY < target!!.posY) {
                 if (autoToggle.value) disable()
-                continue
+                return
             }
-            if (!mc.world.isPlaceable(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList[i].x, 3, pistonList[i].z
-                        )
-                    )
-                ) && getBlock(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList[i].x, 3, pistonList[i].z
-                        )
-                    )
-                )!!.block != Blocks.REDSTONE_BLOCK
-            ) {
-                if (autoToggle.value) disable()
-                continue
-            }
-            if (!mc.world.isPlaceable(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList[i].x, 1, pistonList[i].z
-                        )
-                    )
-                ) && getBlock(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList[i].x, 1, pistonList[i].z
-                        )
-                    )
-                )!!.block != Blocks.STICKY_PISTON || !mc.world.isPlaceable(
-                    BlockPos(
-                        playerPos.add(
-                            pistonList[i].x, 1, pistonList[i].z
-                        )
-                    )
-                ) && getBlock(BlockPos(playerPos.add(pistonList[i].x, 1, pistonList[i].z)))!!.block != Blocks.PISTON
-            ) continue
+            if (getBlock(BlockPos(playerPos.add(0, 2, 0)))!!.block != Blocks.AIR) continue
+            if (getBlock(playerPos.add(pistonList2[i]))!!.block != Blocks.AIR) continue
+            if (getBlock(playerPos.add(pistonList2[i].x,2,pistonList2[i].z))!!.block != Blocks.AIR) continue
+            if (getBlock(playerPos.add(pistonList[i]))!!.block != Blocks.PISTON && getBlock(playerPos.add(pistonList[i]))!!.block != Blocks.STICKY_PISTON && getBlock(playerPos.add(pistonList[i]))!!.block != Blocks.AIR) continue
+            if (getBlock(playerPos.add(pistonList2[i].x,2,pistonList2[i].z))!!.block != Blocks.REDSTONE_BLOCK && getBlock(playerPos.add(pistonList2[i].x,2,pistonList2[i].z))!!.block != Blocks.AIR && getBlock(playerPos.add(pistonList2[i].x,0,pistonList2[i].z))!!.block != Blocks.REDSTONE_BLOCK && getBlock(playerPos.add(pistonList2[i].x,0,pistonList2[i].z))!!.block != Blocks.AIR) continue
             if (mc.world.isPlaceable(BlockPos(playerPos.add(pistonList[i].x, 0, pistonList[i].z))) && timer.passedMs(
                     delay.value.toLong()
                 )
@@ -190,7 +134,8 @@ object HoleKickerRewrite : Module() {
                 placeBlock(BlockPos(playerPos.add(pistonList[i].x, 0, pistonList[i].z)))
                 doRedStone = true
             }
-            val pistonSide = BlockUtil2.getFirstFacing(playerPos.add(pistonList[i]))
+
+            val pistonSide = BlockUtil.getFirstFacing(playerPos.add(pistonList[i].x.toDouble(), pistonList[i].y.toDouble(),pistonList[i].z.toDouble()))
             val pistonNeighbour: BlockPos = playerPos.add(pistonList[i]).offset(pistonSide)
             val pistonOpposite = pistonSide.getOpposite()
             val pistonHitVec = Vec3d(pistonNeighbour as Vec3i).add(0.5, 0.5, 0.5)
@@ -228,6 +173,7 @@ object HoleKickerRewrite : Module() {
                 placeBlock(playerPos.add(pistonList[i]))
                 doPiston = true
             }
+
             if (timer.passedMs(delay.value.toLong()) && mc.world.isPlaceable(
                     playerPos.add(
                         pistonList[i].x, 2, pistonList[i].z
@@ -235,7 +181,7 @@ object HoleKickerRewrite : Module() {
                 ) && !doRedStone
             ) {
                 switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
-                placeBlock(playerPos.add(pistonList[i].x, 2, pistonList[i].z))
+                rotationBlock(playerPos.add(pistonList[i].x, 2, pistonList[i].z))
                 switchToSlot(b)
                 doRedStone1 = true
             }
@@ -266,7 +212,7 @@ object HoleKickerRewrite : Module() {
         for (i in breakList) {
             if (getBlock(breakPos.add(i))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakPos.add(i), BlockUtil2.getRayTraceFacing(breakPos.add(i))
+                    breakPos.add(i), BlockUtil.getRayTraceFacing(breakPos.add(i))
                 )
             }
         }
@@ -299,7 +245,11 @@ object HoleKickerRewrite : Module() {
     }
 
     private fun placeBlock(pos: BlockPos) {
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, false, packetPlace.value, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, false, packetPlace.value, false)
+    }
+
+    private fun rotationBlock(pos: BlockPos) {
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, packetPlace.value, false)
     }
 
     private fun getBlock(block: BlockPos): IBlockState? {

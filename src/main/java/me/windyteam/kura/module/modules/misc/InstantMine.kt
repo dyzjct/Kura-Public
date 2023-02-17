@@ -8,7 +8,7 @@ import me.windyteam.kura.module.Module
 import me.windyteam.kura.setting.BooleanSetting
 import me.windyteam.kura.setting.FloatSetting
 import me.windyteam.kura.setting.Setting
-import me.windyteam.kura.utils.block.BlockUtil2
+import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.Timer
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.render.RenderUtil
@@ -27,14 +27,14 @@ import org.lwjgl.input.Mouse
 import java.awt.Color
 
 @Module.Info(name = "InstantMine", category = Category.MISC)
-class InstantMine : Module() {
+object InstantMine : Module() {
     private val breakSuccess = Timer()
-    private val creatoveMode = bsetting("CreativeMode", true)
-    private val ghosthand: Setting<Boolean> = bsetting("GhostHand", true).b(creatoveMode)
+    private val creativeMode = bsetting("CreativeMode", true)
+    private val ghostHand: Setting<Boolean> = bsetting("GhostHand", true).b(creativeMode)
     private val render = bsetting("Fill", true)
-    private val falpha = isetting("FillAlpha", 30, 0, 255).b(render)
+    private val fillAlpha = isetting("FillAlpha", 30, 0, 255).b(render)
     private val render2 = bsetting("Box", true)
-    private val balpha = isetting("BoxAlpha", 100, 0, 255).b(render2)
+    private val boxAlpha = isetting("BoxAlpha", 100, 0, 255).b(render2)
     @JvmField
     var db: BooleanSetting = bsetting("Silent Double", true)
     val health: FloatSetting = fsetting("Health", 18.0f, 0.0f, 35.9f).b(db)
@@ -49,15 +49,12 @@ class InstantMine : Module() {
     private var empty = false
     private var facing: EnumFacing? = null
     private var slotMain2 = 0
-    private var swithc2 = 0
+    private var switch2 = 0
     private var manxi = 0.0
     private var manxi2 = 0.0
     private val imerS = Timer()
     private val imerS2 = Timer()
     var times = 0L
-    override fun onEnable() {
-        INSTANCE = this
-    }
 
     override fun onUpdate() {
         if (fullNullCheck()) return
@@ -81,32 +78,32 @@ class InstantMine : Module() {
                     if (mc.player.health + mc.player.getAbsorptionAmount() >= health.value) {
                         if (InventoryUtil.getItemHotbar(Items.DIAMOND_PICKAXE) != -1 && db.value) {
                             mc.player.connection.sendPacket(CPacketHeldItemChange(InventoryUtil.getItemHotbars(Items.DIAMOND_PICKAXE)) as Packet<*>)
-                            swithc2 = 1
+                            switch2 = 1
                             ++ticked
                         }
-                    } else if (swithc2 == 1) {
+                    } else if (switch2 == 1) {
                         mc.player.connection.sendPacket(CPacketHeldItemChange(slotMain2) as Packet<*>)
-                        swithc2 = 0
+                        switch2 = 0
                     }
-                } else if (swithc2 == 1) {
+                } else if (switch2 == 1) {
                     mc.player.connection.sendPacket(CPacketHeldItemChange(slotMain2) as Packet<*>)
-                    swithc2 = 0
+                    switch2 = 0
                 }
             } else if (mc.player.health + mc.player.getAbsorptionAmount() >= health.value) {
                 if (InventoryUtil.getItemHotbar(Items.DIAMOND_PICKAXE) != -1 && db.value) {
                     mc.player.connection.sendPacket(CPacketHeldItemChange(InventoryUtil.getItemHotbars(Items.DIAMOND_PICKAXE)) as Packet<*>)
-                    swithc2 = 1
+                    switch2 = 1
                     ++ticked
                 }
-            } else if (swithc2 == 1) {
+            } else if (switch2 == 1) {
                 mc.player.connection.sendPacket(CPacketHeldItemChange(slotMain2) as Packet<*>)
-                swithc2 = 0
+                switch2 = 0
             }
         }
         if (breakPos2 != null && mc.world.getBlockState(breakPos2!!).block === Blocks.AIR) {
-            if (swithc2 == 1) {
+            if (switch2 == 1) {
                 mc.player.connection.sendPacket(CPacketHeldItemChange(slotMain2) as Packet<*>)
-                swithc2 = 0
+                switch2 = 0
             }
             breakPos2 = null
             manxi2 = 0.0
@@ -117,9 +114,9 @@ class InstantMine : Module() {
             breakPos2 = null
         }
         if (ticked >= 140) {
-            if (swithc2 == 1) {
+            if (switch2 == 1) {
                 mc.player.connection.sendPacket(CPacketHeldItemChange(slotMain2) as Packet<*>)
-                swithc2 = 0
+                switch2 = 0
             }
             manxi2 = 0.0
             breakPos2 = null
@@ -131,7 +128,7 @@ class InstantMine : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (!creatoveMode.value) {
+        if (!creativeMode.value) {
             return
         }
         if (!cancelStart) {
@@ -141,7 +138,7 @@ class InstantMine : Module() {
             return
         }
         if (mc.world.getBlockState(breakPos!!).block !== Blocks.WEB) {
-            if (ghosthand.value && InventoryUtil.getItemHotbar(Items.DIAMOND_PICKAXE) != -1 && InventoryUtil.getItemHotbars(
+            if (ghostHand.value && InventoryUtil.getItemHotbar(Items.DIAMOND_PICKAXE) != -1 && InventoryUtil.getItemHotbars(
                     Items.DIAMOND_PICKAXE
                 ) != -1
             ) {
@@ -172,7 +169,7 @@ class InstantMine : Module() {
                 mc.playerController.updateController()
                 return
             }
-        } else if (ghosthand.value && InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD) != -1 && InventoryUtil.getItemHotbars(
+        } else if (ghostHand.value && InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD) != -1 && InventoryUtil.getItemHotbars(
                 Items.DIAMOND_SWORD
             ) != -1
         ) {
@@ -211,9 +208,9 @@ class InstantMine : Module() {
                 centerX = axisAlignedBB.minX + (axisAlignedBB.maxX - axisAlignedBB.minX) / 2.0
                 centerY = axisAlignedBB.minY + (axisAlignedBB.maxY - axisAlignedBB.minY) / 2.0
                 centerZ = axisAlignedBB.minZ + (axisAlignedBB.maxZ - axisAlignedBB.minZ) / 2.0
-                progressValX = instance!!.manxi2 * ((axisAlignedBB.maxX - centerX) / 10.0)
-                progressValY = instance!!.manxi2 * ((axisAlignedBB.maxY - centerY) / 10.0)
-                progressValZ = instance!!.manxi2 * ((axisAlignedBB.maxZ - centerZ) / 10.0)
+                progressValX = manxi2 * ((axisAlignedBB.maxX - centerX) / 10.0)
+                progressValY = manxi2 * ((axisAlignedBB.maxY - centerY) / 10.0)
+                progressValZ = manxi2 * ((axisAlignedBB.maxZ - centerZ) / 10.0)
                 axisAlignedBB1 = AxisAlignedBB(
                     centerX - progressValX,
                     centerY - progressValY,
@@ -240,7 +237,7 @@ class InstantMine : Module() {
                     )
                 }
             }
-            if (creatoveMode.value && cancelStart) {
+            if (creativeMode.value && cancelStart) {
                 if (godBlocks.contains(mc.world.getBlockState(breakPos!!).block)) {
                     empty = true
                 }
@@ -273,12 +270,12 @@ class InstantMine : Module() {
                 )
                 if (render.value) {
                     RenderUtil.drawBBFill(
-                        axisAlignedBB1, Color(if (empty) 0 else 255, if (empty) 255 else 0, 0, 255), falpha.value
+                        axisAlignedBB1, Color(if (empty) 0 else 255, if (empty) 255 else 0, 0, 255), fillAlpha.value
                     )
                 }
                 if (render2.value) {
                     RenderUtil.drawBBBox(
-                        axisAlignedBB1, Color(if (empty) 0 else 255, if (empty) 255 else 0, 0, 255), balpha.value
+                        axisAlignedBB1, Color(if (empty) 0 else 255, if (empty) 255 else 0, 0, 255), boxAlpha.value
                     )
                 }
             }
@@ -311,7 +308,7 @@ class InstantMine : Module() {
         if (mc.player.isCreative) {
             return
         }
-        if (!BlockUtil2.canBreak(event.pos)) {
+        if (!BlockUtil.canBreak(event.pos)) {
             return
         }
         if (breakPos != null && breakPos!!.getX() == event.pos.getX() && breakPos!!.getY() == event.pos.getY() && breakPos!!.getZ() == event.pos.getZ()) {
@@ -353,28 +350,15 @@ class InstantMine : Module() {
         event.isCanceled = true
     }
 
-    companion object {
-        private var INSTANCE: InstantMine? = InstantMine()
 
-        @JvmField
-        var breakPos: BlockPos? = null
+    @JvmField
+    var breakPos: BlockPos? = null
 
-        @JvmField
-        var breakPos2: BlockPos? = null
-        var ticked = 0
-
-        @JvmStatic
-        val instance: InstantMine?
-            get() {
-                if (INSTANCE != null) {
-                    return INSTANCE
-                }
-                INSTANCE = InstantMine()
-                return INSTANCE
-            }
-
-        init {
-            ticked = 0
-        }
+    @JvmField
+    var breakPos2: BlockPos? = null
+    var ticked = 0
+    
+    init {
+        ticked = 0
     }
 }

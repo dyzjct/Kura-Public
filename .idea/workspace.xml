@@ -5,8 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b082cd60-3676-48a7-8ea0-3d2e0cdd16b6" name="变更" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/movement/NoSlowDown.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/Notification.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/PopChams.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/Kura.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/Kura.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/gui/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/gui/Notification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/IModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/IModule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/ModuleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/ModuleManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/hud/huds/ShowArrayList.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/hud/huds/ShowArrayList.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoCity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoCity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoTopCev.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/AutoTopCev.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/Burrow.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/Burrow.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/DispenserMeta.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/HoleKicker.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/HoleKicker.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/HoleKickerRewrite.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/HoleKickerRewrite.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/PistonCrystal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/PistonCrystal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/TNTHead.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/TNTHead.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/holefillers/HoleFiller.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/combat/holefillers/HoleFiller.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/AutoCrystal.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/crystalaura/AutoCrystal.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/misc/AntiPiston.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/misc/AntiPiston.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/misc/HeadBlocker.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/misc/HeadBlocker.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/misc/InstantMine.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/misc/InstantMine.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/misc/Nuker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/movement/NoSlowDown.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/player/AntiShulkerBox.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/CrystalRender.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/CrystalRender.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/Notification.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/module/modules/render/PopChams.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/block/BlockInteractionHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/block/BlockInteractionHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/block/BlockUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/block/BlockUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/block/BlockUtil2.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/block/BlockUtilkt.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/block/BlockUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/mc/ChatUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/windyteam/kura/utils/mc/ChatUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +85,7 @@
       <list>
         <option value="Class" />
         <option value="Kotlin Class" />
+        <option value="Kotlin Object" />
       </list>
     </option>
   </component>
@@ -72,22 +105,22 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "E:/code/New-abHack-buildable-src(stormorigin-fix)",
+    "last_opened_file_path": "E:/KuraMaster/Kura/src/main/java/me/windyteam/kura/module/modules/combat",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\render" />
       <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\combat" />
+      <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\player" />
+      <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\render" />
       <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\utils\render" />
       <recent name="E:\KuraMaster\Kura\src\main\java\me\windyteam\kura\utils" />
-      <recent name="D:\KuraMaster\Kura\src\main\java\me\windyteam\kura\module\modules\misc" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
       <recent name="me.windyteam.kura.module.modules.render" />

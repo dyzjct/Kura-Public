@@ -10,11 +10,11 @@ import java.awt.*;
 
 public class Notification {
 
-    public static String ICON_NOTIFY_INFO = "\u2139";
-    public static String ICON_NOTIFY_SUCCESS = "\u2713";
-    public static String ICON_NOTIFY_WARN = "\u26A0";
-    public static String ICON_NOTIFY_ERROR = "\u26A0";
-    public static String ICON_NOTIFY_DISABLED = "\u2717";
+    public static String ICON_NOTIFY_INFO = "ℹ";
+    public static String ICON_NOTIFY_SUCCESS = "✓";
+    public static String ICON_NOTIFY_WARN = "⚠";
+    public static String ICON_NOTIFY_ERROR = "⚠";
+    public static String ICON_NOTIFY_DISABLED = "✗";
     public Timer timer = new Timer();
     public Type t;
     public long stayTime;

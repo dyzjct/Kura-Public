@@ -32,14 +32,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.stream.Collectors
 import kotlin.math.abs
 
-@Module.Info(name = "Burrow", category = Category.COMBAT, description = "Self-fill ur self in ur mom's pussy")
+@Module.Info(
+    name = "Burrow",
+    category = Category.COMBAT,
+    description = "Self-fill ur self in ur mom's pussy")
 object Burrow : Module() {
-    private val rotate: Setting<Boolean> = bsetting("Rotate", true)
-    private val breakCrystal: Setting<Boolean> = bsetting("BreakCrystal", true)
-    private val toggleRStep: Setting<Boolean> = bsetting("ToggleRStep", true)
-    private val safe: Setting<Boolean> = bsetting("ToggleWhileInObi", true)
-    private val safeCheck: Setting<Boolean> = bsetting("LagCheck", true)
-    private var clientMode: ModeSetting<*> = msetting("ClientMode", Client.Melon)
+    private val rotate = bsetting("Rotate", true)
+    private val breakCrystal = bsetting("BreakCrystal", true)
+    private val toggleRStep = bsetting("ToggleRStep", true)
+    private val safe = bsetting("ToggleWhileInObi", true)
+    private val safeCheck = bsetting("LagCheck", true)
+    private var clientMode = msetting("ClientMode", Client.Melon)
     private var fakeJump = bsetting("FakeJump", true).m(clientMode, Client.Melon)
     private var offsetCheck = isetting("Offset", 3, -20, 10).m(clientMode, Client.Melon)
     private var getPlayerHeight = bsetting("PlayerHeight", false).m(clientMode, Client.Negative)

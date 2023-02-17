@@ -4,7 +4,7 @@ import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.friend.FriendManager
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.utils.block.BlockUtils
+import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.entity.CrystalUtil
 import me.windyteam.kura.utils.getTarget
 import me.windyteam.kura.utils.inventory.InventoryUtil
@@ -113,8 +113,8 @@ class AutoTopCev : Module() {
                                     } else {
                                         InventoryUtil.setSlot(n3)
                                     }
-                                    val blockUtils = BlockUtils.isPlaceable(blockPos.add(blockPos2), 0.0, true)
-                                    blockUtils?.doPlace(true)
+                                    val BlockUtil = BlockUtil.isPlaceable(blockPos.add(blockPos2), 0.0, true)
+                                    BlockUtil?.doPlace(true)
                                     ++var10
                                 }
                                 InventoryUtil.setSlot(n2)
@@ -173,8 +173,8 @@ class AutoTopCev : Module() {
                             }
 
                             3 -> {
-                                BlockUtils.doPlace(
-                                    BlockUtils.isPlaceable(
+                                BlockUtil.doPlace(
+                                    BlockUtil.isPlaceable(
                                         BlockPos(
                                             entity.posX,
                                             entity.posY + 2.0,

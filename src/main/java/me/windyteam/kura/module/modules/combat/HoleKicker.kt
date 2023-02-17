@@ -2,7 +2,7 @@ package me.windyteam.kura.module.modules.combat
 
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.utils.block.BlockUtil2
+import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.player.getTarget
@@ -537,85 +537,85 @@ class HoleKicker : Module() {
 
             if (getBlock(breakpos.add(1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(1, 2, 0), BlockUtil2.getRayTraceFacing(breakpos.add(1, 2, 0))
+                    breakpos.add(1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(1, 2, 0))
                 )
             }
             if (getBlock(breakpos.add(-1, 2, 0))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(-1, 2, 0), BlockUtil2.getRayTraceFacing(breakpos.add(-1, 2, 0))
+                    breakpos.add(-1, 2, 0), BlockUtil.getRayTraceFacing(breakpos.add(-1, 2, 0))
                 )
             }
             if (getBlock(breakpos.add(0, 2, 1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(0, 2, 1), BlockUtil2.getRayTraceFacing(breakpos.add(0, 2, 1))
+                    breakpos.add(0, 2, 1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, 1))
                 )
             }
             if (getBlock(breakpos.add(0, 2, -1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(0, 2, -1), BlockUtil2.getRayTraceFacing(breakpos.add(0, 2, -1))
+                    breakpos.add(0, 2, -1), BlockUtil.getRayTraceFacing(breakpos.add(0, 2, -1))
                 )
             }
 //        Mode Two
             if (getBlock(breakpos.add(2, 1, 0))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(2, 1, 0), BlockUtil2.getRayTraceFacing(breakpos.add(2, 1, 0))
+                    breakpos.add(2, 1, 0), BlockUtil.getRayTraceFacing(breakpos.add(2, 1, 0))
                 )
             }
             if (getBlock(breakpos.add(-2, 1, 0))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(-2, 1, 0), BlockUtil2.getRayTraceFacing(breakpos.add(-2, 1, 0))
+                    breakpos.add(-2, 1, 0), BlockUtil.getRayTraceFacing(breakpos.add(-2, 1, 0))
                 )
             }
             if (getBlock(breakpos.add(0, 1, 2))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(0, 1, 2), BlockUtil2.getRayTraceFacing(breakpos.add(0, 1, 2))
+                    breakpos.add(0, 1, 2), BlockUtil.getRayTraceFacing(breakpos.add(0, 1, 2))
                 )
             }
             if (getBlock(breakpos.add(0, 1, -2))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(0, 1, -2), BlockUtil2.getRayTraceFacing(breakpos.add(0, 1, -2))
+                    breakpos.add(0, 1, -2), BlockUtil.getRayTraceFacing(breakpos.add(0, 1, -2))
                 )
             }
 //        Mode Three
             if (getBlock(breakpos.add(1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(1, 1, 1), BlockUtil2.getRayTraceFacing(breakpos.add(1, 1, 1))
+                    breakpos.add(1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, 1))
                 )
             }
             if (getBlock(breakpos.add(-1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(-1, 1, 1), BlockUtil2.getRayTraceFacing(breakpos.add(-1, 1, 1))
+                    breakpos.add(-1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, 1))
                 )
             }
             if (getBlock(breakpos.add(1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(1, 1, 1), BlockUtil2.getRayTraceFacing(breakpos.add(1, 1, 1))
+                    breakpos.add(1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, 1))
                 )
             }
             if (getBlock(breakpos.add(1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(1, 1, -1), BlockUtil2.getRayTraceFacing(breakpos.add(1, 1, -1))
+                    breakpos.add(1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, -1))
                 )
             }
 //        Mode Four
             if (getBlock(breakpos.add(1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(1, 1, -1), BlockUtil2.getRayTraceFacing(breakpos.add(1, 1, -1))
+                    breakpos.add(1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(1, 1, -1))
                 )
             }
             if (getBlock(breakpos.add(-1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(-1, 1, -1), BlockUtil2.getRayTraceFacing(breakpos.add(-1, 1, -1))
+                    breakpos.add(-1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, -1))
                 )
             }
             if (getBlock(breakpos.add(-1, 1, 1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(-1, 1, 1), BlockUtil2.getRayTraceFacing(breakpos.add(-1, 1, 1))
+                    breakpos.add(-1, 1, 1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, 1))
                 )
             }
             if (getBlock(breakpos.add(-1, 1, -1))!!.block == Blocks.REDSTONE_BLOCK) {
                 mc.playerController.onPlayerDamageBlock(
-                    breakpos.add(-1, 1, -1), BlockUtil2.getRayTraceFacing(breakpos.add(-1, 1, -1))
+                    breakpos.add(-1, 1, -1), BlockUtil.getRayTraceFacing(breakpos.add(-1, 1, -1))
                 )
             }
         }
@@ -683,7 +683,7 @@ class HoleKicker : Module() {
 //            )
 //            placements++
 //        }
-        BlockUtil2.placeBlock(pos,EnumHand.MAIN_HAND,false,packetPlace.value,true)
+        BlockUtil.placeBlock(pos,EnumHand.MAIN_HAND,false,packetPlace.value,true)
     }
 
     enum class PlaceMods {
@@ -703,7 +703,7 @@ class HoleKicker : Module() {
     private fun perform(pos: BlockPos) {
         val old = mc.player.inventory.currentItem
         this.switchToSlot(this.obsidian)
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, false, true, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, false, true, false)
         this.switchToSlot(old)
     }
 

@@ -56,70 +56,72 @@ class HoleFiller : Module() {
 
     @SubscribeEvent
     fun onTick(event: MotionUpdateEvent.FastTick?){
-        blocks = findCrystalBlocks()
-        oldSlot = mc.player.inventory.currentItem
-        val target = getTarget(range.value.toDouble())
-        for (pos in blocks!!) {
-            val result = BlockUtil.valid(pos)
-            if (result != BlockUtil.ValidResult.Ok) {
-                continue
-            }
-            if (target != null && target !== mc.player) {
-                val targetDistance = if (predictTicks.value > 0) target.positionVector.add(
-                    CrystalHelper.PredictionHandlerNew(
-                        target,
-                        predictTicks.value
-                    )
-                ) else target.positionVector
-                val dist = horizontalDist(
-                    targetDistance, Vec3d(
-                        pos.getX().toDouble(), pos.getY().toDouble(), pos.getZ().toDouble()
-                    )
-                )
-                if (FriendManager.isFriend(target.name)) continue
-                if (targetDistance.y <= pos.y + 0.5) continue
-                if (mc.player.getDistance(
-                        targetDistance.x,
-                        targetDistance.y,
-                        targetDistance.z
-                    ) > range.value
-                ) continue
-                if (mc.player.getDistance(
-                        pos.x.toDouble(),
-                        pos.y.toDouble(),
-                        pos.z.toDouble()
-                    ) > placeRange.value
-                ) continue
-                if (target.entityBoundingBox.intersects(AxisAlignedBB(pos))) {
-                    print = "BoundingBox Intersects!"
-                    ChatUtil.NoSpam.sendMessage(print)
+        runCatching {
+            blocks = findCrystalBlocks()
+            oldSlot = mc.player.inventory.currentItem
+            val target = getTarget(range.value.toDouble())
+            for (pos in blocks!!) {
+                val result = BlockUtil.valid(pos)
+                if (result != BlockUtil.ValidResult.Ok) {
                     continue
                 }
-                if (dist >= Double.MAX_VALUE) continue
-                if (abs(dist) > holeRangeEnemy.value) continue
-                print = dist.toString()
-                posToFill = pos
+                if (target != null && target !== mc.player) {
+                    val targetDistance = if (predictTicks.value > 0) target.positionVector.add(
+                        CrystalHelper.PredictionHandlerNew(
+                            target,
+                            predictTicks.value
+                        )
+                    ) else target.positionVector
+                    val dist = horizontalDist(
+                        targetDistance, Vec3d(
+                            pos.getX().toDouble(), pos.getY().toDouble(), pos.getZ().toDouble()
+                        )
+                    )
+                    if (FriendManager.isFriend(target.name)) continue
+                    if (targetDistance.y <= pos.y + 0.5) continue
+                    if (mc.player.getDistance(
+                            targetDistance.x,
+                            targetDistance.y,
+                            targetDistance.z
+                        ) > range.value
+                    ) continue
+                    if (mc.player.getDistance(
+                            pos.x.toDouble(),
+                            pos.y.toDouble(),
+                            pos.z.toDouble()
+                        ) > placeRange.value
+                    ) continue
+                    if (target.entityBoundingBox.intersects(AxisAlignedBB(pos))) {
+                        print = "BoundingBox Intersects!"
+                        ChatUtil.NoSpam.sendMessage(print)
+                        continue
+                    }
+                    if (dist >= Double.MAX_VALUE) continue
+                    if (abs(dist) > holeRangeEnemy.value) continue
+                    print = dist.toString()
+                    posToFill = pos
+                }
             }
-        }
-        if (posToFill == null) {
-            return
-        }
-        if (mc.player.getDistance(
-                posToFill!!.x.toDouble(),
-                posToFill!!.y.toDouble(),
-                posToFill!!.z.toDouble()
-            ) > placeRange.value
-        ) {
-            posToFill = null
-            return
-        }
-        if (!world.getBlockState(posToFill!!).block.equals(Blocks.AIR)) {
-            posToFill = null
-            return
-        }
-        if (HoleFillerExtend.AntiFuck){
-            if (posToFill!=Blocks.WEB&&posToFill!=Blocks.OBSIDIAN){
-                placeBlock(posToFill!!, rotate.value, packet.value)
+            if (posToFill == null) {
+                return
+            }
+            if (mc.player.getDistance(
+                    posToFill!!.x.toDouble(),
+                    posToFill!!.y.toDouble(),
+                    posToFill!!.z.toDouble()
+                ) > placeRange.value
+            ) {
+                posToFill = null
+                return
+            }
+            if (!world.getBlockState(posToFill!!).block.equals(Blocks.AIR)) {
+                posToFill = null
+                return
+            }
+            if (HoleFillerExtend.AntiFuck){
+                if (posToFill!=Blocks.WEB&&posToFill!=Blocks.OBSIDIAN){
+                    placeBlock(posToFill!!, rotate.value, packet.value)
+                }
             }
         }
     }

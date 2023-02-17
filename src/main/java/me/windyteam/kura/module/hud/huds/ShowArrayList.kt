@@ -16,7 +16,7 @@ import java.awt.Color
 import java.awt.Font
 
 @HUDModule.Info(name = "ArrayList", x = 50, y = 50, width = 100, height = 100)
-class ShowArrayList : HUDModule() {
+object ShowArrayList : HUDModule() {
     private var count = 0
     private var upside = bsetting("UpSide", false)
     private var customFont = bsetting("CustomFont", true)
@@ -51,105 +51,105 @@ class ShowArrayList : HUDModule() {
                 } else {
                     -1
                 }
-            }).forEach { module: IModule ->
-                if ((module as Module).isShownOnArray) {
-                    val screenWidthScaled = ScaledResolution(mc).scaledWidth
-                    val modWidth =
-                        (if (customFont.value) fonts.getStringWidth(getArrayList(module)) else mc.fontRenderer.getStringWidth(
-                            getArrayList(module)
-                        )).toFloat()
-                    val modText = getArrayList(module)
-                    if (module.remainingAnimation < modWidth && module.isEnabled()) {
-                        module.remainingAnimation = AnimationUtil.moveTowards(
-                            module.remainingAnimation,
-                            modWidth + 1f,
-                            (0.01f + animationSpeed.value / 30).toFloat(),
-                            0.1f,
-                            anim.value
-                        )
-                    }
-                    if (module.remainingAnimation >= modWidth && module.isDisabled()) {
-                        module.remainingAnimation = -AnimationUtil.moveTowards(
-                            module.remainingAnimation,
-                            modWidth - 1f,
-                            (0.01f + animationSpeed.value / 30).toFloat(),
-                            0.1f,
-                            anim.value
-                        )
-                        ChatUtil.sendMessage("1")
-                    }
-                    if (module.remainingAnimation > modWidth && module.isEnabled()) {
-                        module.remainingAnimation = modWidth
-                    }
-                    if (module.remainingAnimation <= modWidth && module.isDisabled()) {
-                        module.remainingAnimation = modWidth
-                    }
-                    //RenderUtils.drawRect(x - modWidth - 4, this.y + (10 * count), x, y, new Color(255, 197, 237, 80));
-                    if (x < screenWidthScaled / 2) {
-                        if (drawBG.value) {
-                            drawRect(
-                                (x - 1 - modWidth + module.remainingAnimation).toInt().toFloat(),
-                                (y + 10 * count).toFloat(),
-                                (x - 2 + module.remainingAnimation).toInt().toFloat(),
-                                (y + 10 * count + 10).toFloat(),
-                                Color(0, 0, 0, 70).rgb
-                            )
-                        }
-                        if (customFont.value) {
-                            fonts.drawString(
-                                modText,
-                                (x - 2 - modWidth + module.remainingAnimation).toInt().toFloat(),
-                                (y + 10 * count).toFloat(),
-                                generateColor()
-                            )
-                        } else {
-                            mc.fontRenderer.drawStringWithShadow(
-                                modText,
-                                (x - 2 - modWidth + module.remainingAnimation).toInt().toFloat(),
-                                (y + 10 * count).toFloat(),
-                                generateColor()
-                            )
-                        }
-                    } else {
-                        if (drawBG.value) {
-                            drawRect(
-                                (x - module.remainingAnimation - 2).toInt().toFloat(),
-                                (y + 10 * count).toFloat(),
-                                (x - module.remainingAnimation + modWidth).toInt().toFloat(),
-                                (y + 10 * count + 10).toFloat(),
-                                Color(0, 0, 0, 70).rgb
-                            )
-                        }
-                        if (sideLine.value) {
-                            val sColor =
-                                Color(sideColor.value.red, sideColor.value.green, sideColor.value.blue, sideAlpha.value)
-                            drawRect(
-                                (x - module.remainingAnimation - 2).toInt().toFloat(),
-                                (y + 10 * count).toFloat(),
-                                (x - module.remainingAnimation + sideLineWidth.value).toInt().toFloat(),
-                                (y + 10 * count + 10).toFloat(),
-                                sColor.rgb
-                            )
-                        }
-                        if (customFont.value) {
-                            fonts.drawString(
-                                modText,
-                                (x - module.remainingAnimation).toInt().toFloat(),
-                                (y + 10 * count).toFloat(),
-                                generateColor()
-                            )
-                        } else {
-                            mc.fontRenderer.drawStringWithShadow(
-                                modText,
-                                (x - module.remainingAnimation).toInt().toFloat(),
-                                (y + 10 * count).toFloat(),
-                                generateColor()
-                            )
-                        }
-                    }
-                    count++
+        }).forEach { module: IModule ->
+            if ((module as Module).isShownOnArray) {
+                val screenWidthScaled = ScaledResolution(mc).scaledWidth
+                val modWidth =
+                    (if (customFont.value) fonts.getStringWidth(getArrayList(module)) else mc.fontRenderer.getStringWidth(
+                        getArrayList(module)
+                    )).toFloat()
+                val modText = getArrayList(module)
+                if (module.remainingAnimation < modWidth && module.isEnabled()) {
+                    module.remainingAnimation = AnimationUtil.moveTowards(
+                        module.remainingAnimation,
+                        modWidth + 1f,
+                        (0.01f + animationSpeed.value / 30).toFloat(),
+                        0.1f,
+                        anim.value
+                    )
                 }
+                if (module.remainingAnimation >= modWidth && module.isDisabled()) {
+                    module.remainingAnimation = -AnimationUtil.moveTowards(
+                        module.remainingAnimation,
+                        modWidth - 1f,
+                        (0.01f + animationSpeed.value / 30).toFloat(),
+                        0.1f,
+                        anim.value
+                    )
+                    ChatUtil.sendMessage("1")
+                }
+                if (module.remainingAnimation > modWidth && module.isEnabled()) {
+                    module.remainingAnimation = modWidth
+                }
+                if (module.remainingAnimation <= modWidth && module.isDisabled()) {
+                    module.remainingAnimation = modWidth
+                }
+                //RenderUtils.drawRect(x - modWidth - 4, this.y + (10 * count), x, y, new Color(255, 197, 237, 80));
+                if (x < screenWidthScaled / 2) {
+                    if (drawBG.value) {
+                        drawRect(
+                            (x - 1 - modWidth + module.remainingAnimation).toInt().toFloat(),
+                            (y + 10 * count).toFloat(),
+                            (x - 2 + module.remainingAnimation).toInt().toFloat(),
+                            (y + 10 * count + 10).toFloat(),
+                            Color(0, 0, 0, 70).rgb
+                        )
+                    }
+                    if (customFont.value) {
+                        fonts.drawString(
+                            modText,
+                            (x - 2 - modWidth + module.remainingAnimation).toInt().toFloat(),
+                            (y + 10 * count).toFloat(),
+                            generateColor()
+                        )
+                    } else {
+                        mc.fontRenderer.drawStringWithShadow(
+                            modText,
+                            (x - 2 - modWidth + module.remainingAnimation).toInt().toFloat(),
+                            (y + 10 * count).toFloat(),
+                            generateColor()
+                        )
+                    }
+                } else {
+                    if (drawBG.value) {
+                        drawRect(
+                            (x - module.remainingAnimation - 2).toInt().toFloat(),
+                            (y + 10 * count).toFloat(),
+                            (x - module.remainingAnimation + modWidth).toInt().toFloat(),
+                            (y + 10 * count + 10).toFloat(),
+                            Color(0, 0, 0, 70).rgb
+                        )
+                    }
+                    if (sideLine.value) {
+                        val sColor =
+                            Color(sideColor.value.red, sideColor.value.green, sideColor.value.blue, sideAlpha.value)
+                        drawRect(
+                            (x - module.remainingAnimation - 2).toInt().toFloat(),
+                            (y + 10 * count).toFloat(),
+                            (x - module.remainingAnimation + sideLineWidth.value).toInt().toFloat(),
+                            (y + 10 * count + 10).toFloat(),
+                            sColor.rgb
+                        )
+                    }
+                    if (customFont.value) {
+                        fonts.drawString(
+                            modText,
+                            (x - module.remainingAnimation).toInt().toFloat(),
+                            (y + 10 * count).toFloat(),
+                            generateColor()
+                        )
+                    } else {
+                        mc.fontRenderer.drawStringWithShadow(
+                            modText,
+                            (x - module.remainingAnimation).toInt().toFloat(),
+                            (y + 10 * count).toFloat(),
+                            generateColor()
+                        )
+                    }
+                }
+                count++
             }
+        }
         width = if (x < screenWidth / 2) {
             75
         } else {
@@ -158,7 +158,7 @@ class ShowArrayList : HUDModule() {
         height = (fonts.height + 1) * count
     }
 
-    fun generateColor(): Int {
+    private fun generateColor(): Int {
         val fontColor = Color(
             GuiManager.getINSTANCE().red / 255f,
             GuiManager.getINSTANCE().green / 255f,
@@ -178,14 +178,11 @@ class ShowArrayList : HUDModule() {
         Rainbow, GuiSync, Custom
     }
 
-    companion object {
-        var fonts = CFontRenderer(
-            CFont.CustomFont(
-                "/assets/fonts/FZLanTYJW_Te.ttf",
-                20f,
-                Font.PLAIN
-            ), true, false
-        )
-        var INSTANCE = ShowArrayList()
-    }
+    private var fonts = CFontRenderer(
+        CFont.CustomFont(
+            "/assets/fonts/Comfortaa.ttf",
+            20f,
+            Font.PLAIN
+        ), true, false
+    )
 }

@@ -3,11 +3,9 @@ package me.windyteam.kura.module;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import me.windyteam.kura.event.events.client.SettingChangeEvent;
 import me.windyteam.kura.event.events.render.RenderEvent;
+import me.windyteam.kura.gui.Notification;
 import me.windyteam.kura.module.modules.client.Colors;
 import me.windyteam.kura.module.modules.client.CustomFont;
-import me.windyteam.kura.notification.NotificationManager;
-import me.windyteam.kura.notification.NotificationType;
-import me.windyteam.kura.notification.notifications.TopNotification;
 import me.windyteam.kura.setting.*;
 import me.windyteam.kura.utils.Wrapper;
 import me.windyteam.kura.utils.font.CFontRenderer;
@@ -50,7 +48,7 @@ public abstract class IModule {
         remainingAnimation = 0.0f;
         this.toggled = true;
         if (ModuleManager.getModuleByName("Notification").isEnabled()) {
-            NotificationManager.show(new TopNotification(NotificationType.INFO, this.name, "Enable", 2));
+            ChatUtil.sendClientMessage(ChatFormatting.AQUA + "[" + name + "] is Enable", Notification.Type.SUCCESS);
         }
         if (Colors.INSTANCE.chat.getValue()) {
             ChatUtil.NoSpam.sendMessage(ChatFormatting.AQUA + name + ChatFormatting.WHITE + " is" + ChatFormatting.GREEN + " Enabled!");
@@ -63,7 +61,7 @@ public abstract class IModule {
         remainingAnimation = 0.0f;
         this.toggled = false;
         if (ModuleManager.getModuleByName("Notification").isEnabled()) {
-            NotificationManager.show(new TopNotification(NotificationType.INFO, this.name, "Disable", 2));
+            ChatUtil.sendClientMessage(ChatFormatting.RED + "[" + name + "] is Disable", Notification.Type.DISABLE);
         }
         if (Colors.INSTANCE.chat.getValue()) {
             ChatUtil.NoSpam.sendMessage(ChatFormatting.AQUA + name + ChatFormatting.WHITE + " is" + ChatFormatting.RED + " Disabled!");

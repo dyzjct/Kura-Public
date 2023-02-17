@@ -4,7 +4,7 @@ import me.windyteam.kura.manager.HotbarManager
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.Module.Info
-import me.windyteam.kura.utils.block.BlockUtil2
+import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.Timer
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.player.getTarget
@@ -144,7 +144,7 @@ class TNTHead : Module(){
         }
         val old = mc.player.inventory.currentItem
         HotbarManager.spoofHotbar(obi)
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
         HotbarManager.spoofHotbar(old)
     }
 
@@ -159,7 +159,7 @@ class TNTHead : Module(){
         }
         val old = mc.player.inventory.currentItem
         HotbarManager.spoofHotbar(redstone)
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
         HotbarManager.spoofHotbar(old)
     }
 
@@ -174,7 +174,7 @@ class TNTHead : Module(){
         }
         val old = mc.player.inventory.currentItem
         HotbarManager.spoofHotbar(tnt)
-        BlockUtil2.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
+        BlockUtil.placeBlock(pos, EnumHand.MAIN_HAND, rotate.value, true, false)
         HotbarManager.spoofHotbar(old)
     }
 

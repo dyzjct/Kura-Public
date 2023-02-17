@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Module.Info(name = "CrystalRender", category = Category.RENDER)
-class CrystalRender : Module() {
+object CrystalRender : Module() {
     private val range = isetting("Range", 12, 0, 30)
     private val lineWidth = fsetting("Width",2f,1f,4f)
     private val alpha = isetting("Alpha",150,0,255)

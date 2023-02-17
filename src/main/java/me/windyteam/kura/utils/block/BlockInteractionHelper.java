@@ -345,7 +345,7 @@ public class BlockInteractionHelper {
         return circleblocks;
     }
 
-    private static float[] getLegitRotations(BlockPos vec) {
+    public static float[] getLegitRotations(BlockPos vec) {
         Vec3d eyesPos = getEyesPos();
 
         double diffX = vec.x - eyesPos.x;

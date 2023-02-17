@@ -7,14 +7,14 @@ import me.windyteam.kura.module.Module;
 import me.windyteam.kura.module.modules.client.Colors;
 import me.windyteam.kura.setting.IntegerSetting;
 import me.windyteam.kura.setting.Setting;
-import me.windyteam.kura.utils.block.BlockUtils;
+import me.windyteam.kura.utils.block.BlockUtil;
 import me.windyteam.kura.utils.color.ColorUtil;
 import me.windyteam.kura.utils.entity.CrystalUtil;
 import me.windyteam.kura.utils.entity.TargetUtils;
 import me.windyteam.kura.utils.gl.RenderUtils;
 import me.windyteam.kura.utils.inventory.InventoryUtil;
 import me.windyteam.kura.utils.mc.ChatUtil;
-import me.windyteam.kura.utils.block.BlockUtils;
+import me.windyteam.kura.utils.block.BlockUtil;
 import me.windyteam.kura.utils.entity.CrystalUtil;
 import me.windyteam.kura.utils.mc.ChatUtil;
 import net.minecraft.block.Block;
@@ -229,7 +229,7 @@ public class PistonCrystal extends Module {
                     }
                     this.power = null;
                     if (mc.world.isBlockPowered(pispos)) {
-                        if (BlockUtils.isPlaceable(pispos, 0, true) == null) continue;
+                        if (BlockUtil.isPlaceable(pispos, 0, true) == null) continue;
                     } else {
                         for (EnumFacing fa : EnumFacing.values()) {
                             BlockPos powpos = pispos.offset(fa);
@@ -239,7 +239,7 @@ public class PistonCrystal extends Module {
                             if (crypos.offset(EnumFacing.UP).equals(powpos)) continue;
                             if (mc.player.getDistanceSq((double) powpos.getX() + 0.5D, (double) powpos.getY() + 0.5D, (double) powpos.getZ() + 0.5D) >= 64.0D)
                                 continue;
-                            if (BlockUtils.isPlaceable(powpos, 0, true) == null) continue;
+                            if (BlockUtil.isPlaceable(powpos, 0, true) == null) continue;
 
                             if (pistonFacing.getDirectionVec().getX() > 0 && powpos.getX() - pist > crypos.getX())
                                 continue;
@@ -313,16 +313,16 @@ public class PistonCrystal extends Module {
 
             if (stage == delay2.getValue()) {
                 InventoryUtil.setSlot(pitem);
-                BlockUtils.doPlace(BlockUtils.isPlaceable(piston, 0, false), true);
+                BlockUtil.doPlace(BlockUtil.isPlaceable(piston, 0, false), true);
 
                 if (power != null) {
                     InventoryUtil.setSlot(powtem1);
                     InventoryUtil.setSlot(powtem2);
-                    BlockUtils.doPlace(BlockUtils.isPlaceable(power, 0, false), true);
+                    BlockUtil.doPlace(BlockUtil.isPlaceable(power, 0, false), true);
                 }
 
                 InventoryUtil.setSlot(pitem);
-                BlockUtils.doPlace(BlockUtils.isPlaceable(piston, 0, false), true);
+                BlockUtil.doPlace(BlockUtil.isPlaceable(piston, 0, false), true);
 
                 InventoryUtil.setSlot(cryst);
                 CrystalUtil.placeCrystal(crystal);
@@ -330,7 +330,7 @@ public class PistonCrystal extends Module {
                 if (power != null) {
                     InventoryUtil.setSlot(powtem1);
                     InventoryUtil.setSlot(powtem2);
-                    BlockUtils.doPlace(BlockUtils.isPlaceable(power, 0, false), true);
+                    BlockUtil.doPlace(BlockUtil.isPlaceable(power, 0, false), true);
                 }
             }
 

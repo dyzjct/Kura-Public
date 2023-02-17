@@ -4,7 +4,7 @@ import me.windyteam.kura.module.Category;
 import me.windyteam.kura.module.Module;
 import me.windyteam.kura.module.modules.misc.InstantMine;
 import me.windyteam.kura.setting.Setting;
-import me.windyteam.kura.utils.block.BlockUtil2;
+import me.windyteam.kura.utils.block.BlockUtil;
 import me.windyteam.kura.utils.entity.EntityUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,7 +31,7 @@ public class AutoCity
         }
         BlockPos feet = new BlockPos(target.posX, target.posY, target.posZ);
         if (!this.detection(target)) {
-            if (InstantMine.getInstance().db.getValue()) {
+            if (InstantMine.db.getValue()) {
                 if (this.getBlock(feet.add(0, 1, 2)).getBlock() == Blocks.AIR && this.getBlock(feet.add(0, 0, 1)).getBlock() != Blocks.AIR && this.getBlock(feet.add(0, 0, 2)).getBlock() == Blocks.AIR && this.getBlock(feet.add(0, 0, 1)).getBlock() != Blocks.BEDROCK && this.getBlock(feet.add(0, 0, 1)).getBlock() != Blocks.BEDROCK) {
                     this.surroundMine(feet.add(0, 0, 1));
                 } else if (this.getBlock(feet.add(0, 1, -2)).getBlock() == Blocks.AIR && this.getBlock(feet.add(0, 0, -1)).getBlock() != Blocks.AIR && this.getBlock(feet.add(0, 0, -2)).getBlock() == Blocks.AIR && this.getBlock(feet.add(0, 0, -1)).getBlock() != Blocks.BEDROCK && this.getBlock(feet.add(0, 0, -1)).getBlock() != Blocks.BEDROCK) {
@@ -219,7 +219,7 @@ public class AutoCity
                 return;
             }
         }
-        AutoCity.mc.playerController.onPlayerDamageBlock(position, BlockUtil2.getRayTraceFacing(position));
+        AutoCity.mc.playerController.onPlayerDamageBlock(position, BlockUtil.getRayTraceFacing(position));
     }
 
     private boolean detection(EntityPlayer player) {

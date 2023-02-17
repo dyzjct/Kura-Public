@@ -25,7 +25,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.LogManager
 import org.lwjgl.opengl.Display
-import java.io.IOException
 
 @Mod(modid = Kura.MOD_ID, name = Kura.MOD_NAME, version = Kura.VERSION)
 class Kura {
@@ -72,11 +71,11 @@ class Kura {
         MinecraftForge.EVENT_BUS.register(ForgeEventProcessor)
         MinecraftForge.EVENT_BUS.register(HotbarManager)
         MinecraftForge.EVENT_BUS.register(RotationManager())
-        Kura.instance.guiRender =
+        instance.guiRender =
             GUIRender()
-        Kura.instance.hudEditor =
+        instance.hudEditor =
             HUDRender()
-        Kura.instance.configManager =
+        instance.configManager =
             FileManager()
         FileManager.loadAll()
     }
