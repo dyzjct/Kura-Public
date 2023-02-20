@@ -1,89 +1,79 @@
 package me.windyteam.kura.module.modules.player
 
-import me.windyteam.kura.event.events.PlayerDamageBlockEvent
 import me.windyteam.kura.event.events.block.BlockEvent
-import me.windyteam.kura.event.events.entity.MotionUpdateEvent
-import me.windyteam.kura.event.events.player.PacketEvent
+import me.windyteam.kura.event.events.player.UpdateWalkingPlayerEvent
 import me.windyteam.kura.event.events.render.RenderEvent
+import me.windyteam.kura.manager.RotationManager
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.module.Module.Info
-import me.windyteam.kura.module.modules.misc.InstantMine
-import me.windyteam.kura.utils.Timer
+import me.windyteam.kura.module.ModuleManager
+import me.windyteam.kura.module.modules.combat.CevBreaker
+import me.windyteam.kura.utils.TimerUtils
+import me.windyteam.kura.utils.animations.BlockEasingRender
+import me.windyteam.kura.utils.block.BlockInteractionHelper
 import me.windyteam.kura.utils.block.BlockUtil
-import me.windyteam.kura.utils.gl.MelonTessellator
+import me.windyteam.kura.utils.gl.MelonTessellator.drawBBBox
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import net.minecraft.block.state.IBlockState
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.init.Blocks
+import net.minecraft.init.Enchantments
 import net.minecraft.init.Items
-import net.minecraft.network.Packet
+import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketPlayerDigging
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent
 import java.awt.Color
-import kotlin.math.abs
 
-@Info(
-    name = "PacketMine", category = Category.PLAYER, description = "Packet Mine"
-)
+@Module.Info(name = "PacketMine", category = Category.PLAYER, description = "Better Mining")
 object PacketMine : Module() {
+    private var blockRenderSmooth = BlockEasingRender(BlockPos(0, 0, 0), 0.0f, 2000.0f)
+    private var timerUtils = TimerUtils()
+    private var renderTimerUtils = TimerUtils()
+    private var packet = bsetting("PacketOnly", false)
+    private var spoofSwing = bsetting("SpoofSwing", false)
+    private var startSwingTime = isetting("StartSwingTime", 1350, 0, 2000)
+    private var swap = bsetting("SwapMine", true)
+    private var resendClick = settings("ResendClick", false)
+    private var rotate = bsetting("Rotate", false)
+    private var render = bsetting("Render", true)
+    private var alpha = isetting("Alpha", 30, 0, 255).b(render)
+    private var currentBlockState: IBlockState? = null
 
-    private val ghostHand = bsetting("GhostHand", true)
-    private val red = isetting("Red", 255, 0, 255)
-    private val green = isetting("Green", 255, 0, 255)
-    private val blue = isetting("Blue", 255, 0, 255)
-    private val alpha = isetting("Alpha", 150, 0, 255)
-    private var lineWidth = fsetting("LineWidth", 2f, 1f, 3f)
-    private var resendClick = bsetting("ResendClick",false)
-    private var strict = bsetting("Strict",true)
-    private var onlyPacket = bsetting("OnlyPacket",false)
 
-
-    var breakPos: BlockPos? = null
     var facing: EnumFacing? = null
-    val time = Timer()
-    var cancel = false
-
-    @SubscribeEvent
-    fun onTick(event: MotionUpdateEvent.Tick) {
-        if (fullNullCheck() || breakPos == null || strict.value) return
-        if (!cancel) {
-            return
+    var oldSlot = 0
+    private var picSlot = 0
+    private fun equipBestTool(blockState: IBlockState?) {
+        var bestSlot = -1
+        var max = 0.0
+        for (i in 0..8) {
+            var eff: Int
+            val stack = mc.player.inventory.getStackInSlot(i)
+            if (stack.isEmpty) continue
+            var speed = stack.getDestroySpeed(blockState!!)
+            if ((speed + if (EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack)
+                        .also { eff = it } > 0
+                ) eff.toDouble() + 1.0 else 0.0).toFloat().also { speed = it } <= max
+            ) continue
+            max = speed.toDouble()
+            bestSlot = i
         }
-        if (getBlock(breakPos!!)!!.block != Blocks.AIR) {
-            val oldSlot = mc.player.inventory.currentItem
-            if (ghostHand.value) mc.player.inventory.currentItem = InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD)
-            mc.player.connection.sendPacket(
-                CPacketPlayerDigging(
-                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, breakPos!!, facing!!
-                ) as Packet<*>
-            )
-            mc.player.connection.sendPacket(
-                CPacketPlayerDigging(
-                    CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, breakPos!!, facing!!
-                ) as Packet<*>
-            )
-            if (ghostHand.value) mc.player.inventory.currentItem = oldSlot
+        if (bestSlot != -1) {
+            InventoryUtil.switchToHotbarSlot(bestSlot, false)
         }
     }
 
     @SubscribeEvent
-    fun onPacketSend(event: PacketEvent.Send) {
-        if (fullNullCheck()) {
-            return
-        }
-        if (mc.player.isCreative) {
-            return
-        }
-        if (event.getPacket<Packet<*>>() !is CPacketPlayerDigging) {
-            return
-        }
-        val packet = event.getPacket<Packet<*>>() as CPacketPlayerDigging
-        if (packet.action != CPacketPlayerDigging.Action.START_DESTROY_BLOCK) {
-            return
-        }
-        event.isCanceled = cancel
+    fun onDisconnect(event: ClientDisconnectionFromServerEvent?) {
+        currentPos = null
+        facing = null
+        timerUtils.reset()
+        renderTimerUtils.reset()
     }
 
     @SubscribeEvent
@@ -91,75 +81,174 @@ object PacketMine : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (mc.player.isCreative) {
-            return
-        }
-        if (event.pos != Blocks.AIR && event.pos != Blocks.BEDROCK) {
-            breakPos = event.pos
-        }
-        cancel = false
-        if (breakPos != null) {
-            if (!BlockUtil.canBreak(breakPos, false)) {
-                breakPos = null
-                return
-            }
-            if (breakPos == event.pos) {
-                if (!onlyPacket.value) {
+        oldSlot = mc.player.inventory.currentItem
+        picSlot = InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE)
+        runCatching {
+            if (currentPos != null) {
+                if (!BlockUtil.canBreak(currentPos, false)) {
+                    currentPos = null
                     return
-                } else {
+                }
+                if (currentPos!!.getX() == event.getPos().getX() && currentPos!!.getY() == event.getPos()
+                        .getY() && currentPos!!.getZ() == event.getPos().getZ()
+                ) {
+                    return
+                }
+                if (currentPos == event.pos) {
                     if (resendClick.value) {
-//                        if (cancelNonSafe.value && multiplier < 1f) {
-//                            return
-//                        }
-                        if (ghostHand.value) {
+                        if (swap.value) {
                             mc.player.connection.sendPacket(
                                 CPacketPlayerDigging(
-                                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, breakPos!!, facing!!
-                                ) as Packet<*>
+                                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentPos!!, facing!!
+                                )
                             )
-                            val oldSlot = mc.player.inventory.currentItem
-                            mc.player.inventory.currentItem = InventoryUtil.getItemHotbar(Items.DIAMOND_SWORD)
+                            mc.player.inventory.currentItem = picSlot
                             mc.player.connection.sendPacket(
                                 CPacketPlayerDigging(
-                                    CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, breakPos!!, facing!!
-                                ) as Packet<*>
+                                    CPacketPlayerDigging.Action.START_DESTROY_BLOCK, currentPos!!, facing!!
+                                )
                             )
                             mc.player.inventory.currentItem = oldSlot
-                            mc.playerController.updateController()
                         } else {
                             mc.player.connection.sendPacket(
                                 CPacketPlayerDigging(
-                                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, breakPos!!, facing!!
-                                ) as Packet<*>
+                                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentPos!!, facing!!
+                                )
                             )
                             mc.player.connection.sendPacket(
                                 CPacketPlayerDigging(
-                                    CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, breakPos!!, facing!!
-                                ) as Packet<*>
+                                    CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, currentPos!!, facing!!
+                                )
                             )
                         }
                     }
                 }
             }
-            cancel = true
+            currentPos = event.getPos()
+            facing = event.getFacing()
+            currentBlockState = mc.world.getBlockState(currentPos!!)
+            timerUtils.reset()
+            renderTimerUtils.reset()
+            if (mc.connection != null && BlockUtil.canBreak(currentPos, false)) {
+                blockRenderSmooth.updatePos(currentPos!!)
+                blockRenderSmooth.reset()
+                mc.player.swingArm(EnumHand.MAIN_HAND)
+                mc.player.connection.sendPacket(
+                    CPacketPlayerDigging(
+                        CPacketPlayerDigging.Action.START_DESTROY_BLOCK, currentPos!!, facing!!
+                    )
+                )
+                mc.player.connection.sendPacket(
+                    CPacketPlayerDigging(
+                        CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, currentPos!!, facing!!
+                    )
+                )
+            }
+            event.isCanceled = true
         }
-
     }
 
-    private fun getBlock(block: BlockPos): IBlockState? {
-        return mc.world.getBlockState(block)
+    @SubscribeEvent
+    fun onUpdate(event: UpdateWalkingPlayerEvent) {
+        if (fullNullCheck()) {
+            return
+        }
+        oldSlot = mc.player.inventory.currentItem
+        picSlot = InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE)
+        runCatching {
+            if (ModuleManager.getModuleByClass(CevBreaker::class.java).isEnabled) {
+                currentPos = null
+                return
+            }
+
+            if (BlockUtil.canBreak(currentPos, false)) {
+                if (swap.value && currentBlockState!!.block != Blocks.SNOW_LAYER) {
+                    equipBestTool(currentBlockState)
+                } else if (swap.value && currentBlockState!!.block == Blocks.SNOW_LAYER) {
+                    InventoryUtil.switchToHotbarSlot(picSlot, false)
+                }
+
+                if (!(packet.value) && timerUtils.passed(startSwingTime.value)) {
+                    mc.player.connection.sendPacket(
+                        CPacketPlayerDigging(
+                            CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, currentPos!!, facing!!
+                        )
+                    )
+                }
+
+                if (swap.value) {
+                    InventoryUtil.switchToHotbarSlot(oldSlot, false)
+                }
+
+
+                if (spoofSwing.value && timerUtils.passed((startSwingTime.value))) {
+                    mc.player.connection.sendPacket(CPacketAnimation(EnumHand.MAIN_HAND))
+                }
+//                val side = BlockUtil.getFirstFacing(currentPos)
+//                val neighbour: BlockPos = currentPos!!.offset(side)
+//                val opposite = side.getOpposite()
+//                val hitVec = Vec3d(neighbour as Vec3i).add(0.5, 0.5, 0.5)
+//                    .add(Vec3d(opposite.getDirectionVec()).scale(0.5))
+//                if (rotate.value) {
+//                    RotationUtil.faceVector(hitVec, true)
+//                }
+                if (rotate.value && timerUtils.passed(1800.0f)) {
+                    event.setRotation(
+                        BlockInteractionHelper.getLegitRotations(Vec3d(currentPos!!).add(0.5, 0.0, 0.5))[0],
+                        BlockInteractionHelper.getLegitRotations(
+                            Vec3d(currentPos!!)
+                        )[1]
+                    )
+                }
+            }
+        }
     }
 
     override fun onWorldRender(event: RenderEvent) {
-        if (breakPos == null) return
-        MelonTessellator.boxESP(
-            breakPos!!,
-            Color(red.value, green.value, blue.value),
-            alpha.value,
-            lineWidth.value,
-            0f,
-            1
-        )
+        if (fullNullCheck()) {
+            return
+        }
+        val color = Color(0, 255, 0)
+        val color2 = Color(255, 0, 0)
+        if (render.value as Boolean && currentPos != null && BlockUtil.canBreak(currentPos, true)) {
+            blockRenderSmooth.begin()
+            drawBBBox(
+                blockRenderSmooth.getFullUpdate(),
+                if (renderTimerUtils.passed(1800)) color else color2,
+                (alpha.value as Int),
+                3.0f,
+                true
+            )
+        } else if (currentPos == null) {
+            blockRenderSmooth.end()
+        }
     }
+
+    override fun onDisable() {
+        if (fullNullCheck()) {
+            return
+        }
+        currentPos = null
+        facing = null
+        RotationManager.resetRotation()
+    }
+
+    override fun onEnable() {
+        if (fullNullCheck()) {
+            return
+        }
+
+        currentPos = null
+        facing = null
+        blockRenderSmooth.reset()
+    }
+
+    override fun getHudInfo(): String {
+        return if (packet.value) "Packet" else "Instant"
+    }
+
+
+    @JvmField
+    var currentPos: BlockPos? = null
 
 }

@@ -10,7 +10,6 @@ import me.windyteam.kura.module.modules.client.*;
 import me.windyteam.kura.module.modules.combat.*;
 import me.windyteam.kura.module.modules.combat.holefillers.HoleFiller;
 import me.windyteam.kura.module.modules.crystalaura.AutoCrystal;
-import me.windyteam.kura.module.modules.crystalaura.LunarAura;
 import me.windyteam.kura.module.modules.misc.*;
 import me.windyteam.kura.module.modules.movement.*;
 import me.windyteam.kura.module.modules.player.*;
@@ -222,7 +221,7 @@ public class ModuleManager {
         registerModule(new NullModule());
         //Render
         registerModule(new Animations());
-        registerModule(new AntiPlayerSwing());
+        registerModule(AntiPlayerSwing.INSTANCE);
         registerModule(new CameraClip());
         registerModule(new SkyColor());
         registerModule(new CustomFov());
@@ -248,6 +247,7 @@ public class ModuleManager {
         registerModule(new CityESP());
         registerModule(new Aspect());
         registerModule(CrystalRender.INSTANCE);
+        registerModule(HandAnimations.INSTANCE);
 
         //Combat
         registerModule(new Aimbot());
@@ -280,7 +280,7 @@ public class ModuleManager {
         registerModule(new TNTHead());
         registerModule(new AutoTopCev());
         registerModule(new HoleKicker());
-        registerModule(new KnifeBot());
+        registerModule(KnifeBot.INSTANCE);
         registerModule(HoleKickerRewrite.INSTANCE);
         //Player
         registerModule(new LiquidInteract());
@@ -322,7 +322,7 @@ public class ModuleManager {
         registerModule(new AutoRespawn());
         registerModule(new AutoWither());
         registerModule(new FakePlayer());
-        registerModule(new MCP());
+        registerModule(MCP.INSTANCE);
         registerModule(new MCF());
         registerModule(new NoRotate());
         registerModule(new EasyKitsCrasher());

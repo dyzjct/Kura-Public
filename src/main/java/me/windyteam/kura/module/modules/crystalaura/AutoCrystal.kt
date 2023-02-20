@@ -996,7 +996,7 @@ object AutoCrystal : Module() {
         )
     }
 
-    fun World.noCollision(pos: BlockPos) = this.checkNoEntityCollision(AxisAlignedBB(pos), mc.player)
+    private fun World.noCollision(pos: BlockPos) = this.checkNoEntityCollision(AxisAlignedBB(pos), mc.player)
 
     override fun onWorldRender(event: RenderEvent) {
         if (fullNullCheck()) {
@@ -1041,7 +1041,6 @@ object AutoCrystal : Module() {
                     XG42Tessellator.release()
                 }
                 if (renderBreak.value) {
-//                    val attackingCrystalPosition = lastCrystal!!.position.down()
                     val attackingCrystalPosition = attackingCrystal!!.position.down()
 
                     if (!attackingCrystalPosition.isFullBox) return
@@ -1049,7 +1048,7 @@ object AutoCrystal : Module() {
                     if (fullNullCheck()) {
                         return
                     }
-                    if (lastCrystal == null) {
+                    if (attackingCrystal == null) {
                         return
                     }
                     XG42Tessellator.prepare(GL11.GL_QUADS)

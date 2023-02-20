@@ -16,7 +16,6 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
-import net.minecraft.network.Packet
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketHeldItemChange
 import net.minecraft.network.play.client.CPacketPlayer
@@ -44,6 +43,7 @@ object HoleKickerRewrite : Module() {
     private val autoToggle = settings("AutoToggle", true)
     private val autoPush = settings("Push", false)
     private val rotate = settings("Rotate", false)
+    private val xinBypass = settings("XinBypass",false)
     private var pistonList = mutableListOf<BlockPos>()
     private var pistonList2 = mutableListOf<BlockPos>()
     private var breakList = mutableListOf<BlockPos>()
@@ -62,7 +62,7 @@ object HoleKickerRewrite : Module() {
             }
             return
         }
-        EntityUtil.getRoundedBlockPos(mc.player as Entity)
+        EntityUtil.getRoundedBlockPos(mc.player)
         loadPistonList()
         loadPistonList2()
         loadBreakList()
@@ -82,7 +82,7 @@ object HoleKickerRewrite : Module() {
                 }
                 return
             }
-            EntityUtil.getRoundedBlockPos(mc.player as Entity)
+            EntityUtil.getRoundedBlockPos(mc.player)
             target = getTarget(range.value)
             if (target == null) {
                 if (autoToggle.value) {
@@ -131,7 +131,11 @@ object HoleKickerRewrite : Module() {
                 )
             ) {
                 switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
-                placeBlock(BlockPos(playerPos.add(pistonList[i].x, 0, pistonList[i].z)))
+                if (xinBypass.value){
+                    rotationBlock(playerPos.add(pistonList[i].x, 0, pistonList[i].z))
+                } else {
+                    placeBlock(playerPos.add(pistonList[i].x, 0, pistonList[i].z))
+                }
                 doRedStone = true
             }
 
@@ -181,7 +185,11 @@ object HoleKickerRewrite : Module() {
                 ) && !doRedStone
             ) {
                 switchToSlot(InventoryUtil.findHotbarBlock(Blocks.REDSTONE_BLOCK))
-                rotationBlock(playerPos.add(pistonList[i].x, 2, pistonList[i].z))
+                if (xinBypass.value){
+                    rotationBlock(playerPos.add(pistonList[i].x, 2, pistonList[i].z))
+                } else {
+                    placeBlock(playerPos.add(pistonList[i].x, 2, pistonList[i].z))
+                }
                 switchToSlot(b)
                 doRedStone1 = true
             }
@@ -257,7 +265,7 @@ object HoleKickerRewrite : Module() {
     }
 
     private fun switchToSlot(slot: Int) {
-        mc.player.connection.sendPacket(CPacketHeldItemChange(slot) as Packet<*>)
+        mc.player.connection.sendPacket(CPacketHeldItemChange(slot))
         mc.player.inventory.currentItem = slot
         mc.playerController.updateController()
     }
@@ -273,8 +281,8 @@ object HoleKickerRewrite : Module() {
                 Collectors.toList()
             )) {
             if (crystal !is EntityEnderCrystal || mc.player.getDistance(crystal) > 4.0f) continue
-            mc.player.connection.sendPacket(CPacketUseEntity(crystal) as Packet<*>)
-            mc.player.connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND) as Packet<*>)
+            mc.player.connection.sendPacket(CPacketUseEntity(crystal))
+            mc.player.connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
         }
     }
 }

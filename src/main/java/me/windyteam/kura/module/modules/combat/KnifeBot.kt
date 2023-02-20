@@ -7,19 +7,25 @@ import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.modules.crystalaura.AutoCrystal
 import me.windyteam.kura.setting.Setting
 import me.windyteam.kura.utils.Timer
+import me.windyteam.kura.utils.block.BlockInteractionHelper
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.getTarget
 import me.windyteam.kura.utils.math.DamageUtil
-import me.windyteam.kura.utils.math.RotationUtil
 import me.windyteam.kura.utils.math.deneb.LagCompensator
 import me.windyteam.kura.utils.render.RenderUtil
 import me.windyteam.kura.utils.render.RenderUtilv12
+import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.network.play.client.CPacketPlayerDigging
+import net.minecraft.network.play.client.CPacketUseEntity
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.awt.Color
 
 @Module.Info(name = "Knife-Bot", category = Category.COMBAT)
-class KnifeBot : Module() {
+object KnifeBot : Module() {
     private val timer = Timer()
     private val setting = msetting("Settings", Settings.COMBAT)
     private val render = msetting("RenderMode", RenderMode.JELLO).m(setting, Settings.RENDER)
@@ -34,6 +40,7 @@ class KnifeBot : Module() {
 
     override fun onWorldRender(event: RenderEvent) {
         if (fullNullCheck()) return
+        target = getTarget(range.value)
         if (target != null) {
             if (render.value === RenderMode.OLD) {
                 RenderUtilv12.drawEntityBoxESP(
@@ -52,19 +59,9 @@ class KnifeBot : Module() {
     @SubscribeEvent
     fun onTick(event: MotionUpdateEvent.Tick?) {
         if (fullNullCheck()) return
-        if (!rotate.value) {
-            doKnifeBot()
-        }
-        target = getTarget(range.value)
+        doKnifeBot()
     }
 
-    @SubscribeEvent
-    fun onUpdateWalkingPlayerEvent(event: MotionUpdateEvent.Tick) {
-        if (fullNullCheck()) return
-        if (event.stage == 0 && rotate.value) {
-            doKnifeBot()
-        }
-    }
 
     private fun doKnifeBot() {
         if (fullNullCheck()) return
@@ -78,9 +75,41 @@ class KnifeBot : Module() {
         if (!timer.passedMs(wait.toLong())) {
             return
         }
+
         if (target == null) return
         if (rotate.value) {
-            RotationUtil.lookAtEntity(target)
+            mc.player.rotationYawHead = BlockInteractionHelper.getLegitRotations(
+                Vec3d(
+                    target!!.posX,
+                    target!!.posY,
+                    target!!.posZ
+                )
+            )[0]
+            mc.player.renderYawOffset = BlockInteractionHelper.getLegitRotations(
+                Vec3d(
+                    target!!.posX,
+                    target!!.posY,
+                    target!!.posZ
+                )
+            )[0]
+            mc.player.rotationYaw = (
+                BlockInteractionHelper.getLegitRotations(
+                    Vec3d(
+                        target!!.posX,
+                        target!!.posY,
+                        target!!.posZ
+                    )
+                )[0]
+            )
+            mc.player.rotationPitch = (
+                BlockInteractionHelper.getLegitRotations(
+                    Vec3d(
+                        target!!.posX,
+                        target!!.posY,
+                        target!!.posZ
+                    )
+                )[1]
+            )
         }
         EntityUtil.attackEntity(target, packet.value, true)
         timer.reset()
@@ -101,8 +130,4 @@ class KnifeBot : Module() {
         COMBAT, RENDER
     }
 
-    companion object {
-        @JvmStatic
-        var INSTANCE: KnifeBot? = KnifeBot()
-    }
 }

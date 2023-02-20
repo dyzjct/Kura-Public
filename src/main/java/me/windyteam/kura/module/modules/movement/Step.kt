@@ -24,8 +24,7 @@ class Step : Module() {
         if (mc.player != null && mc.player.onGround && !mc.player.isInWater && !mc.player.isOnLadder && reverse.value) {
             var n = 0.0
             while (n < this.heights.value + 0.5) {
-                if (!mc.world.getCollisionBoxes(mc.player, mc.player.entityBoundingBox.offset(0.0, -n, 0.0))
-                        .isEmpty()
+                if (mc.world.getCollisionBoxes(mc.player, mc.player.entityBoundingBox.offset(0.0, -n, 0.0)).isNotEmpty()
                 ) {
                     mc.player.motionY = -10.0
                     break
@@ -46,38 +45,38 @@ class Step : Module() {
                 mc.world.getCollisionBoxes(mc.player, mc.player.entityBoundingBox.offset(forward[0], 2.9, forward[1]))
             }
             if (mc.world.getCollisionBoxes(mc.player, mc.player.entityBoundingBox.offset(forward[0], 2.6, forward[1]))
-                    .isEmpty() && !mc.world.getCollisionBoxes(
+                    .isEmpty() && mc.world.getCollisionBoxes(
                     mc.player, mc.player.entityBoundingBox.offset(
                         forward[0], 2.4, forward[1]
                     )
-                ).isEmpty()
+                ).isNotEmpty()
             ) {
                 b = true
             }
             if (mc.world.getCollisionBoxes(mc.player, mc.player.entityBoundingBox.offset(forward[0], 2.1, forward[1]))
-                    .isEmpty() && !mc.world.getCollisionBoxes(
+                    .isEmpty() && mc.world.getCollisionBoxes(
                     mc.player, mc.player.entityBoundingBox.offset(
                         forward[0], 1.9, forward[1]
                     )
-                ).isEmpty()
+                ).isNotEmpty()
             ) {
                 b2 = true
             }
             if (mc.world.getCollisionBoxes(mc.player, mc.player.entityBoundingBox.offset(forward[0], 1.6, forward[1]))
-                    .isEmpty() && !mc.world.getCollisionBoxes(
+                    .isEmpty() && mc.world.getCollisionBoxes(
                     mc.player, mc.player.entityBoundingBox.offset(
                         forward[0], 1.4, forward[1]
                     )
-                ).isEmpty()
+                ).isNotEmpty()
             ) {
                 b3 = true
             }
             if (mc.world.getCollisionBoxes(mc.player, mc.player.entityBoundingBox.offset(forward[0], 1.0, forward[1]))
-                    .isEmpty() && !mc.world.getCollisionBoxes(
+                    .isEmpty() && mc.world.getCollisionBoxes(
                     mc.player, mc.player.entityBoundingBox.offset(
                         forward[0], 0.6, forward[1]
                     )
-                ).isEmpty()
+                ).isNotEmpty()
             ) {
                 b4 = true
             }
