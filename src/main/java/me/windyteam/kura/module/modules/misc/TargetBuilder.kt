@@ -61,9 +61,9 @@ class TargetBuilder : Module() {
         if (down.value) {
             if (getBlock(playerpos.add(0, -1, 0)).block == Blocks.AIR) {
                 if (webdown.value && web != -1){
-                    placeweb(playerpos.add(0, -1, 0))
+                    placeWeb(playerpos.add(0, -1, 0))
                 } else{
-                    placeobi(playerpos.add(0, -1, 0))
+                    placeObi(playerpos.add(0, -1, 0))
                 }
             }
         }
@@ -76,28 +76,28 @@ class TargetBuilder : Module() {
                             1
                         ) != breakpos && getBlock(playerpos.add(0, 1, 1)).block != Blocks.AIR
                     ) {
-                        placeobi(playerpos.add(0, 2, 1))
+                        placeObi(playerpos.add(0, 2, 1))
                     } else if (world.isPlaceable(playerpos.add(0, 2, -1)) && world.isPlaceable(playerpos.add(0, 2, -1)) && getBlock(playerpos.add(0, 2, -1)).block == Blocks.AIR && playerpos.add(
                             0,
                             2,
                             -1
                         ) != breakpos && getBlock(playerpos.add(0, 1, -1)).block != Blocks.AIR
                     ) {
-                        placeobi(playerpos.add(0, 2, -1))
+                        placeObi(playerpos.add(0, 2, -1))
                     } else if (world.isPlaceable(playerpos.add(1, 2, 0)) && world.isPlaceable(playerpos.add(1, 2, 0)) && getBlock(playerpos.add(1, 2, 0)).block == Blocks.AIR && playerpos.add(
                             1,
                             2,
                             0
                         ) != breakpos && getBlock(playerpos.add(1, 1, 0)).block != Blocks.AIR
                     ) {
-                        placeobi(playerpos.add(1, 2, 0))
+                        placeObi(playerpos.add(1, 2, 0))
                     } else if (world.isPlaceable(playerpos.add(-1, 1, 0)) && world.isPlaceable(playerpos.add(-1, 2, 0)) && getBlock(playerpos.add(-1, 2, 0)).block == Blocks.AIR && playerpos.add(
                             -1,
                             2,
                             0
                         ) != breakpos && getBlock(playerpos.add(-1, 1, 0)).block != Blocks.AIR
                     ) {
-                        placeobi(playerpos.add(-1, 2, 0))
+                        placeObi(playerpos.add(-1, 2, 0))
                     } else if (world.isPlaceable(playerpos.add(0, 1, 1)) && world.isPlaceable(playerpos.add(0, 2, 1)) && getBlock(playerpos.add(0, 2, 1)).block == Blocks.AIR && playerpos.add(
                             0,
                             2,
@@ -105,13 +105,13 @@ class TargetBuilder : Module() {
                         ) != breakpos
                     ) {
                         if (getBlock(playerpos.add(0, -1, 1)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(0, -1, 1))
+                            placeObi(playerpos.add(0, -1, 1))
                         }
                         if (getBlock(playerpos.add(0, 0, 1)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(0, 0, 1))
+                            placeObi(playerpos.add(0, 0, 1))
                         }
-                        placeobi(playerpos.add(0, 1, 1))
-                        placeobi(playerpos.add(0, 2, 1))
+                        placeObi(playerpos.add(0, 1, 1))
+                        placeObi(playerpos.add(0, 2, 1))
                     } else if (world.isPlaceable(playerpos.add(0, 1, -1)) && world.isPlaceable(playerpos.add(0, 2, -1)) && getBlock(playerpos.add(0, 2, -1)).block == Blocks.AIR && playerpos.add(
                             0,
                             2,
@@ -119,13 +119,13 @@ class TargetBuilder : Module() {
                         ) != breakpos
                     ) {
                         if (getBlock(playerpos.add(0, -1, -1)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(0, -1, -1))
+                            placeObi(playerpos.add(0, -1, -1))
                         }
                         if (getBlock(playerpos.add(0, 0, -1)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(0, 0, -1))
+                            placeObi(playerpos.add(0, 0, -1))
                         }
-                        placeobi(playerpos.add(0, 1, -1))
-                        placeobi(playerpos.add(0, 2, -1))
+                        placeObi(playerpos.add(0, 1, -1))
+                        placeObi(playerpos.add(0, 2, -1))
                     } else if (world.isPlaceable(playerpos.add(1, 1, 0)) && world.isPlaceable(playerpos.add(1, 2, 0)) && getBlock(playerpos.add(1, 2, 0)).block == Blocks.AIR && playerpos.add(
                             1,
                             2,
@@ -133,13 +133,13 @@ class TargetBuilder : Module() {
                         ) != breakpos
                     ) {
                         if (getBlock(playerpos.add(1, -1, 0)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(1, -1, 0))
+                            placeObi(playerpos.add(1, -1, 0))
                         }
                         if (getBlock(playerpos.add(1, 0, 0)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(1, 0, 0))
+                            placeObi(playerpos.add(1, 0, 0))
                         }
-                        placeobi(playerpos.add(1, 1, 0))
-                        placeobi(playerpos.add(1, 2, 0))
+                        placeObi(playerpos.add(1, 1, 0))
+                        placeObi(playerpos.add(1, 2, 0))
                     } else if (world.isPlaceable(playerpos.add(-1,  1, 0)) && world.isPlaceable(playerpos.add(-1, 2, 0)) && getBlock(playerpos.add(-1, 2, 0)).block == Blocks.AIR && playerpos.add(
                             -1,
                             2,
@@ -147,30 +147,30 @@ class TargetBuilder : Module() {
                         ) != breakpos
                     ) {
                         if (getBlock(playerpos.add(-1, -1, 0)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(-1, -1, 0))
+                            placeObi(playerpos.add(-1, -1, 0))
                         }
                         if (getBlock(playerpos.add(-1, 0, 0)).block == Blocks.AIR) {
-                            placeobi(playerpos.add(-1, 0, 0))
+                            placeObi(playerpos.add(-1, 0, 0))
                         }
-                        placeobi(playerpos.add(-1, 2, 0))
-                        placeobi(playerpos.add(-1, 2, 0))
+                        placeObi(playerpos.add(-1, 2, 0))
+                        placeObi(playerpos.add(-1, 2, 0))
                     }
                 }
                 if (webhead.value && web != -1){
-                    placeweb(playerpos.add(0, 2, 0))
+                    placeWeb(playerpos.add(0, 2, 0))
                 } else{
-                    placeobi(playerpos.add(0, 2, 0))
+                    placeObi(playerpos.add(0, 2, 0))
                 }
             }
         }
         if (webfoot.value && web != -1) {
             if (getBlock(playerpos.add(0, 0, 0)).block == Blocks.AIR) {
-                placeweb(playerpos.add(0, 0, 0))
+                placeWeb(playerpos.add(0, 0, 0))
             }
         }
         if (webface.value && web != -1) {
             if (getBlock(playerpos.add(0, 1, 0)).block == Blocks.AIR) {
-                placeweb(playerpos.add(0, 1, 0))
+                placeWeb(playerpos.add(0, 1, 0))
             }
         }
     }
@@ -185,7 +185,7 @@ class TargetBuilder : Module() {
         }
     }
 
-    private fun placeweb(pos: BlockPos) {
+    private fun placeWeb(pos: BlockPos) {
         if (pos == breakpos)return
         if (!timer.passedMs(delay.value.toLong())) return
         val old = mc.player.inventory.currentItem
@@ -194,7 +194,7 @@ class TargetBuilder : Module() {
         HotbarManager.spoofHotbar(old)
     }
 
-    private fun placeobi(pos: BlockPos) {
+    private fun placeObi(pos: BlockPos) {
         if (!world.isPlaceable(pos))return
         if (pos == breakpos)return
         if (!timer.passedMs(delay.value.toLong())) return
@@ -215,10 +215,10 @@ class TargetBuilder : Module() {
     }
 
     override fun getHudInfo(): String {
-        if (target == null){
-            return "null"
+        return if (target == null){
+            "null"
         } else{
-            return target!!.name
+            target!!.name
         }
     }
 }

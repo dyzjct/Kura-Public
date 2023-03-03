@@ -229,7 +229,7 @@ public class ModuleManager {
         registerModule(new HandColor());
         registerModule(new ArmourHUD());
         registerModule(new TabFriends());
-        registerModule(new ViewModel());
+        registerModule(ViewModel.INSTANCE);
         registerModule(new NoHurtCam());
         registerModule(new NoRender());
         registerModule(new PopChams());
@@ -248,6 +248,7 @@ public class ModuleManager {
         registerModule(new Aspect());
         registerModule(CrystalRender.INSTANCE);
         registerModule(HandAnimations.INSTANCE);
+        registerModule(BlockHighlight.INSTANCE);
 
         //Combat
         registerModule(new Aimbot());
@@ -260,7 +261,6 @@ public class ModuleManager {
         registerModule(new AutoTrap());
         registerModule(new AutoCity());
         registerModule(Burrow.INSTANCE);
-        registerModule(new Burrow2());
         registerModule(new Criticals());
         registerModule(new CevBreaker());
         registerModule(DispenserMeta.INSTANCE);
@@ -276,10 +276,8 @@ public class ModuleManager {
         registerModule(new AntiBurrow());
         registerModule(new HoleFiller());
         registerModule(new SmartBurrow());
-        registerModule(new HoleKicker2());
         registerModule(new TNTHead());
         registerModule(new AutoTopCev());
-        registerModule(new HoleKicker());
         registerModule(KnifeBot.INSTANCE);
         registerModule(HoleKickerRewrite.INSTANCE);
         //Player
@@ -313,7 +311,7 @@ public class ModuleManager {
         registerModule(new AntiPiston());
         registerModule(new NoteBot());
         registerModule(new EntityDeSync());
-        registerModule(new NoPacketKick( ));
+        registerModule(new NoPacketKick());
         registerModule(new PacketEat());
         registerModule(new ExtraTab());
         registerModule(new XCarry());
@@ -363,6 +361,7 @@ public class ModuleManager {
         registerModule(AutoCrystal.INSTANCE);
         getModules().sort(Comparator.comparing(IModule::getName));
     }
+
     public void loadHUDs() {
         registerHUD(ShowArrayList.INSTANCE);
         registerHUD(new Direction());

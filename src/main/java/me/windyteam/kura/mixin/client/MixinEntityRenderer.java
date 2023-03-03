@@ -40,7 +40,7 @@ public abstract class MixinEntityRenderer {
 
     @Redirect(method = {"setupFog"}, at = @At(value = "INVOKE", target = "net/minecraft/client/renderer/ActiveRenderInfo.getBlockStateAtEntityViewpoint(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;F)Lnet/minecraft/block/state/IBlockState;"))
     public IBlockState onSettingUpFogWhileInLiquid(World worldIn, Entity entityIn, float p_186703_2_) {
-        IBlockState iBlockState = ActiveRenderInfo.getBlockStateAtEntityViewpoint(this.mc.world, entityIn, p_186703_2_);
+        IBlockState iBlockState = ActiveRenderInfo.getBlockStateAtEntityViewpoint(mc.world, entityIn, p_186703_2_);
         RenderLiquidVisionEvent event = new RenderLiquidVisionEvent();
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled() && (iBlockState.getMaterial() == Material.LAVA || iBlockState.getMaterial() == Material.WATER)) {
@@ -56,23 +56,24 @@ public abstract class MixinEntityRenderer {
         if (event.isCanceled()) ci.cancel();
     }
 
+
     @Redirect(method = { "setupCameraTransform" },  at = @At(value = "INVOKE",  target = "Lorg/lwjgl/util/glu/Project;gluPerspective(FFFF)V"))
     private void onSetupCameraTransform(final float f,  final float f2,  final float f3,  final float f4) {
-        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(this.mc.displayWidth / (float)this.mc.displayHeight);
+        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(mc.displayWidth / (float)mc.displayHeight);
         MinecraftForge.EVENT_BUS.post(perspectiveEvent);
         Project.gluPerspective(f,  perspectiveEvent.getAspect(),  f3,  f4);
     }
 
     @Redirect(method = { "renderWorldPass" },  at = @At(value = "INVOKE",  target = "Lorg/lwjgl/util/glu/Project;gluPerspective(FFFF)V"))
     private void onRenderWorldPass(final float f,  final float f2,  final float f3,  final float f4) {
-        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(this.mc.displayWidth / (float)this.mc.displayHeight);
+        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(mc.displayWidth / (float)mc.displayHeight);
         MinecraftForge.EVENT_BUS.post(perspectiveEvent);
         Project.gluPerspective(f,  perspectiveEvent.getAspect(),  f3,  f4);
     }
 
     @Redirect(method = { "renderCloudsCheck" },  at = @At(value = "INVOKE",  target = "Lorg/lwjgl/util/glu/Project;gluPerspective(FFFF)V"))
     private void onRenderCloudsCheck(final float f,  final float f2,  final float f3,  final float f4) {
-        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(this.mc.displayWidth / (float)this.mc.displayHeight);
+        final PerspectiveEvent perspectiveEvent = new PerspectiveEvent(mc.displayWidth / (float)mc.displayHeight);
         MinecraftForge.EVENT_BUS.post(perspectiveEvent);
         Project.gluPerspective(f,  perspectiveEvent.getAspect(),  f3,  f4);
     }

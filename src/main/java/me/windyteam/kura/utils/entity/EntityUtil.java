@@ -67,6 +67,9 @@ public class EntityUtil {
         doubleLegOffsetList = new Vec3d[]{new Vec3d(-1.0, 0.0, 0.0), new Vec3d(1.0, 0.0, 0.0), new Vec3d(0.0, 0.0, -1.0), new Vec3d(0.0, 0.0, 1.0), new Vec3d(-2.0, 0.0, 0.0), new Vec3d(2.0, 0.0, 0.0), new Vec3d(0.0, 0.0, -2.0), new Vec3d(0.0, 0.0, 2.0)};
     }
 
+    public static boolean isHoldingWeapon(EntityPlayer player) {
+        return player.getHeldItemMainhand().getItem() instanceof ItemSword || player.getHeldItemMainhand().getItem() instanceof ItemAxe;
+    }
     public static boolean isProjectile(final Entity entity) {
         return entity instanceof EntityShulkerBullet || entity instanceof EntityFireball;
     }

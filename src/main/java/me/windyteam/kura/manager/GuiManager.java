@@ -144,10 +144,7 @@ public class GuiManager {
     }
 
     public enum Background {
-        Shadow,
-        Blur,
-        Both,
-        None
+        Shadow, Blur, Both, None
 
     }
 }

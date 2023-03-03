@@ -5,6 +5,7 @@ import me.windyteam.kura.event.events.render.RenderEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.modules.crystalaura.AutoCrystal
+import me.windyteam.kura.module.modules.player.PacketMine
 import me.windyteam.kura.setting.Setting
 import me.windyteam.kura.utils.Timer
 import me.windyteam.kura.utils.block.BlockInteractionHelper
@@ -57,13 +58,7 @@ object KnifeBot : Module() {
     }
 
     @SubscribeEvent
-    fun onTick(event: MotionUpdateEvent.Tick?) {
-        if (fullNullCheck()) return
-        doKnifeBot()
-    }
-
-
-    private fun doKnifeBot() {
+    fun onTick(event: MotionUpdateEvent.Tick) {
         if (fullNullCheck()) return
         var wait = 0
         if (onlySharp.value && !EntityUtil.holdingWeapon(mc.player)) {
@@ -75,44 +70,13 @@ object KnifeBot : Module() {
         if (!timer.passedMs(wait.toLong())) {
             return
         }
-
-        if (target == null) return
-        if (rotate.value) {
-            mc.player.rotationYawHead = BlockInteractionHelper.getLegitRotations(
-                Vec3d(
-                    target!!.posX,
-                    target!!.posY,
-                    target!!.posZ
-                )
-            )[0]
-            mc.player.renderYawOffset = BlockInteractionHelper.getLegitRotations(
-                Vec3d(
-                    target!!.posX,
-                    target!!.posY,
-                    target!!.posZ
-                )
-            )[0]
-            mc.player.rotationYaw = (
-                BlockInteractionHelper.getLegitRotations(
-                    Vec3d(
-                        target!!.posX,
-                        target!!.posY,
-                        target!!.posZ
-                    )
-                )[0]
-            )
-            mc.player.rotationPitch = (
-                BlockInteractionHelper.getLegitRotations(
-                    Vec3d(
-                        target!!.posX,
-                        target!!.posY,
-                        target!!.posZ
-                    )
-                )[1]
-            )
+        target?.let {
+            if (rotate.value) {
+                event.setRotation(BlockInteractionHelper.getLegitRotations(it.positionVector)[0],BlockInteractionHelper.getLegitRotations(it.positionVector)[1])
+            }
+            EntityUtil.attackEntity(it, packet.value, true)
+            timer.reset()
         }
-        EntityUtil.attackEntity(target, packet.value, true)
-        timer.reset()
     }
 
 

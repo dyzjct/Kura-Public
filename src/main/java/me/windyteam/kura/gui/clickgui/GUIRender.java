@@ -31,7 +31,7 @@ extends GuiScreen {
         for (Category category : Category.values()) {
             if (category.isHUD() || category == Category.HIDDEN) continue;
             panels.add(new Panel(category, startX, 5, 110, 15));
-            startX += 110;
+            startX += 120;
         }
     }
 

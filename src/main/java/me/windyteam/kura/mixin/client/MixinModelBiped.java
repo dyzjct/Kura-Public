@@ -1,7 +1,6 @@
 package me.windyteam.kura.mixin.client;
 
 import me.windyteam.kura.event.events.entity.MotionUpdateEvent;
-import me.windyteam.kura.event.events.entity.MotionUpdateEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;

@@ -10,6 +10,7 @@ import me.windyteam.kura.module.modules.combat.HoleSnap
 import me.windyteam.kura.module.modules.player.Timer
 import me.windyteam.kura.utils.TimerUtils
 import me.windyteam.kura.utils.entity.EntityUtil
+import me.windyteam.kura.utils.math.RandomUtil
 import me.windyteam.kura.utils.mc.ChatUtil
 import me.windyteam.kura.utils.player.MovementUtil
 import net.minecraft.init.MobEffects
@@ -27,8 +28,6 @@ import java.util.*
 
 @Module.Info(name = "Speed", category = Category.MOVEMENT)
 class Speed : Module() {
-    //    public DoubleSetting boostVal = dsetting("BoostValue", 0.5, 0.1, 2).m(mode, Mode.BYPASS).m(boostMode, BoostMode.Normal);
-    //    public IntegerSetting boostRange = isetting("BoostRange", 4, 1, 8).m(mode, Mode.BYPASS).m(boostMode, BoostMode.Normal);
     private var damageBoost = bsetting("DamageBoost", true)
     private var boostDelay = isetting("BoostDelay", 750, 1, 3000).b(damageBoost)
     private var longjump = bsetting("TryLongJump", false)
@@ -44,6 +43,7 @@ class Speed : Module() {
     private var bbtt = bsetting("2b2t", false)
     private var strictBoost = bsetting("StrictBoost", false).b(bbtt).b(damageBoost)
     private var useTimer = bsetting("UseTimer", true)
+    private var fast = bsetting("Fast-Test",false)
     private var decimal = DecimalFormat()
     private var lagBackCoolDown = TimerUtils()
     private var boostTimer = TimerUtils()
@@ -111,7 +111,7 @@ class Speed : Module() {
         }
     }
 
-    val baseMoveSpeed: Double
+    private val baseMoveSpeed: Double
         get() {
             var n = 0.2873
             if (mc.player.isPotionActive(MobEffects.SPEED) && potion.value) {
@@ -216,7 +216,7 @@ class Speed : Module() {
                 }
             } else if (level == 3) {
                 level = 4
-                moveSpeed = lastDist - 0.6553 * (lastDist - baseMoveSpeed + 0.04)
+                moveSpeed = lastDist - 0.6553 * (lastDist - baseMoveSpeed + if (!fast.value) {0.4} else {RandomUtil.nextDouble(0.0139871,0.037181238)})
             } else {
                 if (mc.player.onGround && (mc.world.getCollisionBoxes(
                         mc.player,

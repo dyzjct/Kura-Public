@@ -7,6 +7,7 @@ import me.windyteam.kura.friend.FriendManager
 import me.windyteam.kura.manager.FontManager
 import me.windyteam.kura.manager.GuiManager
 import me.windyteam.kura.manager.HotbarManager.spoofHotbar
+import me.windyteam.kura.manager.HotbarManager.spoofHotbarBypass
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.ModuleManager
@@ -207,7 +208,6 @@ object AutoCrystal : Module() {
     private var infoBreakTime = 0L
     private var offsetFacing = arrayOf(EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.EAST)
     private var attackingCrystal: EntityEnderCrystal? = null
-//    private var lookRenderPos = false
 
     @SubscribeEvent
     fun onClientDisconnect(event: ClientDisconnectionFromServerEvent?) {
@@ -340,34 +340,45 @@ object AutoCrystal : Module() {
         if (renderEnt == null) {
             return
         }
-        val crystal = getExplodeCrystal(syncHurtTime.value, renderEnt!!)
-        attackingCrystal = crystal
-        if (crystal == null) attackingCrystal = null
-        if (mc.player != null && crystal != null) {
-            if (mc.player.getDistance(crystal) <= breakRange.value) {
-                lastCrystal = crystal
-                if (antiWeakness.value != AntiWeaknessMode.Off && mc.player.isPotionActive(MobEffects.WEAKNESS) && (!mc.player.isPotionActive(
-                        MobEffects.STRENGTH
-                    ) || Objects.requireNonNull(
-                        mc.player.getActivePotionEffect(MobEffects.STRENGTH)
-                    )!!.amplifier < 1)
-                ) {
-                    spoofHotbar(
-                        if (InventoryUtil.findHotbarItem(Items.DIAMOND_SWORD) != -1) InventoryUtil.findHotbarItem(
-                            Items.DIAMOND_SWORD
-                        ) else InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE), true
-                    )
+        renderEnt?.let {
+            val crystal = getExplodeCrystal(syncHurtTime.value, it)
+            if (mc.player != null && crystal != null) {
+                if (mc.player.getDistance(crystal) <= breakRange.value) {
+                    lastCrystal = crystal
+                    if (antiWeakness.value != AntiWeaknessMode.Off && mc.player.isPotionActive(MobEffects.WEAKNESS) && (!mc.player.isPotionActive(
+                            MobEffects.STRENGTH
+                        ) || Objects.requireNonNull(
+                            mc.player.getActivePotionEffect(MobEffects.STRENGTH)
+                        )!!.amplifier < 1)
+                    ) {
+                        spoofHotbar(
+                            if (InventoryUtil.findHotbarItem(Items.DIAMOND_SWORD) != -1) InventoryUtil.findHotbarItem(
+                                Items.DIAMOND_SWORD
+                            ) else InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE), true
+                        )
+                    }
+                    explodeCrystal(event)
+                    if (antiWeakness.value == AntiWeaknessMode.Spoof && mc.player.isPotionActive(MobEffects.WEAKNESS) && (!mc.player.isPotionActive(
+                            MobEffects.STRENGTH
+                        ) || Objects.requireNonNull(
+                            mc.player.getActivePotionEffect(MobEffects.STRENGTH)
+                        )!!.amplifier < 1)
+                    ) {
+                        spoofHotbar(newSlot, true)
+                    }
+                    if (antiWeakness.value == AntiWeaknessMode.SpoofTest && mc.player.isPotionActive(MobEffects.WEAKNESS) && (!mc.player.isPotionActive(
+                            MobEffects.STRENGTH
+                        ) || Objects.requireNonNull(
+                            mc.player.getActivePotionEffect(MobEffects.STRENGTH)
+                        )!!.amplifier < 1)
+                    ){
+                        spoofHotbarBypass(newSlot){
+                        }
+                    }
                 }
-                explodeCrystal(event)
-                if (antiWeakness.value == AntiWeaknessMode.Spoof && mc.player.isPotionActive(MobEffects.WEAKNESS) && (!mc.player.isPotionActive(
-                        MobEffects.STRENGTH
-                    ) || Objects.requireNonNull(
-                        mc.player.getActivePotionEffect(MobEffects.STRENGTH)
-                    )!!.amplifier < 1)
-                ) {
-                    spoofHotbar(newSlot, true)
-                }
+                attackingCrystal = crystal
             }
+            if (crystal == null) attackingCrystal = null
         }
     }
 
@@ -444,26 +455,6 @@ object AutoCrystal : Module() {
                         }
                     }
                 }
-//                    if (yawStep.value) {
-//                        if (yawTicksPassed > 0) {
-//                            rotations[0] = mc.player.lastReportedYaw
-//                        } else {
-//                            val f = MathHelper.wrapDegrees(rotations[0] - mc.player.lastReportedYaw)
-//                            if (abs(f) > 180.0f * yawAngle.value) {
-//                                rotations[0] = mc.player.lastReportedYaw + f * (180.0f * yawAngle.value / abs(f))
-//                                yawTicksPassed = yawTicks.value
-//                            }
-//                        }
-//                        if (pitchTicksPassed > 0) {
-//                            rotations[1] = mc.player.lastReportedPitch
-//                        } else {
-//                            val f2 = MathHelper.wrapDegrees(rotations[1] - mc.player.lastReportedPitch)
-//                            if (abs(f2) > 90.0f * yawAngle.value) {
-//                                rotations[1] = mc.player.lastReportedPitch + f2 * (90.0f * yawAngle.value / abs(f2))
-//                                pitchTicksPassed = yawTicks.value
-//                            }
-//                        }
-//                    }
                     event?.setRotation(rotations[0], rotations[1])
                 }
                 if (!offhand && mc.player.inventory.currentItem != crystalSlot) {
@@ -663,7 +654,7 @@ object AutoCrystal : Module() {
                                     0.5, 1.0, 0.5
                                 )
                             )
-                        ) > wallRange.value && !rayTraceVisible(
+                        ) > wallRange.value * wallRange.value && !rayTraceVisible(
                             mc.player.positionVector.add(0.0, mc.player.getEyeHeight().toDouble(), 0.0),
                             blockPos.getX() + 0.5,
                             (blockPos.getY() + 1f + 1.7f).toDouble(),
@@ -866,7 +857,7 @@ object AutoCrystal : Module() {
         } else {
             return ArrayList(mc.world.loadedEntityList).stream().filter {
                 it is EntityEnderCrystal && canHitCrystal(it.getPositionVector()) && checkBreakRange(
-                    it, breakRange.value.toFloat(), wallRange.value, 20, MutableBlockPos()
+                    it, breakRange.value.toFloat(), wallRange.value * wallRange.value, 20, MutableBlockPos()
                 )
             }.map { it!! as EntityEnderCrystal? }.min(Comparator.comparing { mc.player.getDistance(it!!) }).orElse(null)
         }
@@ -1293,7 +1284,7 @@ object AutoCrystal : Module() {
     }
 
     enum class AntiWeaknessMode {
-        Swap, Spoof, Off
+        Swap, Spoof, SpoofTest, Off
     }
 
     enum class SwingMode {

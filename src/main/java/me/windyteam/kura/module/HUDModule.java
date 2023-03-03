@@ -3,8 +3,7 @@ package me.windyteam.kura.module;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public class HUDModule
-extends IModule {
+public class HUDModule extends IModule {
     public HUDModule() {
         this.x = this.getAnnotation().x();
         this.y = this.getAnnotation().y();
@@ -33,23 +32,23 @@ extends IModule {
     public void onMouseRelease() {
     }
 
-    @Retention(value=RetentionPolicy.RUNTIME)
-    public static @interface Info {
-        public String name();
+    @Retention(value = RetentionPolicy.RUNTIME)
+    public @interface Info {
+        String name();
 
-        public int x() default 0;
+        int x() default 0;
 
-        public int y() default 0;
+        int y() default 0;
 
-        public int width() default 0;
+        int width() default 0;
 
-        public int height() default 0;
+        int height() default 0;
 
-        public Category category() default Category.HUD;
+        Category category() default Category.HUD;
 
-        public String description() default "";
+        String description() default "";
 
-        public boolean visible() default true;
+        boolean visible() default true;
     }
 }
 

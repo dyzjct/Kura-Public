@@ -58,6 +58,78 @@ public class RenderUtil {
     private static boolean bind = GL11.glIsEnabled(2929);
     private static boolean override = GL11.glIsEnabled(2848);
 
+    public static void drawFadingBox(final AxisAlignedBB a, final Color boxColor, final Color outlineColor, final float lineWidth, final boolean outline, final boolean box , float alpha, final float scale, final float slab) {
+        final double f = 0.5 * (1.0f - scale);
+        final AxisAlignedBB bb = interpolateAxis(new AxisAlignedBB(a.minX + f, a.minY + f + (1.0f - slab), a.minZ + f, a.maxX - f, a.maxY - f, a.maxZ - f));
+        float rB = boxColor.getRed() / 255.0f;
+        float gB = boxColor.getGreen() / 255.0f;
+        float bB = boxColor.getBlue() / 255.0f;
+        float aB = boxColor.getAlpha() / 255.0f;
+        float rO = outlineColor.getRed() / 255.0f;
+        float gO = outlineColor.getGreen() / 255.0f;
+        float bO = outlineColor.getBlue() / 255.0f;
+        float aO = outlineColor.getAlpha() / 255.0f;
+        if (alpha > 1.0f) {
+            alpha = 1.0f;
+        }
+        aB *= alpha;
+        aO *= alpha;
+        if (box) {
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.disableDepth();
+            GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
+            GlStateManager.disableTexture2D();
+            GlStateManager.depthMask(false);
+            GL11.glEnable(2848);
+            GL11.glHint(3154, 4354);
+            RenderGlobal.renderFilledBox(bb, rB, gB, bB, aB);
+            GL11.glDisable(2848);
+            GlStateManager.depthMask(true);
+            GlStateManager.enableDepth();
+            GlStateManager.enableTexture2D();
+            GlStateManager.disableBlend();
+            GlStateManager.popMatrix();
+        }
+        if (outline) {
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.disableDepth();
+            GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
+            GlStateManager.disableTexture2D();
+            GlStateManager.depthMask(false);
+            GL11.glEnable(2848);
+            GL11.glHint(3154, 4354);
+            GL11.glLineWidth(lineWidth);
+            final Tessellator tessellator = Tessellator.getInstance();
+            final BufferBuilder bufferbuilder = tessellator.getBuffer();
+            bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
+            bufferbuilder.pos(bb.minX, bb.minY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.minX, bb.minY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.minY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.minY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.minX, bb.minY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.minX, bb.maxY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.minX, bb.maxY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.minX, bb.minY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.minY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.maxY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.minX, bb.maxY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.maxY, bb.maxZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.maxY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.minY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.maxX, bb.maxY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            bufferbuilder.pos(bb.minX, bb.maxY, bb.minZ).color(rO, gO, bO, aO).endVertex();
+            tessellator.draw();
+            GL11.glDisable(2848);
+            GlStateManager.depthMask(true);
+            GlStateManager.enableDepth();
+            GlStateManager.enableTexture2D();
+            GlStateManager.disableBlend();
+            GlStateManager.popMatrix();
+        }
+    }
+
     public static void prepare() {
         glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ZERO, GL11.GL_ONE);

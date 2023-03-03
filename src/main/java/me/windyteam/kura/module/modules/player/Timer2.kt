@@ -6,8 +6,6 @@ import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.ModuleManager
 import me.windyteam.kura.module.modules.combat.AutoMend
-import me.windyteam.kura.module.modules.movement.Speed
-import me.windyteam.kura.module.modules.movement.Step
 import me.windyteam.kura.setting.BooleanSetting
 import me.windyteam.kura.setting.FloatSetting
 import me.windyteam.kura.setting.Setting
@@ -46,8 +44,8 @@ class Timer2 : Module() {
         }
         if (event.packet is CPacketPlayer.Position && rotationMode == 1) {
             normalPos++
-            if (normalPos > 20) {
-                rotationMode = if (normalLookPos > 20) {
+            if (normalPos > 1) {
+                rotationMode = if (normalLookPos > 1) {
                     if (resend.value) {
                         3
                     } else {
@@ -59,8 +57,8 @@ class Timer2 : Module() {
             }
         } else if (event.packet is CPacketPlayer.PositionRotation && rotationMode == 2) {
             normalLookPos++
-            if (normalLookPos > 20) {
-                rotationMode = if (normalPos > 20) {
+            if (normalLookPos > 1) {
+                rotationMode = if (normalPos > 1) {
                     if (resend.value) {
                         3
                     } else {
@@ -100,7 +98,7 @@ class Timer2 : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (packetListReset.passed(1000)) {
+        if (packetListReset.passed(50)) {
             normalPos = 0
             normalLookPos = 0
             rotationMode = 1

@@ -18,7 +18,6 @@ import java.awt.Font
 @HUDModule.Info(name = "ArrayList", x = 50, y = 50, width = 100, height = 100)
 object ShowArrayList : HUDModule() {
     private var count = 0
-    private var upside = bsetting("UpSide", false)
     private var customFont = bsetting("CustomFont", true)
     private var drawBG = bsetting("BlurBackground", true)
     private var anim = bsetting("StressAnimation", false)
@@ -42,18 +41,12 @@ object ShowArrayList : HUDModule() {
                     getArrayList(
                         it!!
                     )
-                ) * if (upside.value) {
-                    1
-                } else {
-                    -1
-                } else mc.fontRenderer.getStringWidth(getArrayList(it!!)) * if (upside.value) {
-                    1
-                } else {
-                    -1
-                }
+                ) * -1 else mc.fontRenderer.getStringWidth(getArrayList(it!!)) * -1
+
         }).forEach { module: IModule ->
             if ((module as Module).isShownOnArray) {
                 val screenWidthScaled = ScaledResolution(mc).scaledWidth
+                val screenHightScaled = ScaledResolution(mc).scaledHeight
                 val modWidth =
                     (if (customFont.value) fonts.getStringWidth(getArrayList(module)) else mc.fontRenderer.getStringWidth(
                         getArrayList(module)
@@ -147,7 +140,11 @@ object ShowArrayList : HUDModule() {
                         )
                     }
                 }
-                count++
+                if (y > screenHightScaled/2){
+                    count--
+                } else {
+                    count++
+                }
             }
         }
         width = if (x < screenWidth / 2) {

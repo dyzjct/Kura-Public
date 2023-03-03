@@ -6,11 +6,8 @@ import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.ModuleManager
 import me.windyteam.kura.module.modules.movement.ReverseStep
-import me.windyteam.kura.setting.ModeSetting
-import me.windyteam.kura.setting.Setting
 import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
-import me.windyteam.kura.utils.math.RotationUtil
 import me.windyteam.kura.utils.mc.ChatUtil
 import net.minecraft.block.BlockEnderChest
 import net.minecraft.block.BlockObsidian
@@ -27,22 +24,22 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
+import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.stream.Collectors
 import kotlin.math.abs
+import kotlin.math.floor
 
 @Module.Info(
-    name = "Burrow",
-    category = Category.COMBAT,
-    description = "Self-fill ur self in ur mom's pussy")
+    name = "Burrow", category = Category.COMBAT, description = "Self-fill ur self in ur mom's pussy"
+)
 object Burrow : Module() {
-    private val rotate = bsetting("Rotate", true)
     private val breakCrystal = bsetting("BreakCrystal", true)
     private val toggleRStep = bsetting("ToggleRStep", true)
     private val safe = bsetting("ToggleWhileInObi", true)
     private val safeCheck = bsetting("LagCheck", true)
-    private var clientMode = msetting("ClientMode", Client.Melon)
+    private var clientMode = msetting("ClientMode", Client.Other)
+    private var offSet = dsetting("OffSet", -7.0, -10.0, 10.0).m(clientMode, Client.New)
     private var fakeJump = bsetting("FakeJump", true).m(clientMode, Client.Melon)
     private var offsetCheck = isetting("Offset", 3, -20, 10).m(clientMode, Client.Melon)
     private var getPlayerHeight = bsetting("PlayerHeight", false).m(clientMode, Client.Negative)
@@ -59,7 +56,7 @@ object Burrow : Module() {
         if (fullNullCheck()) {
             return
         }
-        if (breakCrystal.value){
+        if (breakCrystal.value) {
             this.breakcrystal()
         }
         if (toggleRStep.value) {
@@ -68,9 +65,7 @@ object Burrow : Module() {
         originalPos = BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ)
         if (mc.world.getBlockState(
                 BlockPos(
-                    mc.player.posX,
-                    mc.player.posY,
-                    mc.player.posZ
+                    mc.player.posX, mc.player.posY, mc.player.posZ
                 )
             ).block == Blocks.OBSIDIAN || intersectsWithEntity(
                 originalPos
@@ -94,7 +89,6 @@ object Burrow : Module() {
         velocityTime = 0L
     }
 
-    @SubscribeEvent
     fun onPacketReceive(event: PacketEvents.Receive) {
         if (fullNullCheck()) {
             return
@@ -107,413 +101,433 @@ object Burrow : Module() {
             }
         }
     }
-    @SubscribeEvent
-    fun onTick(event: MotionUpdateEvent.FastTick?){
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onTick(event: MotionUpdateEvent.FastTick?) {
         if (fullNullCheck()) {
             return
         }
-        if (!mc.player.onGround){
+        if (!mc.player.onGround) {
             return
         }
-        oldSlot = mc.player.inventory.currentItem
-        if (mc.world.getBlockState(
-                BlockPos(
-                    mc.player.posX,
-                    mc.player.posY,
-                    mc.player.posZ
-                )
-            ).block !== Blocks.AIR && mc.world.getBlockState(
-                BlockPos(
-                    mc.player.posX,
-                    mc.player.posY,
-                    mc.player.posZ
-                )
-            ).block !== Blocks.ENDER_CHEST && mc.world.getBlockState(
-                BlockPos(
-                    mc.player.posX,
-                    mc.player.posY,
-                    mc.player.posZ
-                )
-            ).block !== Blocks.LAVA && mc.world.getBlockState(
-                BlockPos(
-                    mc.player.posX,
-                    mc.player.posY,
-                    mc.player.posZ
-                )
-            ).block !== Blocks.WATER && mc.world.getBlockState(
-                BlockPos(
-                    mc.player.posX,
-                    mc.player.posY,
-                    mc.player.posZ
-                )
-            ).block !== Blocks.GRASS && safe.value
-        ) {
-            ChatUtil.sendMessage("Prevented Burrow While In Block!")
-            disable()
-            return
-        }
-        for (y in 0..offsetCheck.value) {
+        runCatching {
+            oldSlot = mc.player.inventory.currentItem
             if (mc.world.getBlockState(
-                    BlockPos(mc.player.positionVector).add(
-                        0.0,
-                        y.toDouble(),
-                        0.0
+                    BlockPos(
+                        mc.player.posX, mc.player.posY, mc.player.posZ
+                    )
+                ).block !== Blocks.AIR && mc.world.getBlockState(
+                    BlockPos(
+                        mc.player.posX, mc.player.posY, mc.player.posZ
+                    )
+                ).block !== Blocks.ENDER_CHEST && mc.world.getBlockState(
+                    BlockPos(
+                        mc.player.posX, mc.player.posY, mc.player.posZ
                     )
                 ).block !== Blocks.LAVA && mc.world.getBlockState(
-                    BlockPos(mc.player.positionVector).add(
-                        0.0,
-                        y.toDouble(),
-                        0.0
-                    )
-                ).block !== Blocks.FLOWING_LAVA && mc.world.getBlockState(
-                    BlockPos(mc.player.positionVector).add(
-                        0.0,
-                        y.toDouble(),
-                        0.0
+                    BlockPos(
+                        mc.player.posX, mc.player.posY, mc.player.posZ
                     )
                 ).block !== Blocks.WATER && mc.world.getBlockState(
-                    BlockPos(mc.player.positionVector).add(
-                        0.0,
-                        y.toDouble(),
-                        0.0
+                    BlockPos(
+                        mc.player.posX, mc.player.posY, mc.player.posZ
                     )
-                ).block !== Blocks.FLOWING_WATER && mc.world.getBlockState(
-                    BlockPos(mc.player.positionVector).add(
-                        0.0,
-                        y.toDouble(),
-                        0.0
-                    )
-                ).block !== Blocks.AIR && mc.world.getBlockState(
-                    BlockPos(mc.player.positionVector).add(
-                        0.0,
-                        (y + 1f).toDouble(),
-                        0.0
-                    )
-                ).block !== Blocks.AIR && mc.world.getBlockState(
-                    BlockPos(mc.player.positionVector).add(
-                        0.0,
-                        (y + 2f).toDouble(),
-                        0.0
-                    )
-                ).block !== Blocks.AIR && safeCheck.value
+                ).block !== Blocks.GRASS && safe.value
             ) {
-                ChatUtil.NoSpam.sendMessage("Prevented Burrow LagOut!")
-                InventoryUtil.switchToHotbarSlot(oldSlot,false)
+                ChatUtil.sendMessage("Prevented Burrow While In Block!")
                 disable()
                 return
             }
-        }
-        if (InventoryUtil.findHotbarBlock(BlockObsidian::class.java) != -1) {
-            InventoryUtil.switchToHotbarSlot(InventoryUtil.findHotbarBlock(BlockObsidian::class.java),false)
-        } else if (InventoryUtil.findHotbarBlock(BlockObsidian::class.java) == -1 && InventoryUtil.findHotbarBlock(
-                BlockEnderChest::class.java
-            ) != -1
-        ) {
-            InventoryUtil.switchToHotbarSlot(InventoryUtil.findHotbarBlock(BlockEnderChest::class.java),false)
-        }
-        when (clientMode.value) {
-            Client.Melon -> {
-                if (mc.connection != null && fakeJump.value) {
-                    if (rotate.value) {
-                        mc.player.connection.sendPacket(
-                            CPacketPlayer.Rotation(
-                                mc.player.rotationYaw,
-                                90f,
-                                false
-                            )
+            for (y in 0..offsetCheck.value) {
+                if (mc.world.getBlockState(
+                        BlockPos(mc.player.positionVector).add(
+                            0.0, y.toDouble(), 0.0
                         )
-                    }
-
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.41999998688698,
-                            mc.player.posZ,
-                            false
+                    ).block !== Blocks.LAVA && mc.world.getBlockState(
+                        BlockPos(mc.player.positionVector).add(
+                            0.0, y.toDouble(), 0.0
                         )
-                    )
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.7500019,
-                            mc.player.posZ,
-                            false
+                    ).block !== Blocks.FLOWING_LAVA && mc.world.getBlockState(
+                        BlockPos(mc.player.positionVector).add(
+                            0.0, y.toDouble(), 0.0
                         )
-                    )
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.9999962,
-                            mc.player.posZ,
-                            false
+                    ).block !== Blocks.WATER && mc.world.getBlockState(
+                        BlockPos(mc.player.positionVector).add(
+                            0.0, y.toDouble(), 0.0
                         )
-                    )
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 1.17000380178814,
-                            mc.player.posZ,
-                            false
+                    ).block !== Blocks.FLOWING_WATER && mc.world.getBlockState(
+                        BlockPos(mc.player.positionVector).add(
+                            0.0, y.toDouble(), 0.0
                         )
-                    )
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 1.17000380178815,
-                            mc.player.posZ,
-                            false
+                    ).block !== Blocks.AIR && mc.world.getBlockState(
+                        BlockPos(mc.player.positionVector).add(
+                            0.0, (y + 1f).toDouble(), 0.0
                         )
-                    )
-                }
-
-                BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
-                InventoryUtil.switchToHotbarSlot(oldSlot,false)
-                var head = 0
-                while (head < 20) {
-                    if (!mc.world.getBlockState(mc.player.position.add(0, head, 0)).block.equals(Blocks.AIR)) {
-                        tempHeight = head - 5
-                        safeLevel = 1
-                    } else {
-                        safeLevel = 2
-                    }
-                    head++
-                }
-                if (mc.connection != null) {
-                    /*
-            double boost;
-            if (offset.value < 0 && getPlayerHeight.value && mc.player.posY >= getHeight.value) {
-                boost = -(Math.abs(mc.player.posY - getHeight.value));
-                if (mc.player.posY >= 65) {
-                    boost = boost - (boost - mc.player.posY - 2);
-                }
-                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + (offset.value + boost), mc.player.posZ, false));
-            } else {
-                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + offset.value, mc.player.posZ, false));
-            }
-
-             */
-                    when (safeLevel) {
-                        1 -> {
-                            if (tempHeight != 0) {
-                                mc.player.connection.sendPacket(
-                                    CPacketPlayer.Position(
-                                        mc.player.posX,
-                                        mc.player.posY + MathHelper.clamp(tempHeight, 0, 15),
-                                        mc.player.posZ,
-                                        false
-                                    )
-                                )
-                                mc.player.connection.sendPacket(
-                                    CPacketPlayer.Position(
-                                        mc.player.posX,
-                                        mc.player.posY - 1.0,
-                                        mc.player.posZ,
-                                        false
-                                    )
-                                )
-                                //ChatUtil.sendMessage(tempHeight + "");
-                            }
-                        }
-
-                        2 -> {
-                            mc.player.connection.sendPacket(
-                                CPacketPlayer.Position(
-                                    mc.player.posX,
-                                    mc.player.posY + 26,
-                                    mc.player.posZ,
-                                    false
-                                )
-                            )
-                            mc.player.connection.sendPacket(
-                                CPacketPlayer.Position(
-                                    mc.player.posX,
-                                    mc.player.posY - 1.0,
-                                    mc.player.posZ,
-                                    false
-                                )
-                            )
-                        }
-                    }
+                    ).block !== Blocks.AIR && mc.world.getBlockState(
+                        BlockPos(mc.player.positionVector).add(
+                            0.0, (y + 2f).toDouble(), 0.0
+                        )
+                    ).block !== Blocks.AIR && safeCheck.value
+                ) {
+                    ChatUtil.NoSpam.sendMessage("Prevented Burrow LagOut!")
+                    InventoryUtil.switchToHotbarSlot(oldSlot, false)
+                    disable()
+                    return
                 }
             }
-
-            Client.Negative -> {
-                if (mc.connection != null && fakeJump.value) {
-                    if (rotate.value){
-                        mc.player.connection.sendPacket(
-                            CPacketPlayer.Rotation(
-                                mc.player.rotationYaw,
-                                90f,
-                                false
-                            )
-                        )
-                    }
-
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.41999998688698,
-                            mc.player.posZ,
-                            false
-                        )
-                    )
-
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.7500019,
-                            mc.player.posZ,
-                            false
-                        )
-                    )
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 0.9999962,
-                            mc.player.posZ,
-                            false
-                        )
-                    )
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 1.17000380178814,
-                            mc.player.posZ,
-                            false
-                        )
-                    )
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 1.17000380178815,
-                            mc.player.posZ,
-                            false
-                        )
-                    )
-                }
-                if (rotate.value) {
-                    mc.player.connection.sendPacket(
-                        CPacketPlayer.Rotation(
-                            mc.player.rotationYaw,
-                            90f,
-                            false
-                        )
-                    )
-                }
-                BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
-                InventoryUtil.switchToHotbarSlot(oldSlot,false)
-                if (mc.connection != null) {
-                    var boost: Double
-                    if (offsetCheck.value < 0 && getPlayerHeight.value && mc.player.posY >= getHeight.value) {
-                        boost = -(abs(mc.player.posY - getHeight.value))
-                        if (mc.player.posY >= 65) {
-                            boost -= (boost - mc.player.posY - 2)
-                        }
-                        mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
-                                mc.player.posX,
-                                mc.player.posY + (offsetCheck.value + boost),
-                                mc.player.posZ,
-                                false
-                            )
-                        )
-                    } else {
-                        mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
-                                mc.player.posX,
-                                mc.player.posY + offsetCheck.value,
-                                mc.player.posZ,
-                                false
-                            )
-                        )
-                    }
-                }
+            if (InventoryUtil.findHotbarBlock(BlockObsidian::class.java) != -1) {
+                InventoryUtil.switchToHotbarSlot(InventoryUtil.findHotbarBlock(BlockObsidian::class.java), false)
+            } else if (InventoryUtil.findHotbarBlock(BlockObsidian::class.java) == -1 && InventoryUtil.findHotbarBlock(
+                    BlockEnderChest::class.java
+                ) != -1
+            ) {
+                InventoryUtil.switchToHotbarSlot(InventoryUtil.findHotbarBlock(BlockEnderChest::class.java), false)
             }
-
-                Client.Other -> {
-                    if (mc.connection != null) {
+            when (clientMode.value) {
+                Client.Melon -> {
+                    if (mc.connection != null && fakeJump.value) {
                         mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
+                            CPacketPlayer.PositionRotation(
                                 mc.player.posX,
                                 mc.player.posY + 0.41999998688698,
                                 mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
                                 false
                             )
                         )
                         mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
+                            CPacketPlayer.PositionRotation(
                                 mc.player.posX,
                                 mc.player.posY + 0.7500019,
                                 mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
                                 false
                             )
                         )
                         mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
+                            CPacketPlayer.PositionRotation(
                                 mc.player.posX,
                                 mc.player.posY + 0.9999962,
                                 mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
                                 false
                             )
                         )
                         mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
+                            CPacketPlayer.PositionRotation(
                                 mc.player.posX,
                                 mc.player.posY + 1.17000380178814,
                                 mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
                                 false
                             )
                         )
                         mc.player.connection.sendPacket(
-                            CPacketPlayer.Position(
+                            CPacketPlayer.PositionRotation(
                                 mc.player.posX,
                                 mc.player.posY + 1.17000380178815,
                                 mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                    }
+
+                    BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
+                    InventoryUtil.switchToHotbarSlot(oldSlot, false)
+                    var head = 0
+                    while (head < 20) {
+                        if (!mc.world.getBlockState(mc.player.position.add(0, head, 0)).block.equals(Blocks.AIR)) {
+                            tempHeight = head - 5
+                            safeLevel = 1
+                        } else {
+                            safeLevel = 2
+                        }
+                        head++
+                    }
+                    if (mc.connection != null) {/*
+                double boost;
+                if (offset.value < 0 && getPlayerHeight.value && mc.player.posY >= getHeight.value) {
+                    boost = -(Math.abs(mc.player.posY - getHeight.value));
+                    if (mc.player.posY >= 65) {
+                        boost = boost - (boost - mc.player.posY - 2);
+                    }
+                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + (offset.value + boost), mc.player.posZ, false));
+                } else {
+                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + offset.value, mc.player.posZ, false));
+                }
+
+                 */
+                        when (safeLevel) {
+                            1 -> {
+                                if (tempHeight != 0) {
+                                    mc.player.connection.sendPacket(
+                                        CPacketPlayer.PositionRotation(
+                                            mc.player.posX,
+                                            mc.player.posY + MathHelper.clamp(tempHeight, 0, 15),
+                                            mc.player.posZ,
+                                            mc.player.rotationYaw,
+                                            90f,
+                                            false
+                                        )
+                                    )
+                                    mc.player.connection.sendPacket(
+                                        CPacketPlayer.PositionRotation(
+                                            mc.player.posX,
+                                            mc.player.posY - 1.0,
+                                            mc.player.posZ,
+                                            mc.player.rotationYaw,
+                                            90f,
+                                            false
+                                        )
+                                    )
+                                    //ChatUtil.sendMessage(tempHeight + "");
+                                }
+                            }
+
+                            2 -> {
+                                mc.player.connection.sendPacket(
+                                    CPacketPlayer.PositionRotation(
+                                        mc.player.posX,
+                                        mc.player.posY + 26,
+                                        mc.player.posZ,
+                                        mc.player.rotationYaw,
+                                        90f,
+                                        false
+                                    )
+                                )
+                                mc.player.connection.sendPacket(
+                                    CPacketPlayer.Position(
+                                        mc.player.posX, mc.player.posY - 1.0, mc.player.posZ, false
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Client.Negative -> {
+                    if (mc.connection != null && fakeJump.value) {
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.41999998688698,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.7500019,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.9999962,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 1.17000380178814,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 1.17000380178815,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
                                 false
                             )
                         )
                     }
                     BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
-                    InventoryUtil.switchToHotbarSlot(oldSlot,false)
+                    InventoryUtil.switchToHotbarSlot(oldSlot, false)
+                    if (mc.connection != null) {
+                        var boost: Double
+                        if (offsetCheck.value < 0 && getPlayerHeight.value && mc.player.posY >= getHeight.value) {
+                            boost = -(abs(mc.player.posY - getHeight.value))
+                            if (mc.player.posY >= 65) {
+                                boost -= (boost - mc.player.posY - 2)
+                            }
+                            mc.player.connection.sendPacket(
+                                CPacketPlayer.Position(
+                                    mc.player.posX, mc.player.posY + (offsetCheck.value + boost), mc.player.posZ, false
+                                )
+                            )
+                        } else {
+                            mc.player.connection.sendPacket(
+                                CPacketPlayer.Position(
+                                    mc.player.posX, mc.player.posY + offsetCheck.value, mc.player.posZ, false
+                                )
+                            )
+                        }
+                    }
+                }
+
+                Client.Other -> {
+                    if (mc.connection != null) {
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.41999998688698,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.7500019,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 0.9999962,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 1.17000380178814,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX,
+                                mc.player.posY + 1.17000380178815,
+                                mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
+                                false
+                            )
+                        )
+                    }
+                    BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
+                    InventoryUtil.switchToHotbarSlot(oldSlot, false)
                     mc.player.connection.sendPacket(
                         CPacketPlayer.Position(
-                            mc.player.posX,
-                            mc.player.posY + 1.2426308013947485,
-                            mc.player.posZ,
-                            false
+                            mc.player.posX, mc.player.posY + 1.2426308013947485, mc.player.posZ, false
                         )
                     )
                     if (velocityTime > System.currentTimeMillis()) {
                         mc.player.connection.sendPacket(
                             CPacketPlayer.Position(
-                                mc.player.posX,
-                                mc.player.posY + 3.3400880035762786,
-                                mc.player.posZ,
-                                false
+                                mc.player.posX, mc.player.posY + 3.3400880035762786, mc.player.posZ, false
                             )
                         )
                         mc.player.connection.sendPacket(
                             CPacketPlayer.Position(
-                                mc.player.posX,
-                                mc.player.posY - 1.0,
-                                mc.player.posZ,
-                                false
+                                mc.player.posX, mc.player.posY - 1.0, mc.player.posZ, false
                             )
                         )
                     } else {
                         mc.player.connection.sendPacket(
                             CPacketPlayer.Position(
+                                mc.player.posX, mc.player.posY + 2.3400880035762786, mc.player.posZ, false
+                            )
+                        )
+                    }
+                }
+
+                Client.New -> {
+                    if (mc.connection != null) {
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                floor(mc.player.posX) + 0.5, mc.player.posY + 0.419999986886978, floor(
+                                    mc.player.posZ
+                                ) + 0.5, mc.player.rotationYaw, 90f, false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                floor(mc.player.posX) + 0.5, mc.player.posY + 0.7531999805212015, floor(
+                                    mc.player.posZ
+                                ) + 0.5, mc.player.rotationYaw, 90f, false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                floor(mc.player.posX) + 0.5, mc.player.posY + 1.001335979112147, floor(
+                                    mc.player.posZ
+                                ) + 0.5, mc.player.rotationYaw, 90f, false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                floor(mc.player.posX) + 0.5, mc.player.posY + 1.166109260938214, floor(
+                                    mc.player.posZ
+                                ) + 0.5, mc.player.rotationYaw, 90f, false
+                            )
+                        )
+                        BlockUtil.placeBlock(originalPos, EnumHand.MAIN_HAND, false, true)
+                        InventoryUtil.switchToHotbarSlot(oldSlot, false)
+                        mc.playerController.updateController()
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
                                 mc.player.posX,
-                                mc.player.posY + 2.3400880035762786,
+                                mc.player.posY + 1.2426308013947485,
                                 mc.player.posZ,
+                                mc.player.rotationYaw,
+                                90f,
                                 false
+                            )
+                        )
+                        mc.player.connection.sendPacket(
+                            CPacketPlayer.PositionRotation(
+                                mc.player.posX + offSet.value,
+                                mc.player.posY + offSet.value,
+                                mc.player.posZ + offSet.value,
+                                mc.player.rotationYaw,
+                                90f,
+                                true
                             )
                         )
                     }
                 }
             }
-            disable()
         }
+        disable()
+    }
 
     private fun intersectsWithEntity(pos: BlockPos?): Boolean {
         try {
@@ -544,6 +558,6 @@ object Burrow : Module() {
     }
 
     enum class Client {
-        Melon, Other, Negative
+        New, Melon, Other, Negative
     }
 }
