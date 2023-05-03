@@ -7,9 +7,10 @@ import me.windyteam.kura.command.commands.mc.PeekCommand
 import me.windyteam.kura.event.events.client.ConnectEvent
 import me.windyteam.kura.event.events.client.DisconnectEvent
 import me.windyteam.kura.event.events.client.PacketEvents
+import me.windyteam.kura.event.events.render.Render2DEvent
+import me.windyteam.kura.event.events.render.Render3DEvent
 import me.windyteam.kura.module.ModuleManager
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalDamageCalculator
-import me.windyteam.kura.notification.NotificationManager
 import me.windyteam.kura.utils.Timer
 import me.windyteam.kura.utils.Utils
 import me.windyteam.kura.utils.Wrapper
@@ -18,6 +19,7 @@ import me.windyteam.kura.utils.mc.ChatUtil
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiShulkerBox
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.passive.AbstractHorse
 import net.minecraft.network.play.server.SPacketPlayerListItem
@@ -56,6 +58,36 @@ object ForgeEventProcessor : Event() {
     }
 
     @SubscribeEvent
+    fun renderWorldLastEvent(event: RenderWorldLastEvent){
+        if (event.isCanceled || Utils.nullCheck()) {
+            return
+        }
+        mc.profiler.startSection("sb")
+        GlStateManager.disableTexture2D()
+        GlStateManager.enableBlend()
+        GlStateManager.disableAlpha()
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+        GlStateManager.shadeModel(7425)
+        GlStateManager.disableDepth()
+        GlStateManager.glLineWidth(1.0f)
+        val render3dEvent = Render3DEvent(event.partialTicks)
+        ModuleManager.onRender3D(render3dEvent)
+        GlStateManager.glLineWidth(1.0f)
+        GlStateManager.shadeModel(7424)
+        GlStateManager.disableBlend()
+        GlStateManager.enableAlpha()
+        GlStateManager.enableTexture2D()
+        GlStateManager.enableDepth()
+        GlStateManager.enableCull()
+        GlStateManager.enableCull()
+        GlStateManager.depthMask(true)
+        GlStateManager.enableTexture2D()
+        GlStateManager.enableBlend()
+        GlStateManager.enableDepth()
+        mc.profiler.endSection()
+    }
+
+    @SubscribeEvent
     fun onClientDisconnect(event: ClientDisconnectionFromServerEvent?) {
         logoutTimer.reset()
         ModuleManager.onLogout()
@@ -77,6 +109,8 @@ object ForgeEventProcessor : Event() {
 
     @SubscribeEvent
     fun onRender(event: RenderGameOverlayEvent.Post) {
+        val resolution = ScaledResolution(mc)
+        val render2DEvent = Render2DEvent(event.partialTicks, resolution)
         if (!event.isCanceled || !Utils.nullCheck()) {
             try {
                 var target = RenderGameOverlayEvent.ElementType.EXPERIENCE
@@ -86,8 +120,8 @@ object ForgeEventProcessor : Event() {
                 if (event.type == target) {
                     ModuleManager.onRender(event)
                     GL11.glPushMatrix()
-                    ChatUtil.drawNotifications()
-                    NotificationManager.render()
+//                    ChatUtil.drawNotifications()
+//                    NotificationManager.render()
                     GL11.glPopMatrix()
                     XG42Tessellator.releaseGL()
                 }
@@ -95,7 +129,7 @@ object ForgeEventProcessor : Event() {
                 ex.printStackTrace()
             }
         } else {
-            NotificationManager.render()
+//            NotificationManager.render()
         }
     }
 

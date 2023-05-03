@@ -7,13 +7,6 @@ import me.windyteam.kura.module.modules.client.SettingPanelColor;
 import me.windyteam.kura.utils.Rainbow;
 import me.windyteam.kura.utils.font.RFontRenderer;
 import me.windyteam.kura.utils.gl.RenderUtils;
-import me.windyteam.kura.gui.settingpanel.component.components.Pane;
-import me.windyteam.kura.gui.settingpanel.utils.GLUtil;
-import me.windyteam.kura.manager.GuiManager;
-import me.windyteam.kura.module.modules.client.SettingPanelColor;
-import me.windyteam.kura.utils.Rainbow;
-import me.windyteam.kura.utils.font.RFontRenderer;
-import me.windyteam.kura.utils.gl.RenderUtils;
 
 import java.awt.*;
 

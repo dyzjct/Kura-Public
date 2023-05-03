@@ -1,12 +1,15 @@
 package me.windyteam.kura.module.modules.combat
 
+import me.windyteam.kura.concurrent.utils.Timer
 import me.windyteam.kura.event.events.client.PacketEvents
 import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
 import me.windyteam.kura.module.ModuleManager
 import me.windyteam.kura.module.modules.movement.ReverseStep
+import me.windyteam.kura.utils.block.BlockInteractionHelper
 import me.windyteam.kura.utils.block.BlockUtil
+import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.mc.ChatUtil
 import net.minecraft.block.BlockEnderChest
@@ -15,18 +18,16 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.init.Blocks
-import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketPlayer
-import net.minecraft.network.play.client.CPacketUseEntity
 import net.minecraft.network.play.server.SPacketExplosion
 import net.minecraft.network.play.server.SPacketPlayerPosLook
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import java.util.stream.Collectors
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -51,16 +52,17 @@ object Burrow : Module() {
     private var tempHeight = 0
     private var originalPos: BlockPos? = null
     private var oldSlot = -1
+    private var timer = Timer()
 
     override fun onEnable() {
         if (fullNullCheck()) {
             return
         }
-        if (breakCrystal.value) {
-            this.breakcrystal()
-        }
         if (toggleRStep.value) {
             ModuleManager.getModuleByClass(ReverseStep::class.java).disable()
+        }
+        if (breakCrystal.value){
+            breakCrystal(BlockPos(0,0,0))
         }
         originalPos = BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ)
         if (mc.world.getBlockState(
@@ -543,21 +545,36 @@ object Burrow : Module() {
         return false
     }
 
-    fun breakcrystal() {
-        if (fullNullCheck()) return
-        for (crystal in mc.world.loadedEntityList.stream().filter { e: Entity -> e is EntityEnderCrystal && !e.isDead }
-            .sorted(Comparator.comparing { e: Entity? ->
-                java.lang.Float.valueOf(
-                    mc.player.getDistance(e)
-                )
-            }).collect(Collectors.toList())) {
-            if (crystal !is EntityEnderCrystal || mc.player.getDistance(crystal) > 4.0f) continue
-            mc.player.connection.sendPacket(CPacketUseEntity(crystal))
-            mc.player.connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
-        }
-    }
 
     enum class Client {
         New, Melon, Other, Negative
+    }
+
+    private fun breakCrystal(pos: BlockPos) {
+        val a: Vec3d = mc.player.positionVector
+        if (checkCrystal(a, EntityUtil.getVarOffsets(pos.x,pos.y,pos.z)) != null && timer.passedMs(202L)){
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(
+                BlockInteractionHelper.getLegitRotations(pos.add(0.5,0.5,0.5))[0],
+                BlockInteractionHelper.getLegitRotations(pos.add(0.5,0.5,0.5))[1],true))
+            EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(pos.x,pos.y,pos.z)), true)
+            HoleKicker.crystalTimer.reset()
+            timer.reset()
+        }
+    }
+
+    private fun checkCrystal(pos: Vec3d?, list: Array<Vec3d>): Entity? {
+        var crystal: Entity? = null
+        val var5 = list.size
+        for (var6 in 0 until var5) {
+            val vec3d = list[var6]
+            val position = BlockPos(pos!!).add(vec3d.x, vec3d.y, vec3d.z)
+            for (entity in mc.world.getEntitiesWithinAABB(
+                Entity::class.java, AxisAlignedBB(position)
+            )) {
+                if (entity !is EntityEnderCrystal || crystal != null) continue
+                crystal = entity
+            }
+        }
+        return crystal
     }
 }

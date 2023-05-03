@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 
 @Module.Info(name = "AutoCraftBed", category = Category.XDDD)
-class AutoCraftBed : Module() {
+object AutoCraftBed : Module() {
     private var craftMode = msetting("CraftMode", Mode.Smart)
     private var craftDelay = isetting("CraftDelay", 5, 0, 1000)
     private var slotList: CopyOnWriteArrayList<Int> = CopyOnWriteArrayList()

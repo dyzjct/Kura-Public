@@ -4,6 +4,7 @@ import me.windyteam.kura.event.events.client.PacketEvents;
 import me.windyteam.kura.module.Category;
 import me.windyteam.kura.module.Module;
 import me.windyteam.kura.module.ModuleManager;
+import me.windyteam.kura.module.modules.combat.EzBow;
 import me.windyteam.kura.module.modules.movement.ElytraPlus;
 import me.windyteam.kura.setting.ModeSetting;
 import me.windyteam.kura.setting.Setting;
@@ -15,10 +16,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-/**
- * Created by 086 on 19/11/2017.
- * Updated by S-B99 on 05/03/20
- */
 @Module.Info(category = Category.PLAYER, description = "Prevents fall damage", name = "NoFall")
 public class NoFall extends Module {
 
@@ -36,7 +33,7 @@ public class NoFall extends Module {
         if (ModuleManager.getModuleByClass(ElytraPlus.class).isEnabled()){
             return;
         }
-        if ((fallMode.getValue().equals(FallMode.PACKET)) && event.getPacket() instanceof CPacketPlayer) {
+        if ((fallMode.getValue().equals(FallMode.PACKET)) && event.getPacket() instanceof CPacketPlayer && !EzBow.INSTANCE.getCancel()) {
             ((CPacketPlayer) event.getPacket()).onGround = true;
         }
     }

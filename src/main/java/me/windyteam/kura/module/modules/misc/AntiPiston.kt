@@ -13,9 +13,9 @@ import net.minecraft.util.math.BlockPos
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 @Module.Info(name = "AntiPiston", category = Category.MISC)
-class AntiPiston : Module() {
+object AntiPiston : Module() {
     private val rotate = bsetting("Rotate", false)
-    private val breakpiston = bsetting("BreakPiston", false)
+    private val breakPiston = bsetting("BreakPiston", false)
     private var obsidian = -1
     private var breakpos: BlockPos? = null
 
@@ -39,7 +39,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(1, 1, 0)))
             }
         }
@@ -53,7 +53,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(-1, 1, 0),
                     BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0))
@@ -70,7 +70,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil.getRayTraceFacing(pos.add(0, 1, 1)))
             }
         }
@@ -84,7 +84,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(0, 1, -1),
                     BlockUtil.getRayTraceFacing(pos.add(0, 1, -1))
@@ -102,7 +102,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(1, 1, 0), BlockUtil.getRayTraceFacing(pos.add(1, 1, 0)))
             }
         }
@@ -116,7 +116,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(-1, 1, 0),
                     BlockUtil.getRayTraceFacing(pos.add(-1, 1, 0))
@@ -133,7 +133,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(pos.add(0, 1, 1), BlockUtil.getRayTraceFacing(pos.add(0, 1, 1)))
             }
         }
@@ -147,7 +147,7 @@ class AntiPiston : Module() {
             } else if (getBlock(pos.add(0, 2, 0)).block === Blocks.AIR) {
                 perform(pos.add(0, 2, 0))
             }
-            if (breakpiston.value) {
+            if (breakPiston.value) {
                 mc.playerController.onPlayerDamageBlock(
                     pos.add(0, 1, -1),
                     BlockUtil.getRayTraceFacing(pos.add(0, 1, -1))

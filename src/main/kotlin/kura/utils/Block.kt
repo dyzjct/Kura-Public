@@ -90,9 +90,9 @@ inline fun World.isAir(x: Int, y: Int, z: Int): Boolean {
     return getBlockState(x, y, z).block == Blocks.AIR
 }
 
-inline fun World.isAir(pos: BlockPos): Boolean {
-    return getBlockState(pos).block == Blocks.AIR
-}
+//inline fun World.isAir(pos: BlockPos): Boolean {
+//    return getBlockState(pos).block == Blocks.AIR
+//}
 
 inline fun World.getBlock(pos: BlockPos): Block =
     this.getBlockState(pos).block

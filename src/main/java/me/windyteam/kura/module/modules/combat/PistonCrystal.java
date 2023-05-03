@@ -138,7 +138,7 @@ public class PistonCrystal extends Module {
             return;
         }
         if (!attackable.isEmpty()) {
-            Color col = ColorUtil.rainbow(Colors.getINSTANCE().rainbowHue.getValue());
+            Color col = ColorUtil.rainbow(Colors.rainbowHue.getValue());
             RenderUtils.drawBlockBox(attackable.get(0).crystal, RenderUtils.alpha(col, 0x20), false);
             RenderUtils.drawBlockBox(attackable.get(0).piston, RenderUtils.alpha(col, 0x20), false);
             if (attackable.get(0).power != null)

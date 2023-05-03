@@ -29,6 +29,12 @@ public class InventoryUtil {
     public static Minecraft mc = Minecraft.getMinecraft();
     public static int currentItem;
 
+    public static int getItemDurability(final ItemStack stack) {
+        if (stack == null) {
+            return 0;
+        }
+        return stack.getMaxDamage() - stack.itemDamage;
+    }
     public static boolean holdingItem(Class<?> clazz) {
         ItemStack stack = mc.player.getHeldItemMainhand();
         boolean result = isInstanceOf(stack, clazz);

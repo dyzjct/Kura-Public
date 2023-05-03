@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import me.windyteam.kura.Kura;
 import me.windyteam.kura.friend.FriendManager;
 import me.windyteam.kura.utils.Wrapper;
+import me.windyteam.kura.utils.block.BlockInteractionHelper;
 import me.windyteam.kura.utils.block.BlockUtil;
 import me.windyteam.kura.utils.math.MathUtil;
 import net.minecraft.block.*;
@@ -753,6 +754,15 @@ public class EntityUtil {
     }
 
     public static void attackEntity(Entity entity, boolean packet) {
+        if (packet) {
+            mc.player.connection.sendPacket(new CPacketUseEntity(entity));
+        } else {
+            mc.playerController.attackEntity(mc.player, entity);
+        }
+    }
+
+    public static void rotateAttackEntity(Entity entity, boolean packet) {
+        mc.player.connection.sendPacket(new CPacketPlayer.Rotation(BlockInteractionHelper.getLegitRotations(entity.getPositionVector())[0], BlockInteractionHelper.getLegitRotations(entity.getPositionVector())[1], true));
         if (packet) {
             mc.player.connection.sendPacket(new CPacketUseEntity(entity));
         } else {

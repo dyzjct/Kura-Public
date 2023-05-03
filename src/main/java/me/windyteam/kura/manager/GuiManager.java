@@ -24,11 +24,11 @@ public class GuiManager {
     }
 
     public Colors getColorINSTANCE() {
-        return Colors.getINSTANCE();
+        return Colors.INSTANCE;
     }
 
     public boolean isNull() {
-        return Colors.getINSTANCE() == null;
+        return Colors.INSTANCE == null;
     }
 
     public int getNormalRed() {
@@ -128,24 +128,24 @@ public class GuiManager {
         return !this.isNull() && this.getColorINSTANCE().setting.getValue() == Colors.SettingViewType.SIDE;
     }
 
-    public Background getBackground() {
-        switch (this.getColorINSTANCE().background.getValue()) {
-            case SHADOW: {
-                return Background.Shadow;
-            }
-            case BLUR: {
-                return Background.Blur;
-            }
-            case BOTH: {
-                return Background.Both;
-            }
-        }
-        return Background.None;
-    }
+//    public Background getBackground() {
+//        switch (Colors.background.getValue()) {
+//            case sh: {
+//                return Background.Shadow;
+//            }
+//            case BLUR: {
+//                return Background.Blur;
+//            }
+//            case BOTH: {
+//                return Background.Both;
+//            }
+//        }
+//        return Background.None;
+//    }
+
 
     public enum Background {
         Shadow, Blur, Both, None
-
     }
 }
 

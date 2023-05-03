@@ -25,7 +25,7 @@ import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalHelper.C
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalHelper.Companion.totalHealth
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.CrystalTarget
 import me.windyteam.kura.module.modules.crystalaura.cystalHelper.FastRayTrace.Companion.rayTraceVisible
-import me.windyteam.kura.module.modules.misc.InstantMine
+import me.windyteam.kura.module.modules.player.PacketMine
 import me.windyteam.kura.utils.TimerUtils
 import me.windyteam.kura.utils.animations.BlockEasingRender
 import me.windyteam.kura.utils.animations.sq
@@ -38,6 +38,7 @@ import me.windyteam.kura.utils.gl.XG42Tessellator
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import me.windyteam.kura.utils.mc.BlockUtil
 import me.windyteam.kura.utils.mc.ChatUtil
+import me.windyteam.kura.utils.render.RenderUtil
 import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.GlStateManager
@@ -154,6 +155,7 @@ object AutoCrystal : Module() {
 
     //Page Render
     private var hudInfoMod = msetting("HudInfo", Mode.Target).m(p, Page.RENDER)
+    private var renderTarget = bsetting("RenderTarget",false).m(p, Page.RENDER)
     private var outline = bsetting("Outline", true).m(p, Page.RENDER)
     private var renderText = bsetting("RenderText", true).m(p, Page.RENDER)
     private var customFont = bsetting("CustomFont", false).b(renderText).m(p, Page.RENDER)
@@ -208,6 +210,7 @@ object AutoCrystal : Module() {
     private var infoBreakTime = 0L
     private var offsetFacing = arrayOf(EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.EAST)
     private var attackingCrystal: EntityEnderCrystal? = null
+    private var ticks = 0
 
     @SubscribeEvent
     fun onClientDisconnect(event: ClientDisconnectionFromServerEvent?) {
@@ -309,8 +312,8 @@ object AutoCrystal : Module() {
         crystalTarget = calc()
         for (target in mc.world.playerEntities) {
             if (EntityUtil.isntValid(target, placeRange.value.toDouble())) continue
-            if (ModuleManager.getModuleByClass(InstantMine::class.java).isEnabled && InstantMine.breakPos != null) {
-                if (EntityUtil.isInHole(target)) doAntiSurround(InstantMine.breakPos)
+            if (ModuleManager.getModuleByClass(PacketMine::class.java).isEnabled && PacketMine.currentPos != null) {
+                if (EntityUtil.isInHole(target)) doAntiSurround(PacketMine.currentPos)
             }
         }
 
@@ -430,32 +433,51 @@ object AutoCrystal : Module() {
                 blockRenderSmooth.resetFade()
                 shouldShadeRender = false
             }
+            --ticks
             if (render != null) {
                 if (switchMode.value == Switch.GhostHand && mc.connection != null && cSlot != -1) {
                     spoofHotbar(cSlot, true)
                 }
                 if (rotate.value) {
-                    rotations = BlockInteractionHelper.getLegitRotations(
-                        Vec3d(render!!.down()).add(
-                            0.5, 1.0, 0.5
-                        )
-                    )
-                if (yawAngle.value < 1.0f) {
-                    if (yawTicksPassed > 0) {
-                        rotations[0] = mc.player.lastReportedYaw
-                    } else {
-                        val f: Float =
-                            MathHelper.wrapDegrees(rotations[0] - mc.player.lastReportedYaw)
-                        if (abs(f) > 180.0f * yawAngle.value) {
+//                    rotations = BlockInteractionHelper.getLegitRotations(render!!.down())
+                    rotations =
+                        BlockInteractionHelper.getLegitRotations(Vec3d(render!!).add(0.5, 1.0, 0.5))
+//                if (yawAngle.value < 1.0f) {
+//                    if (yawTicksPassed > 0) {
+//                        rotations[0] = mc.player.lastReportedYaw
+//                    } else {
+//                        val f: Float =
+//                            MathHelper.wrapDegrees(rotations[0] - mc.player.lastReportedYaw)
+//                        if (abs(f) > 180.0f * yawAngle.value) {
+//                            rotations[0] =
+//                                (mc.player.lastReportedYaw + f * (180.0f * yawAngle.value / abs(
+//                                    f
+//                                )))
+//                            yawTicksPassed = yawTicks.value
+//                        }
+//                    }
+//                }
+                    if (yawAngle.value < 1.0f && yawStep.value && attackingCrystal != null) {
+                        if (ticks > 0) {
                             rotations[0] =
-                                (mc.player.lastReportedYaw + f * (180.0f * yawAngle.value / abs(
-                                    f
-                                )))
-                            yawTicksPassed = yawTicks.value
+                                mc.player.lastReportedYaw
+                            attackingCrystal = null
+                            attackingCrystal = null
+                        } else {
+                            val f: Float =
+                                MathHelper.wrapDegrees(rotations[0] - mc.player.lastReportedYaw)
+                            if (abs(f) > 180.0f * yawAngle.value) {
+                                rotations[0] =
+                                    mc.player.lastReportedYaw + f * (180.0f * yawAngle.value / Math.abs(
+                                        f
+                                    ))
+                                attackingCrystal = null
+                                attackingCrystal = null
+                                ticks = yawTicks.value
+                            }
                         }
                     }
-                }
-                    event?.setRotation(rotations[0], rotations[1])
+                    event!!.setRotation(rotations[0], rotations[1])
                 }
                 if (!offhand && mc.player.inventory.currentItem != crystalSlot) {
                     if (switchMode.value == Switch.AutoSwitch) {
@@ -987,7 +1009,7 @@ object AutoCrystal : Module() {
         )
     }
 
-    private fun World.noCollision(pos: BlockPos) = this.checkNoEntityCollision(AxisAlignedBB(pos), mc.player)
+    private fun World.noCollision(pos: BlockPos) = checkNoEntityCollision(AxisAlignedBB(pos), mc.player)
 
     override fun onWorldRender(event: RenderEvent) {
         if (fullNullCheck()) {
@@ -1052,6 +1074,10 @@ object AutoCrystal : Module() {
                         breakAlpha.value
                     )
                     XG42Tessellator.release()
+                }
+
+                if (renderTarget.value){
+                    RenderUtil.drawFade(crystalTarget!!.target, Color(0, 0, 0))
                 }
 
                 if (renderText.value) {
@@ -1312,7 +1338,7 @@ object AutoCrystal : Module() {
 
     val BlockPos.state: IBlockState get() = mc.world.getBlockState(this)
     private val BlockPos.collisionBox: AxisAlignedBB
-        get() = this.state.getCollisionBoundingBox(mc.world, this) ?: AxisAlignedBB(this)
+        get() = state.getCollisionBoundingBox(mc.world, this) ?: AxisAlignedBB(this)
     private val BlockPos.isFullBox: Boolean
         get() = mc.world?.let {
             collisionBox

@@ -1,7 +1,6 @@
 package me.windyteam.kura.mixin.client;
 
 import me.windyteam.kura.module.modules.render.NoRender;
-import me.windyteam.kura.module.modules.render.NoRender;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.asm.mixin.Mixin;

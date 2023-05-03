@@ -4,8 +4,6 @@ import me.windyteam.kura.friend.FriendManager
 import me.windyteam.kura.manager.FileManager
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.setting.BooleanSetting
-import me.windyteam.kura.setting.IntegerSetting
 import me.windyteam.kura.utils.TimerUtils
 import me.windyteam.kura.utils.mc.ChatUtil
 import me.windyteam.kura.utils.math.RandomUtil
@@ -17,13 +15,13 @@ import java.nio.charset.StandardCharsets
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.random.Random
 
-@Module.Info(name = "Spamer", category = Category.CHAT)
-class Spammer : Module() {
-    private val delay: IntegerSetting = isetting("Delay", 350, 0, 5000)
-    private val randomtxt: BooleanSetting = bsetting("RandomText", false)
-    private val randomamount: IntegerSetting = isetting("RandomAmount", 2, 1, 10).b(randomtxt)
-    private val sendFriend: BooleanSetting = bsetting("SendToFriend", false)
-    private val debug: BooleanSetting = bsetting("Debug", false)
+@Module.Info(name = "Spammer", category = Category.CHAT)
+object Spammer : Module() {
+    private val delay = isetting("Delay", 350, 0, 5000)
+    private val randomTxt = bsetting("RandomText", false)
+    private val randomAmount = isetting("RandomAmount", 2, 1, 10).b(randomTxt)
+    private val sendFriend = bsetting("SendToFriend", false)
+    private val debug = bsetting("Debug", false)
     private val delayTimer: TimerUtils = TimerUtils()
     private val clearTimer: TimerUtils = TimerUtils()
     private val playerList: CopyOnWriteArrayList<String> = CopyOnWriteArrayList()
@@ -48,7 +46,7 @@ class Spammer : Module() {
         if (fullNullCheck()) {
             return
         }
-        try {
+        runCatching {
             if (clearTimer.passed(30000)) {
                 playerList.clear()
                 clearTimer.reset()
@@ -76,8 +74,8 @@ class Spammer : Module() {
                         val p = playerList[Random.nextInt(playerList.size)]
                         val msg = st.replace("!object", p)
                         mc.player.sendChatMessage(
-                            if (randomtxt.value) {
-                                "$msg " + RandomUtil.randomString(1, randomamount.value)
+                            if (randomTxt.value) {
+                                "$msg " + RandomUtil.randomString(1, randomAmount.value)
                             } else {
                                 msg
                             }
@@ -94,8 +92,6 @@ class Spammer : Module() {
                 disable()
                 return
             }
-        } catch (ignored: Exception) {
-            //ChatUtil.sendMessage(e.message)
         }
     }
 }

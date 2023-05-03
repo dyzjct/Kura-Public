@@ -1,10 +1,9 @@
 package me.windyteam.kura.module.modules.render
 
-import kura.utils.Wrapper.world
-import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.event.events.render.RenderEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
+import me.windyteam.kura.utils.TimerUtils
 import me.windyteam.kura.utils.animations.sq
 import me.windyteam.kura.utils.gl.MelonTessellator
 import net.minecraft.entity.item.EntityEnderCrystal
@@ -15,23 +14,17 @@ import java.util.concurrent.CopyOnWriteArrayList
 @Module.Info(name = "CrystalRender", category = Category.RENDER)
 object CrystalRender : Module() {
     private val range = isetting("Range", 12, 0, 30)
-    private val lineWidth = fsetting("Width",2f,1f,4f)
-    private val alpha = isetting("Alpha",150,0,255)
-    private val color = csetting("Color", Color(255,255,255))
-    private val animation = bsetting("Animation",true)
-    private val animationTime = isetting("AnimationTime",500,0,1500)
-    private val fadeSpeed = dsetting("FadeSpeed",500.0,0.0,1500.0)
+    private val lineWidth = fsetting("Width", 2f, 1f, 4f)
+    private val alpha = isetting("Alpha", 150, 0, 255)
+    private val color = csetting("Color", Color(255, 255, 255))
+    private val animationTime = isetting("AnimationTime", 500, 0, 1500)
+    private val fadeSpeed = dsetting("FadeSpeed", 500.0, 0.0, 1500.0)
+    private val mode = msetting("Mode", Mode.Normal)
+    private val points = isetting("Points",20,1,100).m(mode,Mode.New)
+    private val interval = isetting("Interval",2,1,100).m(mode,Mode.New)
     private val cryList = ConcurrentHashMap<EntityEnderCrystal, RenderInfo>()
+    private val timerUtils = TimerUtils()
 
-    fun onTick(event: MotionUpdateEvent){
-        if (cryList.isNotEmpty()) {
-            cryList.forEach {
-                if (!world!!.loadedEntityList.contains(it.key)) {
-                    cryList.remove(it.key, it.value)
-                }
-            }
-        }
-    }
     override fun onWorldRender(event: RenderEvent) {
         if (fullNullCheck()) return
         for (e in CopyOnWriteArrayList(mc.world.loadedEntityList)) {
@@ -41,26 +34,48 @@ object CrystalRender : Module() {
                 cryList[e] = RenderInfo(e, System.currentTimeMillis())
             }
         }
-        if (cryList.isNotEmpty()) {
-            cryList.forEach { (_: EntityEnderCrystal, renderInfo: RenderInfo) ->
-                if (renderInfo.entity.isEntityAlive) {
-                    if (mc.player.getDistanceSq(renderInfo.entity) <= range.value.sq){
-                        if (animation.value){
-                            val rad = System.currentTimeMillis() - renderInfo.time
-                            val height = System.currentTimeMillis() - renderInfo.time
-                            if (rad<=animationTime.value){
-                                MelonTessellator.drawCircle(renderInfo.entity, mc.renderPartialTicks, rad/fadeSpeed.value, height/1000.toFloat(), color.value.red, color.value.green, color.value.blue, alpha.value,lineWidth.value)
-                            } else{
-                                renderInfo.time = System.currentTimeMillis()
-                            }
-                        } else{
-                            MelonTessellator.drawCircle(renderInfo.entity, mc.renderPartialTicks, 0.4, 0f, color.value.red, color.value.green, color.value.blue, alpha.value,lineWidth.value)
-                            MelonTessellator.drawCircle(renderInfo.entity, mc.renderPartialTicks, 0.6, 0f, color.value.red, color.value.green, color.value.blue, alpha.value,lineWidth.value)
+
+        when (mode.value) {
+            Mode.Normal -> {
+                cryList.forEach { (_: EntityEnderCrystal, renderInfo: RenderInfo) ->
+                    draw(renderInfo.entity, renderInfo.time, renderInfo.time)
+                }
+            }
+
+            Mode.New -> {
+                var time = 0
+                for (i in 1..points.value){
+                    if (timerUtils.passedMs(500)){
+                        cryList.forEach { (_: EntityEnderCrystal, renderInfo: RenderInfo) ->
+                            draw(renderInfo.entity, renderInfo.time-time, renderInfo.time-time)
                         }
+                        time += interval.value
                     }
                 }
             }
         }
+    }
+
+    fun draw(entity: EntityEnderCrystal, radTime: Long, heightTime: Long) {
+        val rad = System.currentTimeMillis() - radTime
+        val height = System.currentTimeMillis() - heightTime
+        if (rad <= animationTime.value) {
+            MelonTessellator.drawCircle(
+                entity,
+                mc.renderPartialTicks,
+                rad / fadeSpeed.value,
+                height / 1000.toFloat(),
+                color.value.red,
+                color.value.green,
+                color.value.blue,
+                alpha.value,
+                lineWidth.value
+            )
+        }
+    }
+
+    enum class Mode {
+        Normal , New
     }
 
     class RenderInfo(var entity: EntityEnderCrystal, var time: Long)

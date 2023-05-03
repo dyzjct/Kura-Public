@@ -5,7 +5,6 @@ import me.windyteam.kura.friend.FriendManager;
 import me.windyteam.kura.module.Category;
 import me.windyteam.kura.module.HUDModule;
 import me.windyteam.kura.utils.mc.ChatUtil;
-import me.windyteam.kura.utils.mc.ChatUtil;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;

@@ -159,3 +159,5 @@ task copy(type: Copy) {
 task AutoBuild (dependsOn: [build, copy]){
     group = "Kura"
 }
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8

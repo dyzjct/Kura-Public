@@ -49,9 +49,7 @@ object KnifeBot : Module() {
                 )
             } else if (render.value === RenderMode.JELLO) {
                 if (EntityUtil.holdingWeapon(mc.player) && AutoCrystal.renderEnt == null) {
-                    RenderUtil.drawFade(target, Color(0, 255, 0))
-                } else if (AutoCrystal.renderEnt != null) {
-                    RenderUtil.drawFade(target, Color(255, 0, 0))
+                    RenderUtil.drawFade(target, Color(0, 0, 0))
                 }
             }
         }

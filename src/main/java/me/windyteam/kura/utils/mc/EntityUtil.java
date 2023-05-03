@@ -76,6 +76,10 @@ public class EntityUtil {
         return (int) ((stack.getMaxDamage() - stack.getItemDamage()) / Math.max(0.1, stack.getMaxDamage()) * 100.0f);
     }
 
+    public static boolean rayTraceHitCheck(Entity entity, boolean shouldCheck) {
+        return !shouldCheck || EntityUtil.mc.player.canEntityBeSeen(entity);
+    }
+
     public static boolean isCrystalAtFeet(EntityEnderCrystal crystal, double range) {
         for (EntityPlayer player : EntityUtil.mc.world.playerEntities) {
             if (EntityUtil.mc.player.getDistanceSq(player) > range * range || FriendManager.isFriend(player.getName())) continue;
@@ -344,6 +348,7 @@ public class EntityUtil {
             EntityUtil.mc.playerController.attackEntity(EntityUtil.mc.player, entity);
         }
     }
+
 
     public static Vec3d interpolateEntity(Entity entity, float time) {
         return new Vec3d(entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)time, entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)time, entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)time);

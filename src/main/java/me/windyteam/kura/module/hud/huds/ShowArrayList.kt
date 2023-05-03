@@ -46,7 +46,7 @@ object ShowArrayList : HUDModule() {
         }).forEach { module: IModule ->
             if ((module as Module).isShownOnArray) {
                 val screenWidthScaled = ScaledResolution(mc).scaledWidth
-                val screenHightScaled = ScaledResolution(mc).scaledHeight
+                val screenHeightScaled = ScaledResolution(mc).scaledHeight
                 val modWidth =
                     (if (customFont.value) fonts.getStringWidth(getArrayList(module)) else mc.fontRenderer.getStringWidth(
                         getArrayList(module)
@@ -140,7 +140,7 @@ object ShowArrayList : HUDModule() {
                         )
                     }
                 }
-                if (y > screenHightScaled/2){
+                if (y > screenHeightScaled/2){
                     count--
                 } else {
                     count++

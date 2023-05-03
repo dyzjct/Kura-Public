@@ -58,6 +58,10 @@ public class RenderUtil {
     private static boolean bind = GL11.glIsEnabled(2929);
     private static boolean override = GL11.glIsEnabled(2848);
 
+    public static void glColor(final Color color) {
+        GL11.glColor4f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() / 255.0f);
+    }
+
     public static void drawFadingBox(final AxisAlignedBB a, final Color boxColor, final Color outlineColor, final float lineWidth, final boolean outline, final boolean box , float alpha, final float scale, final float slab) {
         final double f = 0.5 * (1.0f - scale);
         final AxisAlignedBB bb = interpolateAxis(new AxisAlignedBB(a.minX + f, a.minY + f + (1.0f - slab), a.minZ + f, a.maxX - f, a.maxY - f, a.maxZ - f));

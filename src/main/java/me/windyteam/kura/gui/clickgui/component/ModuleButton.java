@@ -35,6 +35,7 @@ public class ModuleButton
     private int angleSetting = 0;
     public Timer buttonTimer = new Timer();
 
+
     public ModuleButton(IModule module, int width, int height, Panel father) {
         this.module = module;
         this.width = width;
@@ -42,33 +43,6 @@ public class ModuleButton
         this.father = father;
         this.setup();
     }
-
-//    public void setup() {
-//        try {
-//            for (Setting value : this.module.getSettingList()) {
-//                if (value instanceof BooleanSetting) {
-//                    this.settings.add(new BooleanButton((BooleanSetting) value, this.width, this.height, this.father));
-//                }
-//                if (value instanceof BindSetting) {
-//                    this.settings.add(new BindButton(this.module, this.width, this.height, this.father));
-//                }
-//                if (value instanceof IntegerSetting || value instanceof FloatSetting || value instanceof DoubleSetting) {
-//                    this.settings.add(new NumberSlider(value, this.width, this.height, this.father));
-//                }
-//                if (value instanceof ModeSetting) {
-//                    this.settings.add(new ModeButton((ModeSetting) value, this.width, this.height, this.father));
-//                }
-//                if (value instanceof StringSetting) {
-//                    this.settings.add(new TextButton((StringSetting) value, this.width, this.height, this.father));
-//                }
-//                if (!(value instanceof ColorSetting)) continue;
-//                this.settings.add(new ColorPicker((ColorSetting) value, this.father, this.width, this.height, 50));
-//            }
-//            this.settings.add(new BindButton(this.module, this.width, this.height, this.father));
-//        } catch (Exception exception) {
-//            // empty catch block
-//        }
-//    }
 
     public void setup() {
         try {
@@ -83,6 +57,9 @@ public class ModuleButton
             }
             if (value instanceof IntegerSetting || value instanceof FloatSetting || value instanceof DoubleSetting) {
                 this.settings.add(new NumberSlider(value, this.width, this.height, this.father));
+            }
+            if (value instanceof StringSetting) {
+                this.settings.add(new TextButton((StringSetting) value, this.width, this.height, this.father));
             }
             if (value instanceof ModeSetting) {
                 this.settings.add(new ModeButton((ModeSetting)value, this.width, this.height, this.father));

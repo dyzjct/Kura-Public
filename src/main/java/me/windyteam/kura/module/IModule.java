@@ -1,15 +1,15 @@
 package me.windyteam.kura.module;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
+import me.windyteam.kura.Kura;
 import me.windyteam.kura.event.events.client.SettingChangeEvent;
+import me.windyteam.kura.event.events.render.Render3DEvent;
 import me.windyteam.kura.event.events.render.RenderEvent;
-import me.windyteam.kura.gui.Notification;
-import me.windyteam.kura.module.modules.client.Colors;
 import me.windyteam.kura.module.modules.client.CustomFont;
+import me.windyteam.kura.notifications.Notification;
+import me.windyteam.kura.notifications.NotificationType;
 import me.windyteam.kura.setting.*;
 import me.windyteam.kura.utils.Wrapper;
 import me.windyteam.kura.utils.font.CFontRenderer;
-import me.windyteam.kura.utils.mc.ChatUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.client.event.InputUpdateEvent;
@@ -48,11 +48,16 @@ public abstract class IModule {
         remainingAnimation = 0.0f;
         this.toggled = true;
         if (ModuleManager.getModuleByName("Notification").isEnabled()) {
-            ChatUtil.sendClientMessage(ChatFormatting.AQUA + "[" + name + "] is Enable", Notification.Type.SUCCESS);
+            try {
+                Kura.Companion.getInstance().notificationManager.addNotification(new Notification(name, NotificationType.INFO));
+            } catch (Exception e){
+//
+            }
+
         }
-        if (Colors.INSTANCE.chat.getValue()) {
-            ChatUtil.NoSpam.sendMessage(ChatFormatting.AQUA + name + ChatFormatting.WHITE + " is" + ChatFormatting.GREEN + " Enabled!");
-        }
+//        if (Colors.chat.getValue()) {
+//            ChatUtil.NoSpam.sendMessage(Colors.INSTANCE.chatColorMode() + name + ChatFormatting.WHITE + " is" + ChatFormatting.GREEN + " Enabled!");
+//        }
         this.onEnable();
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -61,11 +66,15 @@ public abstract class IModule {
         remainingAnimation = 0.0f;
         this.toggled = false;
         if (ModuleManager.getModuleByName("Notification").isEnabled()) {
-            ChatUtil.sendClientMessage(ChatFormatting.RED + "[" + name + "] is Disable", Notification.Type.DISABLE);
+            try {
+                Kura.Companion.getInstance().notificationManager.addNotification(new Notification(name, NotificationType.ERROR));
+            } catch (Exception e){
+//
+            }
         }
-        if (Colors.INSTANCE.chat.getValue()) {
-            ChatUtil.NoSpam.sendMessage(ChatFormatting.AQUA + name + ChatFormatting.WHITE + " is" + ChatFormatting.RED + " Disabled!");
-        }
+//        if (Colors.chat.getValue()) {
+//            ChatUtil.NoSpam.sendMessage(Colors.INSTANCE.chatColorMode() + name + ChatFormatting.WHITE + " is" + ChatFormatting.RED + " Disabled!");
+//        }
         this.onDisable();
         MinecraftForge.EVENT_BUS.unregister(this);
     }
@@ -205,6 +214,9 @@ public abstract class IModule {
     }
 
     public void onRender() {
+    }
+
+    public void onRender3D(Render3DEvent event) {
     }
 
     public void onRender2D(RenderGameOverlayEvent.Post event) {

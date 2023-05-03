@@ -3,28 +3,28 @@ package me.windyteam.kura.module.modules.xddd
 import me.windyteam.kura.event.events.entity.MotionUpdateEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
+import me.windyteam.kura.module.modules.combat.HoleKicker
 import me.windyteam.kura.utils.TimerUtils
+import me.windyteam.kura.utils.block.BlockInteractionHelper
 import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.entity.EntityUtil
 import me.windyteam.kura.utils.inventory.InventoryUtil
 import net.minecraft.block.BlockObsidian
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityEnderCrystal
-import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketPlayer
-import net.minecraft.network.play.client.CPacketUseEntity
 import net.minecraft.util.EnumHand
+import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import java.util.stream.Collectors
 
 @Module.Info(
     name = "Surround",
     category = Category.XDDD,
     description = "Continually places obsidian around your feet"
 )
-class Surround : Module() {
+object Surround : Module() {
     var slot = 0
     var oldslot = 0
     private var startPos: BlockPos? = null
@@ -34,14 +34,11 @@ class Surround : Module() {
     private var packet = bsetting("Packet", true)
     private var rot = bsetting("Rotate", false)
     private var breakcry = bsetting("BreakCrystal", true)
-    private var newPos2: BlockPos? = null
-    private var explodeTimerUtils = TimerUtils()
+    private var timerUtils = TimerUtils()
     override fun onEnable() {
         if (fullNullCheck()) {
             return
         }
-//        delay.reset()
-        delay.tickAndReset(placedelay.value)
         startPos = EntityUtil.getPlayerPos()
         val centerPos = mc.player.position
         val y = centerPos.getY().toDouble()
@@ -92,17 +89,14 @@ class Surround : Module() {
         disable()
     }
 
-//    @SubscribeEvent
-//    fun onUpdate(event: UpdateWalkingPlayerEvent?) {
     @SubscribeEvent
-    fun onTick(event: MotionUpdateEvent.Tick) {
+    fun onTick(event: MotionUpdateEvent.FastTick) {
         if (fullNullCheck()) {
             toggle()
             return
         }
-    delay.tickAndReset(placedelay.value)
         if (breakcry.value) {
-            breakcrystal()
+            breakCrystal(BlockPos(0,0,0))
         }
         slot = InventoryUtil.findHotbarBlock(BlockObsidian::class.java)
         oldslot = mc.player.inventory.currentItem
@@ -115,57 +109,73 @@ class Surround : Module() {
             return
         }
         for (pos in surroundPos) {
-            newPos2 = addPos(pos)
-            if (BlockUtil.isPositionPlaceable(newPos2, false) < 2) continue
+            val surpos = addPos(pos)
+            if (BlockUtil.isPositionPlaceable(surpos, false) < 2) continue
             if (slot == -1) {
                 toggle()
+                return
             }
-            InventoryUtil.switchToHotbarSlot(slot, false)
-            BlockUtil.placeBlock(newPos2, EnumHand.MAIN_HAND, rot.value, packet.value)
-            InventoryUtil.switchToHotbarSlot(oldslot, false)
+            if (timerUtils.passedMs(placedelay.value.toLong())){
+                InventoryUtil.switchToHotbarSlot(slot, false)
+                BlockUtil.placeBlock(surpos, EnumHand.MAIN_HAND, rot.value, packet.value)
+                InventoryUtil.switchToHotbarSlot(oldslot, false)
+                timerUtils.reset()
+            }
+
         }
     }
 
-    fun addPos(pos: BlockPos): BlockPos {
+    private fun addPos(pos: BlockPos): BlockPos {
         val pPos = EntityUtil.getPlayerPos(0.2)
         return BlockPos(pPos.getX() + pos.getX(), pPos.getY() + pos.getY(), pPos.getZ() + pos.getZ())
     }
 
-    fun getDst(vec: Vec3d?): Double {
+    private fun getDst(vec: Vec3d?): Double {
         return mc.player.positionVector.distanceTo(vec)
     }
 
-    fun centerPlayer(x: Double, y: Double, z: Double) {
+    private fun centerPlayer(x: Double, y: Double, z: Double) {
         mc.player.connection.sendPacket(CPacketPlayer.Position(x, y, z, true))
         mc.player.setPosition(x, y, z)
     }
 
-    fun breakcrystal() {
-        for (crystal in mc.world.loadedEntityList.stream().filter { e: Entity -> e is EntityEnderCrystal && !e.isDead }
-            .sorted(Comparator.comparing { e: Entity? -> java.lang.Float.valueOf(mc.player.getDistance(e)) }).collect(
-                Collectors.toList()
-            )) {
-            if (crystal !is EntityEnderCrystal || mc.player.getDistance(crystal) > 4.0f) continue
-            if (explodeTimerUtils.passed(50) && mc.connection != null) {
-                mc.player.connection.sendPacket(CPacketUseEntity(crystal))
-                mc.player.connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
-                explodeTimerUtils.reset()
-            }
+    private fun breakCrystal(pos: BlockPos) {
+        val a: Vec3d = mc.player.positionVector
+        if (checkCrystal(a, EntityUtil.getVarOffsets(pos.x,pos.y,pos.z)) != null && timerUtils.passedMs(202L)){
+            mc.player.connection.sendPacket(CPacketPlayer.Rotation(
+                BlockInteractionHelper.getLegitRotations(pos.add(0.5,0.5,0.5))[0],
+                BlockInteractionHelper.getLegitRotations(pos.add(0.5,0.5,0.5))[1],true))
+            EntityUtil.attackEntity(checkCrystal(a, EntityUtil.getVarOffsets(pos.x,pos.y,pos.z)), true)
+            HoleKicker.crystalTimer.reset()
+            timerUtils.reset()
         }
     }
 
-    companion object {
-        var delay = TimerUtils()
-        var surroundPos = arrayOf(
-            BlockPos(0, -1, 0),
-            BlockPos(1, -1, 0),
-            BlockPos(-1, -1, 0),
-            BlockPos(0, -1, 1),
-            BlockPos(0, -1, -1),
-            BlockPos(1, 0, 0),
-            BlockPos(-1, 0, 0),
-            BlockPos(0, 0, 1),
-            BlockPos(0, 0, -1)
-        )
+    private fun checkCrystal(pos: Vec3d?, list: Array<Vec3d>): Entity? {
+        var crystal: Entity? = null
+        val var5 = list.size
+        for (var6 in 0 until var5) {
+            val vec3d = list[var6]
+            val position = BlockPos(pos!!).add(vec3d.x, vec3d.y, vec3d.z)
+            for (entity in mc.world.getEntitiesWithinAABB(
+                Entity::class.java, AxisAlignedBB(position)
+            )) {
+                if (entity !is EntityEnderCrystal || crystal != null) continue
+                crystal = entity
+            }
+        }
+        return crystal
     }
+
+    private var surroundPos = arrayOf(
+        BlockPos(0, -1, 0),
+        BlockPos(1, -1, 0),
+        BlockPos(-1, -1, 0),
+        BlockPos(0, -1, 1),
+        BlockPos(0, -1, -1),
+        BlockPos(1, 0, 0),
+        BlockPos(-1, 0, 0),
+        BlockPos(0, 0, 1),
+        BlockPos(0, 0, -1)
+    )
 }

@@ -27,7 +27,7 @@ import java.text.DecimalFormat
 import java.util.*
 
 @Module.Info(name = "Speed", category = Category.MOVEMENT)
-class Speed : Module() {
+object Speed : Module() {
     private var damageBoost = bsetting("DamageBoost", true)
     private var boostDelay = isetting("BoostDelay", 750, 1, 3000).b(damageBoost)
     private var longjump = bsetting("TryLongJump", false)
@@ -308,11 +308,8 @@ class Speed : Module() {
         }
     }
 
-    companion object {
-        var INSTANCE = Speed()
-        fun round(n: Double, n2: Int): Double {
-            require(n2 >= 0)
-            return BigDecimal(n).setScale(n2, RoundingMode.HALF_UP).toDouble()
-        }
+    fun round(n: Double, n2: Int): Double {
+        require(n2 >= 0)
+        return BigDecimal(n).setScale(n2, RoundingMode.HALF_UP).toDouble()
     }
 }

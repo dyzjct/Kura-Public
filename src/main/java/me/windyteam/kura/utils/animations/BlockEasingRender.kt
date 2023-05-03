@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2021-2021
- * CakeSlayers Reversing Team and Stay Development Team.
- * All Rights Reserved.
- *
- * CakeSlayers' Github website: https://github.com/CakeSlayers
- * This file was created by SagiriXiguajerry at 2021/11/23 上午2:05
- */
-
 package me.windyteam.kura.utils.animations
 
 import net.minecraft.util.math.AxisAlignedBB

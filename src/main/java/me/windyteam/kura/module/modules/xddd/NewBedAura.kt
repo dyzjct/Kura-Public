@@ -42,7 +42,7 @@ import kotlin.math.floor
 import kotlin.math.pow
 
 @Module.Info(name = "NewBedAura", category = Category.XDDD)
-class NewBedAura : Module() {
+object NewBedAura : Module() {
     private var calcMode = msetting("CalcMode", Mode.Stable)
     private var range = isetting("Range", 5, 1, 8)
     private var distance = isetting("EnemyBedDist", 8, 1, 13)
@@ -510,18 +510,16 @@ class NewBedAura : Module() {
         }
     }
 
-    companion object {
-        val blocks: List<Block>
-            get() = listOf(
-                Blocks.OBSIDIAN,
-                Blocks.BEDROCK,
-                Blocks.COMMAND_BLOCK,
-                Blocks.BARRIER,
-                Blocks.ENCHANTING_TABLE,
-                Blocks.ENDER_CHEST,
-                Blocks.END_PORTAL_FRAME,
-                Blocks.BEACON,
-                Blocks.ANVIL
-            )
-    }
+    val blocks: List<Block>
+        get() = listOf(
+            Blocks.OBSIDIAN,
+            Blocks.BEDROCK,
+            Blocks.COMMAND_BLOCK,
+            Blocks.BARRIER,
+            Blocks.ENCHANTING_TABLE,
+            Blocks.ENDER_CHEST,
+            Blocks.END_PORTAL_FRAME,
+            Blocks.BEACON,
+            Blocks.ANVIL
+        )
 }

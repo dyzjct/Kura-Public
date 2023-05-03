@@ -5,6 +5,7 @@ import me.windyteam.kura.utils.block.BlockUtil.BlockResistance;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -25,8 +26,20 @@ public class HoleUtil {
             new BlockPos(0, 0, 1));
     public static Minecraft mc = Minecraft.getMinecraft();
 
+    public static boolean isInHole(Entity entity) {
+        return isHole(new BlockPos(entity.posX, entity.posY, entity.posZ));
+    }
+
     public static boolean isInHole(EntityPlayer entityPlayer) {
         return isHole(new BlockPos(entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ));
+    }
+
+    public static boolean isInBurrow(Entity entity) {
+        return mc.world.getBlockState(new BlockPos(entity.posX, entity.posY, entity.posZ)).getBlock() == Blocks.OBSIDIAN;
+    }
+
+    public static boolean isInBurrow(EntityPlayer entityPlayer) {
+        return mc.world.getBlockState(new BlockPos(entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ)).getBlock() == Blocks.OBSIDIAN;
     }
 
     public static boolean isVoidHole(BlockPos blockPos) {

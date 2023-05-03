@@ -1,66 +1,73 @@
 package me.windyteam.kura.module.modules.render
 
-import me.windyteam.kura.event.events.render.Render3DEvent
 import me.windyteam.kura.event.events.render.RenderEvent
 import me.windyteam.kura.module.Category
 import me.windyteam.kura.module.Module
-import me.windyteam.kura.setting.Setting
-import me.windyteam.kura.utils.color.ColorUtil
-import me.windyteam.kura.utils.render.RenderUtil
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import me.windyteam.kura.module.Module.Info
+import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.opengl.GL11
+import org.lwjgl.util.glu.Cylinder
+import org.lwjgl.util.glu.GLU
 import java.awt.Color
-import kotlin.math.abs
 
-@Module.Info(name = "ChinaHat", category = Category.RENDER)
-class ChinaHat : Module() {
-    private val color = csetting("Color", Color(255, 255, 255))
-    private val color2 = csetting("Color", Color(255, 255, 255))
-    private var points: Setting<Int> = isetting("Points", 12, 4, 64)
-    private var firstPerson: Setting<Boolean> = bsetting("FirstPerson", false)
+@Info(name = "ChinaHat", category = Category.RENDER)
+object ChinaHat : Module() {
+    private val display = settings("Display", false)
+    private val mode = settings("Mode", Mode.FullChinaHat)
+    private val color = settings("Color", Color(255, 255, 255))
+    private val alpha = settings("Alpha", 60, 0, 255)
 
-    override fun onWorldRender(event: RenderEvent?)  {
-        var f: Float
-        if (mc.gameSettings.thirdPersonView != 0 || firstPerson.value) {
-            for (i in 0..399) {
-                f = ColorUtil.getGradientOffset(
-                    Color(color2.value.red, color2.value.green, color2.value.blue, 255),
-                    Color(color.value.red, color.value.green, color.value.blue, 255),
-                    abs(
-                        System.currentTimeMillis() / 7L - i / 2
-                    ) / 120.0
-                ).rgb.toFloat()
-                if (mc.player.isElytraFlying) {
-                    RenderUtil.drawHat(
-                        mc.player,
-                        0.009 + i * 0.0014,
-                        event!!.partialTicks,
-                        points.value,
-                        2.0f,
-                        1.1f - i * 7.85E-4f - if (mc.player.isSneaking) 0.07f else 0.03f,
-                        f.toInt()
-                    )
-                } else if (mc.player.isSneaking) {
-                    RenderUtil.drawHat(
-                        mc.player,
-                        0.009 + i * 0.0014,
-                        event!!.partialTicks,
-                        points.value,
-                        2.0f,
-                        1.1f - i * 7.85E-4f - if (mc.player.isSneaking) 0.07f else 0.03f,
-                        f.toInt()
-                    )
-                } else {
-                    RenderUtil.drawHat(
-                        mc.player,
-                        0.009 + i * 0.0014,
-                        event!!.partialTicks,
-                        points.value,
-                        2.0f,
-                        2.2f - i * 7.85E-4f - if (mc.player.isSneaking) 0.07f else 0.03f,
-                        f.toInt()
-                    )
-                }
+    override fun onWorldRender(event: RenderEvent) {
+        if (fullNullCheck()) return
+        if (!display.value) if (mc.gameSettings.thirdPersonView == 0) return
+        GL11.glPushMatrix()
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+        GL11.glEnable(GL11.GL_BLEND)
+        GL11.glShadeModel(GL11.GL_SMOOTH)
+        GL11.glDisable(GL11.GL_TEXTURE_2D)
+        GL11.glEnable(GL11.GL_LINE_SMOOTH)
+        GL11.glDisable(GL11.GL_DEPTH_TEST)
+        GL11.glDepthMask(false)
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
+        GL11.glDisable(GL11.GL_CULL_FACE)
+        GL11.glColor4f(color.value.red / 255f, color.value.green / 255f, color.value.blue / 255f, alpha.value / 255f)
+        GL11.glTranslatef(0f, mc.player.height + 0.4f, 0f)
+        GL11.glRotatef(90f, 1f, 0f, 0f)
+
+        //30 for circle
+        val shaft = Cylinder()
+        when (mode.value) {
+            Mode.Umbrella -> {
+                shaft.drawStyle = GLU.GLU_LINE
+                shaft.draw(0f, 0.7f, 0.3f, 8, 1)
+                shaft.drawStyle = GLU.GLU_FILL
+                shaft.draw(0f, 0.7f, 0.3f, 8, 1)
+            }
+
+            Mode.FullChinaHat -> {
+                shaft.drawStyle = GLU.GLU_LINE
+                shaft.draw(0f, 0.7f, 0.3f, 30, 1)
+                shaft.drawStyle = GLU.GLU_FILL
+                shaft.draw(0f, 0.7f, 0.3f, 30, 1)
+            }
+
+            Mode.ChinaHat -> {
+                shaft.drawStyle = GLU.GLU_FILL
+                shaft.draw(0f, 0.7f, 0.3f, 60, 1)
             }
         }
+
+        GlStateManager.resetColor()
+        GL11.glEnable(GL11.GL_TEXTURE_2D)
+        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        GL11.glDisable(GL11.GL_LINE_SMOOTH)
+        GL11.glDepthMask(true)
+        GL11.glDisable(GL11.GL_BLEND)
+        GL11.glEnable(GL11.GL_CULL_FACE)
+        GL11.glPopMatrix()
+    }
+
+    enum class Mode {
+        Umbrella, ChinaHat, FullChinaHat
     }
 }

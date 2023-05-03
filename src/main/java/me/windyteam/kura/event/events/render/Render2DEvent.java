@@ -29,4 +29,3 @@ public class Render2DEvent
         return this.scaledResolution.getScaledHeight_double();
     }
 }
-

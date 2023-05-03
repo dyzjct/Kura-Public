@@ -1,6 +1,7 @@
 package me.windyteam.kura.module;
 
 import me.windyteam.kura.Kura;
+import me.windyteam.kura.event.events.render.Render3DEvent;
 import me.windyteam.kura.event.events.render.RenderEvent;
 import me.windyteam.kura.gui.clickgui.guis.HUDEditorScreen;
 import me.windyteam.kura.module.hud.huds.*;
@@ -161,6 +162,15 @@ public class ModuleManager {
         }
     }
 
+    public static void onRender3D(Render3DEvent event){
+        if (!(Minecraft.getMinecraft().currentScreen instanceof HUDEditorScreen)) {
+            ModuleManager.getHUDModules().forEach(mod -> {
+                if (mod.isEnabled()) {
+                    mod.onRender3D(event);
+                }
+            });
+        }
+    }
     public static Vec3d getInterpolatedPos(Entity entity, float ticks) {
         return new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ).add(EntityUtil.getInterpolatedAmount(entity, ticks));
     }
@@ -212,10 +222,10 @@ public class ModuleManager {
         registerModule(new ChatTimeStamps());
         registerModule(new ChatNotifier());
         registerModule(new AutoCNM());
-        registerModule(new Spammer());
+        registerModule(Spammer.INSTANCE);
         //Client
         registerModule(new ClickGui());
-        registerModule(new Colors());
+        registerModule(Colors.INSTANCE);
         registerModule(new CustomFont());
         registerModule(new HUDEditor());
         registerModule(new NullModule());
@@ -231,7 +241,7 @@ public class ModuleManager {
         registerModule(new TabFriends());
         registerModule(ViewModel.INSTANCE);
         registerModule(new NoHurtCam());
-        registerModule(new NoRender());
+        registerModule(NoRender.INSTANCE);
         registerModule(new PopChams());
         registerModule(new Brightness());
         registerModule(new HoleESP());
@@ -249,6 +259,9 @@ public class ModuleManager {
         registerModule(CrystalRender.INSTANCE);
         registerModule(HandAnimations.INSTANCE);
         registerModule(BlockHighlight.INSTANCE);
+        registerModule(HurtCam.INSTANCE);
+        registerModule(CrystalChams.INSTANCE);
+        registerModule(ChinaHat.INSTANCE);
 
         //Combat
         registerModule(new Aimbot());
@@ -259,7 +272,6 @@ public class ModuleManager {
         registerModule(new AutoReplenish());
         registerModule(AutoTotem.INSTANCE);
         registerModule(new AutoTrap());
-        registerModule(new AutoCity());
         registerModule(Burrow.INSTANCE);
         registerModule(new Criticals());
         registerModule(new CevBreaker());
@@ -272,14 +284,15 @@ public class ModuleManager {
         registerModule(new SelfWeb());
         registerModule(new TotemPopCounter());
         registerModule(new VisualRange());
-        registerModule(new EzBow());
-        registerModule(new AntiBurrow());
+        registerModule(EzBow.INSTANCE);
         registerModule(new HoleFiller());
-        registerModule(new SmartBurrow());
+        registerModule(AutoBurrow.INSTANCE);
         registerModule(new TNTHead());
         registerModule(new AutoTopCev());
         registerModule(KnifeBot.INSTANCE);
-        registerModule(HoleKickerRewrite.INSTANCE);
+        registerModule(HoleKicker.INSTANCE);
+        registerModule(CityMiner.INSTANCE);
+        registerModule(PistonAura.INSTANCE);
         //Player
         registerModule(new LiquidInteract());
         registerModule(new Reach());
@@ -308,7 +321,7 @@ public class ModuleManager {
         registerModule(new AntiAim());
         registerModule(new HeadBlocker());
         registerModule(new AntiBurrowHelper());
-        registerModule(new AntiPiston());
+        registerModule(AntiPiston.INSTANCE);
         registerModule(new NoteBot());
         registerModule(new EntityDeSync());
         registerModule(new NoPacketKick());
@@ -324,9 +337,9 @@ public class ModuleManager {
         registerModule(new MCF());
         registerModule(new NoRotate());
         registerModule(new EasyKitsCrasher());
-        registerModule(InstantMine.INSTANCE);
-        registerModule(new AntiHoleKicker());
+        registerModule(AntiHoleKick.INSTANCE);
         registerModule(new PacketAnalyzer());
+        registerModule(new Stairs());
         //Movement
         registerModule(new Velocity());
         registerModule(new Anchor());
@@ -342,7 +355,7 @@ public class ModuleManager {
         registerModule(new Jesus());
         registerModule(new LongJump());
         registerModule(new PacketFlyRewrite());
-        registerModule(new Speed());
+        registerModule(Speed.INSTANCE);
         registerModule(new Sprint());
         registerModule(new Step());
         registerModule(new Strafe());
@@ -351,13 +364,11 @@ public class ModuleManager {
         registerModule(new SafeWalk());
         registerModule(new Phase());
         //XDDD
-        registerModule(new SurroundRewrite());
-        registerModule(new Surround());
-        registerModule(new AutoCraftBed());
-        registerModule(new IQBooster());
+        registerModule(Surround.INSTANCE);
+        registerModule(AutoCraftBed.INSTANCE);
         registerModule(SmartOffHand.INSTANCE);
         //SEXY
-        registerModule(new NewBedAura());
+        registerModule(NewBedAura.INSTANCE);
         registerModule(AutoCrystal.INSTANCE);
         getModules().sort(Comparator.comparing(IModule::getName));
     }
@@ -366,9 +377,9 @@ public class ModuleManager {
         registerHUD(ShowArrayList.INSTANCE);
         registerHUD(new Direction());
         registerHUD(new XG42ShowArrayList());
-        registerHUD(new Welcomer());
-        registerHUD(new WaterMark());
-        registerHUD(new CrystalTargetHUD());
+        registerHUD(Welcomer.INSTANCE);
+        registerHUD(WaterMark.INSTANCE);
+        registerHUD(CrystalTargetHUD.INSTANCE);
         registerHUD(new Player());
         registerHUD(new Ping());
         registerHUD(new FPS());

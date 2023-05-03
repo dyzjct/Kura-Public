@@ -87,7 +87,7 @@ public abstract class MixinEntityRenderer {
 
     @Inject(method = {"updateLightmap"}, at = {@At("HEAD")}, cancellable = true)
     private void updateLightmap(float partialTicks, CallbackInfo info) {
-        if (NoRender.getInstance().isEnabled() && ((NoRender.getInstance()).skylight.getValue() == NoRender.Skylight.ENTITY || (NoRender.getInstance()).skylight.getValue() == NoRender.Skylight.ALL))
+        if (NoRender.INSTANCE.isEnabled() && ((NoRender.INSTANCE).skylight.getValue() == NoRender.Skylight.ENTITY || (NoRender.INSTANCE).skylight.getValue() == NoRender.Skylight.ALL))
             info.cancel();
     }
 

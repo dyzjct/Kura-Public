@@ -9,11 +9,11 @@ import net.minecraft.client.Minecraft
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 @HUDModule.Info(name = "Welcomer", x = 50, y = 50, width = 100, height = 15)
-class Welcomer : HUDModule() {
-    var color = csetting("Color", Color(255, 255, 255))
-    var colormod = msetting("ColorMod", ColorMode.GuiSync)
+object Welcomer : HUDModule() {
+    private var color = csetting("Color", Color(255, 255, 255))
+    private var colormod = msetting("ColorMod", ColorMode.GuiSync)
 
-    fun generateColor(): Int {
+    private fun generateColor(): Int {
         val fontColor = Color(
             GuiManager.getINSTANCE().red / 255f,
             GuiManager.getINSTANCE().green / 255f,
@@ -32,8 +32,8 @@ class Welcomer : HUDModule() {
     override fun onRender() {
         GL11.glPushMatrix()
         GL11.glTranslated(x.toDouble(), y.toFloat().toDouble(), 0.0)
-        val Final = "Welcome " + Minecraft.getMinecraft().player.name + "! Have a nice day :)"
-        FontManager.font3!!.drawString(Final, 0.0, 0.0, generateColor(), false)
+        val final = "Welcome " + Minecraft.getMinecraft().player.name + "! Have a nice day :)"
+        FontManager.font4!!.drawString(final, 0.0, 0.0, generateColor(), false)
         GL11.glPopMatrix()
     }
 

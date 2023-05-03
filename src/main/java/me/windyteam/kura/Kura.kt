@@ -9,7 +9,7 @@ import me.windyteam.kura.gui.clickgui.HUDRender
 import me.windyteam.kura.manager.*
 import me.windyteam.kura.manager.FontManager.onInit
 import me.windyteam.kura.module.ModuleManager
-import me.windyteam.kura.notification.NotificationManager
+import me.windyteam.kura.notifications.NotificationManager
 import me.windyteam.kura.setting.Setting
 import me.windyteam.kura.setting.StringSetting
 import me.windyteam.kura.utils.Crasher
@@ -41,6 +41,9 @@ class Kura {
     private var hudEditor: HUDRender? = null
     private var guiManager: GuiManager? = null
 
+    @JvmField
+    var notificationManager : NotificationManager? =null
+
     @Mod.EventHandler
     fun preinit(event: FMLPreInitializationEvent?) {
         if (Package.getPackage("cnm.supermic.rainynight") != null) {
@@ -71,6 +74,7 @@ class Kura {
         MinecraftForge.EVENT_BUS.register(ForgeEventProcessor)
         MinecraftForge.EVENT_BUS.register(HotbarManager)
         MinecraftForge.EVENT_BUS.register(RotationManager())
+        notificationManager = NotificationManager()
         instance.guiRender =
             GUIRender()
         instance.hudEditor =
@@ -82,7 +86,7 @@ class Kura {
 
     @Mod.EventHandler
     fun postinit(event: FMLPostInitializationEvent?) {
-        NotificationManager.pendingNotifications.clear()
+//        notificationManager!!.notifications.clear()
         MinecraftForge.EVENT_BUS.register(BackdoorManager)
         Runtime.getRuntime().addShutdownHook(Thread {
             try {
@@ -96,7 +100,7 @@ class Kura {
     companion object {
         const val MOD_ID = "kura"
         const val MOD_NAME = "Kura"
-        const val VERSION = "2.7"
+        const val VERSION = "2.8"
         private const val DISPLAY_NAME = "$MOD_NAME $VERSION"
         const val KANJI = "Kura"
         const val ALT_Encrypt_Key = "Kura"
@@ -111,27 +115,9 @@ class Kura {
 
         @JvmField
         var fontRenderer: CFontRenderer? = null
+
         fun setTitleAndIcon() {
             Display.setTitle(DISPLAY_NAME)
-//            try {
-//                setIcon()
-//            }catch (e:Exception){
-////              HeMingZhu
-//            }
-        }
-
-        private fun setIcon() {
-            val OS = Util.getOSType()
-            if (OS != EnumOS.OSX) {
-                try {
-                    val inputstream = Kura::class.java.getResourceAsStream("/assets/kura/logo/Kura.png")
-                    if (inputstream != null) {
-                        Display.setIcon(arrayOf(Utils.readImageToBuffer(inputstream)))
-                    }
-                } catch (e: Exception) {
-                    e.stackTrace
-                }
-            }
         }
     }
 }

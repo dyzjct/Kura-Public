@@ -12,9 +12,13 @@ import me.windyteam.kura.utils.block.BlockInteractionHelper
 import me.windyteam.kura.utils.block.BlockUtil
 import me.windyteam.kura.utils.gl.MelonTessellator.drawBBBox
 import me.windyteam.kura.utils.inventory.InventoryUtil
+import me.windyteam.kura.utils.mc.ChatUtil
+import me.windyteam.kura.utils.other.getBlock
 import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
+import net.minecraft.inventory.ClickType
+import net.minecraft.network.play.client.CPacketClickWindow
 import net.minecraft.network.play.client.CPacketHeldItemChange
 import net.minecraft.network.play.client.CPacketPlayerDigging
 import net.minecraft.util.EnumFacing
@@ -28,11 +32,11 @@ import java.awt.Color
 @Module.Info(name = "PacketMine", category = Category.PLAYER, description = "Better Mining")
 object PacketMine : Module() {
     private var blockRenderSmooth = BlockEasingRender(BlockPos(0, 0, 0), 0.0f, 2000.0f)
-    private var timerUtils = TimerUtils()
     private var strictTimer = TimerUtils()
     private var renderTimerUtils = TimerUtils()
     private var packet = bsetting("PacketOnly", false)
     private var swap = bsetting("SwapMine", true)
+    private var superGhostHand = settings("GhostHandBypass",false).b(swap)
     private var swing = settings("Swing", false)
     private var rotate = bsetting("Rotate", false)
     private var render = bsetting("Render", true)
@@ -59,7 +63,6 @@ object PacketMine : Module() {
             return
         }
         val oldSlot = mc.player.inventory.currentItem
-        val picSlot = InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE)
         runCatching {
             if (currentPos != null) {
                 if (!BlockUtil.canBreak(currentPos, false)) {
@@ -73,28 +76,46 @@ object PacketMine : Module() {
                 }
                 if (currentPos == event.pos) {
                     if (strict.value) {
+
+                        val oldWindowId = mc.player.inventoryContainer.windowId
+                        val pickaxeSlot = InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE)
                         if (swap.value) {
-                            mc.player.connection.sendPacket(
-                                CPacketPlayerDigging(
-                                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentPos!!, facing!!
-                                )
-                            )
-                            mc.player.inventory.currentItem = picSlot
+                            if (!superGhostHand.value){
+                                mc.playerController.updateController()
+                                switchToSlot(InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE))
+                                mc.playerController.updateController()
+                            } else {
+                                mc.connection!!.sendPacket(CPacketClickWindow(mc.player.inventoryContainer.windowId, pickaxeSlot, mc.playerController.currentPlayerItem, ClickType.SWAP, mc.player.inventory.getStackInSlot(pickaxeSlot),mc.player.openContainer.getNextTransactionID(mc.player.inventory)))
+                            }
+
                             mc.player.connection.sendPacket(
                                 CPacketPlayerDigging(
                                     CPacketPlayerDigging.Action.START_DESTROY_BLOCK, currentPos!!, facing!!
                                 )
                             )
-                            mc.player.inventory.currentItem = oldSlot
-                        } else {
+
                             mc.player.connection.sendPacket(
                                 CPacketPlayerDigging(
                                     CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentPos!!, facing!!
                                 )
                             )
+
+                            if (!superGhostHand.value){
+                                mc.playerController.updateController()
+                                mc.player.inventory.currentItem = oldSlot
+                                mc.playerController.updateController()
+                            } else {
+                                mc.connection!!.sendPacket(CPacketClickWindow(pickaxeSlot, oldWindowId, mc.playerController.currentPlayerItem, ClickType.SWAP, mc.player.inventory.getStackInSlot(oldWindowId),mc.player.openContainer.getNextTransactionID(mc.player.inventory)))
+                            }
+                        } else {
                             mc.player.connection.sendPacket(
                                 CPacketPlayerDigging(
-                                    CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, currentPos!!, facing!!
+                                    CPacketPlayerDigging.Action.START_DESTROY_BLOCK, currentPos!!, facing!!
+                                )
+                            )
+                            mc.player.connection.sendPacket(
+                                CPacketPlayerDigging(
+                                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, currentPos!!, facing!!
                                 )
                             )
                         }
@@ -105,7 +126,6 @@ object PacketMine : Module() {
             facing = event.getFacing()
             currentBlockState = mc.world.getBlockState(currentPos!!)
             renderTimerUtils.reset()
-            timerUtils.reset()
             if (mc.connection != null && BlockUtil.canBreak(currentPos, false)) {
                 blockRenderSmooth.updatePos(currentPos!!)
                 blockRenderSmooth.reset()
@@ -124,6 +144,8 @@ object PacketMine : Module() {
     fun onTick(event: MotionUpdateEvent.Tick) {
         if (fullNullCheck() || InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE) == -1) return
         currentPos?.let {
+            if (mc.player.getDistanceSq(it) > range.value * range.value) return
+            if (mc.player.inventory.currentItem != InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE) && !swap.value) return
             if (mc.world.getBlockState(it).block == Blocks.BEDROCK || mc.world.getBlockState(it).block == Blocks.AIR) {
                 if (superStrict.value){
                     strictTimer.reset()
@@ -133,19 +155,83 @@ object PacketMine : Module() {
             }
 
             if (strict.value) {
-                if (!strictTimer.passedMs(2000L) && mc.world.getBlockState(it).block == Blocks.OBSIDIAN){
-                    return
-                } else if (!strictTimer.passedMs(1800) && mc.world.getBlockState(it).block == Blocks.ENDER_CHEST){
-                    return
-                } else if (!strictTimer.passedMs(400L)){
-                    return
+                if (getBlock(currentPos!!)!!.block == Blocks.OBSIDIAN){
+                    if (!renderTimerUtils.passed(2000L)){
+                        return
+                    }
+                } else {
+                    if (!renderTimerUtils.passed(1250L)){
+                        return
+                    }
+                }
+            }
+            if (mc.world.getBlockState(it).block == Blocks.AIR) return
+            val oldSlot = mc.player.inventory.currentItem
+
+            val oldWindowId = mc.player.inventoryContainer.windowId
+            val pickaxeSlot = InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE)
+
+            if (rotate.value) {
+                event.setRotation(
+                    BlockInteractionHelper.getLegitRotations(it.add(0.5,0.5,0.5))[0],
+                    BlockInteractionHelper.getLegitRotations(it.add(0.5,0.5,0.5))[1]
+                )
+            }
+
+            if (swing.value) mc.player.swingArm(EnumHand.MAIN_HAND)
+
+            mc.playerController.updateController()
+
+            if (swap.value){
+                if (!superGhostHand.value){
+                    switchToSlot(InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE))
+                } else {
+                    mc.connection!!.sendPacket(
+                        CPacketClickWindow(
+                            mc.player.inventoryContainer.windowId,
+                            pickaxeSlot,
+                            mc.playerController.currentPlayerItem,
+                            ClickType.SWAP,
+                            mc.player.inventory.getStackInSlot(pickaxeSlot),
+                            mc.player.openContainer.getNextTransactionID(mc.player.inventory)
+                        )
+                    )
                 }
             }
 
-            if (mc.world.getBlockState(it).block == Blocks.AIR) return
-            if (mc.player.getDistanceSq(it) > range.value * range.value) return
-            val oldSlot = mc.player.inventory.currentItem
-            switchToSlot(InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE))
+            mc.player.connection.sendPacket(
+                CPacketPlayerDigging(
+                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, it, facing!!
+                )
+            )
+
+            if (swap.value){
+                if (!superGhostHand.value){
+                    mc.player.inventory.currentItem = oldSlot
+                } else {
+                    mc.connection!!.sendPacket(CPacketClickWindow(pickaxeSlot, oldWindowId, mc.playerController.currentPlayerItem, ClickType.SWAP, mc.player.inventory.getStackInSlot(oldWindowId),mc.player.openContainer.getNextTransactionID(mc.player.inventory)))
+                }
+            }
+
+            mc.playerController.updateController()
+
+            if (swap.value){
+                if (!superGhostHand.value){
+                    switchToSlot(InventoryUtil.findHotbarItem(Items.DIAMOND_PICKAXE))
+                } else {
+                    mc.connection!!.sendPacket(
+                        CPacketClickWindow(
+                            mc.player.inventoryContainer.windowId,
+                            pickaxeSlot,
+                            mc.playerController.currentPlayerItem,
+                            ClickType.SWAP,
+                            mc.player.inventory.getStackInSlot(pickaxeSlot),
+                            mc.player.openContainer.getNextTransactionID(mc.player.inventory)
+                        )
+                    )
+                    ChatUtil.sendMessage("")
+                }
+            }
 
             mc.player.connection.sendPacket(
                 CPacketPlayerDigging(
@@ -153,21 +239,20 @@ object PacketMine : Module() {
                 )
             )
 
-            if (strict.value){
-                mc.player.connection.sendPacket(
-                    CPacketPlayerDigging(
-                        CPacketPlayerDigging.Action.START_DESTROY_BLOCK, it, facing!!
-                    )
-                )
+            mc.playerController.updateController()
+
+            if (swap.value){
+                if (!superGhostHand.value){
+                    mc.player.inventory.currentItem = oldSlot
+                } else {
+                    mc.connection!!.sendPacket(CPacketClickWindow(pickaxeSlot, oldWindowId, mc.playerController.currentPlayerItem, ClickType.SWAP, mc.player.inventory.getStackInSlot(oldWindowId),mc.player.openContainer.getNextTransactionID(mc.player.inventory)))
+                }
             }
 
-            switchToSlot(oldSlot)
-            if (swing.value) mc.player.swingArm(EnumHand.MAIN_HAND)
-            if (rotate.value) {
-                event.setRotation(
-                    BlockInteractionHelper.getLegitRotations(it.add(0.5,0.5,0.5))[0],
-                    BlockInteractionHelper.getLegitRotations(it.add(0.5,0.5,0.5))[1]
-                )
+            mc.playerController.updateController()
+
+            if (packet.value) {
+                currentPos = null
             }
             strictTimer.reset()
             renderTimerUtils.reset()
