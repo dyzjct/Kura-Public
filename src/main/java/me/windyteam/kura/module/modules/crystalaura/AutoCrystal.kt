@@ -86,10 +86,7 @@ import java.util.stream.Collectors
 import kotlin.math.abs
 import kotlin.math.floor
 
-/**
- * Created by dyzjct on 07/12/2022.
- * Updated by dyzjct on 24/12/2022.
- */
+// lol
 
 @Module.Info(name = "AutoCrystal", category = Category.XDDD, description = "Test Strict :)")
 object AutoCrystal : Module() {
