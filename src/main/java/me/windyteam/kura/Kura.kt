@@ -46,18 +46,6 @@ class Kura {
 
     @Mod.EventHandler
     fun preinit(event: FMLPreInitializationEvent?) {
-        if (Package.getPackage("cnm.supermic.rainynight") != null) {
-            throw Crasher("FUCK BITCH FINALLY AND RAINY NIGHT USER")
-        }
-        if (Package.getPackage("me.abhack") != null) {
-            throw Crasher("FUCK BITCH AB HACK SKID USER")
-        }
-        if (Package.getPackage("me.moon") != null) {
-            throw Crasher("java.lang.HouYuePingSkidException")
-        }
-        if (Package.getPackage("me.muffin.han.client") != null) {
-            throw Crasher("java.lang.ChenBoHanException")
-        }
         setTitleAndIcon()
         LagCompensator()
     }
